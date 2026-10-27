@@ -29,6 +29,50 @@
 - 自定义消息 envelope、OSS 上传 seam、`native/custom/hybrid` 传输开关
 - Widget Preview：不用启动 App 即可查看页面
 
+## 目前进度
+
+> 最后更新：2026-10-28  
+> 这是一个持续迭代中的个人项目，进度**不定时更新**；具体实现以代码和 `docs/` 为准，下面只记录当前阶段状态。
+
+### ✅ 已完成
+
+- [x] 密码 / Token 登录、启动恢复会话、会话失效重定向
+- [x] go_router 路由：`/login`、`/`、`/chats/:id`
+- [x] 会话列表、单聊、群聊、未读/已读状态
+- [x] 分页历史、文字/图片/语音消息、消息回显去重
+- [x] 发送状态、失败重试、账号隔离缓存、持久化 outbox、重连重放
+- [x] 图片预览/下载、语音录制/播放、附件路径本地恢复
+- [x] 联系人、好友申请、好友申请本地持久化、创建群组
+- [x] 用户昵称/头像/备注缓存
+- [x] 中英文 ARB、`AppError` 错误码、页面本地化
+- [x] 手机底部导航 + 宽屏 `NavigationRail` + 内容最大宽度
+- [x] `ChatService` 传输 seam、`ApiClient` REST 封装
+- [x] `ChatMessageContent` sealed 消息模型
+- [x] 文本 `app.im.message` 自定义 envelope
+- [x] 附件 `native/custom/hybrid` 传输策略、`AttachmentUploader` 接口、按类型白名单
+- [x] Widget Preview、页面 smoke test、83 个测试
+- [x] 开源前 AppKey 清理：不提交任何可用 Key
+
+### 🚧 进行中 / 待完善
+
+- [ ] 具体 OSS `AttachmentUploader` 实现（目前只有接口，未配置时附件走 native 回退）
+- [ ] 文件消息 UI：文件选择器、上传进度、下载/打开
+- [ ] 自定义附件缩略图、失败重试和上传缓存
+- [ ] 旧客户端兼容策略：默认文本已走 custom，旧版本不能解析；需要时用 `MESSAGE_TRANSPORT=native` 或后续做双发/版本协商
+- [ ] 联系人/好友申请/建群从局部 `Navigator.push` 迁移到 go_router
+- [ ] 宽屏 master-detail 双栏
+- [ ] RTC 语音/视频、推送、CallKit
+- [ ] 群资料/成员管理、消息长按菜单、草稿、日期分隔、搜索
+- [ ] CI、崩溃上报、结构化日志和 RTC 指标
+
+### 📌 下一步
+
+1. 接入 OSS uploader 和文件消息 UI。
+2. 补齐消息交互和会话搜索。
+3. 迁移剩余页面到路由。
+4. RTC R0→R1：状态机 + 信令，再接 Agora RTC。
+5. 补 CI 和真机回归。
+
 ## 技术栈
 
 - Flutter 3.47+ / Dart 3.13+
