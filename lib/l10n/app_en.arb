@@ -1,0 +1,254 @@
+{
+  "@@locale": "en",
+  "appTitle": "E-Chat",
+  "retry": "Retry",
+  "ok": "OK",
+  "done": "Done",
+  "back": "Back",
+  "more": "More",
+  "close": "Close",
+  "connected": "Connected",
+  "disconnected": "Disconnected",
+  "versionLabel": "Version {version}",
+  "@versionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "signedInAs": "Signed in as {name}",
+  "@signedInAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "comingSoon": "Coming soon",
+  "comingSoonMessage": "This setting is not available in the current chat MVP.",
+  "aboutLegalese": "Agora Chat Flutter client",
+  "loginTitle": "Log in to Agora Chat",
+  "loginSubtitle": "Chat one-to-one with a user created in the Agora Console",
+  "userIdLabel": "User ID",
+  "passwordLogin": "Password",
+  "tokenLogin": "Token",
+  "passwordLabel": "Password",
+  "tokenLabel": "Chat Token",
+  "showPassword": "Show",
+  "hidePassword": "Hide",
+  "loginButton": "Log in",
+  "webPreviewNote": "The web build is a UI preview; Agora Chat currently sends and receives on Android/iOS through the native Flutter SDK.",
+  "passwordHint": "Password login is for local testing. In production, issue a user token from your own server.",
+  "tokenHint": "Use a user token issued by your trusted server.",
+  "chatsTab": "Chats",
+  "groupsTab": "Groups",
+  "profileTab": "Profile",
+  "moreTab": "More",
+  "groupsTitle": "Groups",
+  "searchOrAddFriend": "Search or add a friend",
+  "addFriendOrGroup": "Add a friend or create a group",
+  "viewAction": "View",
+  "friendRequestReceived": "{userId} sent you a friend request",
+  "@friendRequestReceived": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "friendRequestAccepted": "{userId} accepted your friend request",
+  "@friendRequestAccepted": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "friendRequestDeclined": "{userId} declined your friend request",
+  "@friendRequestDeclined": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "friendRequestAdded": "{userId} is now a contact",
+  "@friendRequestAdded": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "addFriendAction": "Add friend",
+  "createGroupAction": "Create group",
+  "conversationsUnavailable": "Conversations are unavailable right now",
+  "noChats": "No chats yet",
+  "noGroups": "No groups yet",
+  "noChatsDetail": "Add a friend, or start a chat with their Agora Chat user ID.",
+  "noGroupsDetail": "Create a group and invite contacts to start chatting.",
+  "startConversation": "Send a message to start the conversation",
+  "imageMessage": "[Image]",
+  "voiceMessage": "[Voice]",
+  "fileMessage": "File",
+  "videoMessage": "Video",
+  "locationMessage": "Location",
+  "contactMessage": "Contact",
+  "customMessage": "Custom message",
+  "systemMessage": "System message",
+  "unsupportedMessage": "Unsupported message",
+  "chatTitle": "Chat",
+  "conversationDetails": "Conversation details",
+  "showUserId": "Show user ID",
+  "groupChat": "Group chat",
+  "videoCall": "Video call",
+  "voiceCall": "Voice call",
+  "messageHint": "Type a message…",
+  "addAttachment": "Add attachment",
+  "sendFailedRetry": "Failed to send. Retry.",
+  "rtcComingSoon": "{callType} calls will be available after Agora RTC integration.",
+  "@rtcComingSoon": {
+    "placeholders": {
+      "callType": {
+        "type": "String"
+      }
+    }
+  },
+  "rtcVideoComingSoon": "Video calls will be available after Agora RTC integration.",
+  "rtcVoiceComingSoon": "Voice calls will be available after Agora RTC integration.",
+  "conversationDetailsUnavailable": "Conversation details are not available yet.",
+  "userIdValue": "User ID: {userId}",
+  "@userIdValue": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "contactShareUnavailable": "Contact sharing is not available yet.",
+  "locationUnavailable": "Location messages are not available yet.",
+  "documentUnavailable": "File messages are not available yet.",
+  "camera": "Camera",
+  "gallery": "Gallery",
+  "voiceRecording": "Record",
+  "stopRecording": "Stop {duration}",
+  "@stopRecording": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "contact": "Contact",
+  "location": "Location",
+  "document": "File",
+  "contactsTitle": "Contacts",
+  "contactsLoadFailed": "Couldn't load contacts. Tap to retry.",
+  "noContacts": "No contacts yet",
+  "agoraChatContact": "Agora Chat contact",
+  "addFriendTitle": "Add friend",
+  "findPeople": "Find people",
+  "addFriendDescription": "Enter an Agora Chat user ID to send a friend request.",
+  "userIdHint": "Agora Chat user ID",
+  "sendFriendRequest": "Send friend request",
+  "agoraChatUser": "Agora Chat user",
+  "friendRequestSent": "Friend request sent to {name}.",
+  "@friendRequestSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "searchForFriend": "Search for a friend",
+  "friendRequestsTitle": "Friend requests",
+  "noPendingFriendRequests": "No pending friend requests",
+  "requestUpdateFailed": "Could not update this request. Try again.",
+  "decline": "Decline",
+  "accept": "Accept",
+  "createGroupTitle": "Create group",
+  "groupName": "Group name",
+  "groupNameHint": "Enter group name",
+  "members": "Members",
+  "selectedCount": "{count, plural, =0{No members selected} =1{1 selected} other{{count} selected}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "addMembersToGroup": "Add members to group",
+  "editSelectedMembers": "Edit selected members",
+  "createGroupButton": "Create Group",
+  "addMembersTitle": "Add members to group",
+  "searchContacts": "Search contacts",
+  "noContactsAddFriend": "No contacts yet. Add a friend first.",
+  "profileTitle": "Profile",
+  "agoraChatAccount": "Agora Chat account",
+  "userIdTitle": "User ID",
+  "userIdSubtitle": "Your Agora Chat identifier",
+  "accountStatus": "Account status",
+  "signOut": "Sign out",
+  "moreTitle": "More",
+  "privacySecurity": "Privacy & Security",
+  "storage": "Storage",
+  "helpFeedback": "Help & Feedback",
+  "aboutEchat": "About E-Chat",
+  "contacts": "Contacts",
+  "friendRequests": "Friend requests",
+  "errorSessionExpired": "Your session expired. Please log in again.",
+  "errorMissingPasswordCredentials": "Enter your user ID and password.",
+  "errorMissingTokenCredentials": "Enter your user ID and Chat Token.",
+  "errorLogoutFailed": "Couldn't sign out: {detail}",
+  "@errorLogoutFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGroupNameRequired": "Enter a group name.",
+  "errorGroupMembersRequired": "Select at least one member.",
+  "errorAddFriendIdRequired": "Enter an Agora Chat user ID.",
+  "errorAttachmentPathExpired": "The attachment path is no longer valid. Choose the file again.",
+  "errorImagePickFailed": "Couldn't select the image: {detail}",
+  "@errorImagePickFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorMicrophonePermission": "Microphone permission is required to record voice messages.",
+  "errorRecordingStartFailed": "Couldn't start recording: {detail}",
+  "@errorRecordingStartFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRecordingTooShort": "Recording is too short. Record at least 1 second.",
+  "errorRecordingStopFailed": "Couldn't stop recording: {detail}",
+  "@errorRecordingStopFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorVoiceNotDownloaded": "The voice file hasn't been downloaded yet.",
+  "errorVoicePlaybackFailed": "Couldn't play the voice message: {detail}",
+  "@errorVoicePlaybackFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorUnknown": "Something went wrong. Please try again.",
+  "errorChatUnavailable": "Chat is temporarily unavailable. Please try again.",
+  "errorPlatformUnsupported": "Agora Chat is only available on Android and iOS."
+}

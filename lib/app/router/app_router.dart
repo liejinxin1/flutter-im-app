@@ -1,0 +1,113 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../domain/models/chat_conversation.dart';
+import '../../ui/features/auth/view_models/auth_view_model.dart';
+import '../../ui/features/auth/views/auth_screen.dart';
+import '../../ui/features/conversation/views/conversation_screen.dart';
+import '../../ui/features/shell/views/app_shell.dart';
+import '../app_dependencies.dart';
+import '../navigation/app_navigation.dart';
+
+/// Extra data carried when navigating from the inbox/contacts to a chat.
+///
+/// Deep links deliberately omit it, so the conversation falls back to the ID.
+class ConversationRouteArgs {
+  const ConversationRouteArgs({
+    this.title,
+    this.avatarUrl,
+    this.kind = ChatConversationKind.direct,
+  });
+
+  final String? title;
+  final String? avatarUrl;
+  final ChatConversationKind kind;
+}
+
+class AppRouter {
+  AppRouter({
+    required AppDependencies dependencies,
+    required AuthViewModel auth,
+  }) {
+    _router = GoRouter(
+      navigatorKey: appRootNavigatorKey,
+      initialLocation: '/',
+      refreshListenable: auth,
+      redirect: (context, state) {
+        final location = state.matchedLocation;
+        if (auth.isRestoring) {
+          return location == '/splash' ? null : '/splash';
+        }
+        if (!auth.isLoggedIn) {
+          return location == '/login' ? null : '/login';
+        }
+        if (location == '/login' || location == '/splash') return '/';
+        return null;
+      },
+      routes: [
+        GoRoute(
+          path: '/splash',
+          builder: (context, state) => const _SplashScreen(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => AuthScreen(viewModel: auth),
+        ),
+        GoRoute(
+          path: '/',
+          builder: (context, state) {
+            final userId = auth.userId;
+            if (userId == null) return const _SplashScreen();
+            return AppShell(
+              dependencies: dependencies,
+              authViewModel: auth,
+              currentUserId: userId,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/chats/:conversationId',
+          builder: (context, state) {
+            final userId = auth.userId;
+            if (userId == null) return const _SplashScreen();
+            final peerId = Uri.decodeComponent(
+              state.pathParameters['conversationId'] ?? '',
+            );
+            final extra = state.extra;
+            final args = extra is ConversationRouteArgs
+                ? extra
+                : ConversationRouteArgs(
+                    kind: state.uri.queryParameters['kind'] == 'group'
+                        ? ChatConversationKind.group
+                        : ChatConversationKind.direct,
+                  );
+            return ConversationScreen(
+              repository: dependencies.chat,
+              media: dependencies.media,
+              outbox: dependencies.outbox,
+              currentUserId: userId,
+              peerId: peerId,
+              kind: args.kind,
+              peerName: args.title,
+              peerAvatarUrl: args.avatarUrl,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  late final GoRouter _router;
+
+  GoRouter get router => _router;
+
+  void dispose() => _router.dispose();
+}
+
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
+
+  @override
+  Widget build(BuildContext context) =>
+      const Scaffold(body: Center(child: CircularProgressIndicator()));
+}
