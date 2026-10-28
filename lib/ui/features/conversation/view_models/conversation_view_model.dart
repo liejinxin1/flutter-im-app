@@ -173,7 +173,7 @@ class ConversationViewModel extends ViewModel {
     }
   }
 
-  Future<void> send(String text) async {
+  Future<void> send(String text, {ChatMessageQuote? quote}) async {
     final content = text.trim();
     if (content.isEmpty) return;
 
@@ -182,7 +182,7 @@ class ConversationViewModel extends ViewModel {
       id: localId,
       conversationId: conversationId,
       senderId: currentUserId,
-      content: TextMessageContent(content),
+      content: TextMessageContent(content, quote: quote),
       sentAt: DateTime.now(),
       deliveryState: ChatMessageDeliveryState.sending,
       isOutgoing: true,
@@ -214,6 +214,86 @@ class ConversationViewModel extends ViewModel {
       return;
     }
     await _sendAttachment(message);
+  }
+
+  Future<bool> deleteMessages(Iterable<String> messageIds) async {
+    final ids = messageIds.toSet();
+    if (ids.isEmpty) return false;
+    final deleted = _messages
+        .where((message) => ids.contains(message.id))
+        .toList(growable: false);
+    if (deleted.isEmpty) return false;
+    try {
+      await _repository.deleteMessages(deleted, kind: kind);
+      _messages = _messages
+          .where((message) => !ids.contains(message.id))
+          .toList(growable: false);
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _error = AppError.from(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> recallMessage(String messageId) async {
+    final index = _messages.indexWhere((message) => message.id == messageId);
+    if (index == -1) return false;
+    final message = _messages[index];
+    if (!message.isOutgoing ||
+        (message.deliveryState != ChatMessageDeliveryState.sent &&
+            message.deliveryState != ChatMessageDeliveryState.delivered &&
+            message.deliveryState != ChatMessageDeliveryState.read)) {
+      return false;
+    }
+    try {
+      await _repository.recallMessage(message);
+      _replaceAt(
+        index,
+        message.copyWith(
+          content: const SystemMessageContent(text: '', systemType: 'recall'),
+          deliveryState: ChatMessageDeliveryState.sent,
+        ),
+      );
+      return true;
+    } catch (error) {
+      _error = AppError.from(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<int> forwardMessages(
+    Iterable<String> messageIds,
+    String toConversationId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {
+    final ids = messageIds.toSet();
+    if (ids.isEmpty) return 0;
+    var forwarded = 0;
+    try {
+      for (final message in _messages.where((item) => ids.contains(item.id))) {
+        var source = message;
+        final content = message.content;
+        if (content is AttachmentMessageContent &&
+            (content.localPath == null || content.localPath!.isEmpty)) {
+          final path = await _repository.downloadAttachment(message);
+          if (path == null || path.isEmpty) {
+            throw StateError('附件尚未下载，暂时无法转发。');
+          }
+          source = message.copyWith(
+            content: content.withAttachmentPaths(localPath: path),
+          );
+        }
+        await _repository.forwardMessage(source, toConversationId, kind: kind);
+        forwarded++;
+      }
+    } catch (error) {
+      _error = AppError.from(error);
+      notifyListeners();
+    }
+    return forwarded;
   }
 
   Future<void> sendImage(String path) =>
@@ -302,6 +382,9 @@ class ConversationViewModel extends ViewModel {
       final sent = await _repository.sendText(
         conversationId,
         pending.text,
+        quote: pending.content is TextMessageContent
+            ? (pending.content as TextMessageContent).quote
+            : null,
         kind: kind,
         clientId: clientId,
       );

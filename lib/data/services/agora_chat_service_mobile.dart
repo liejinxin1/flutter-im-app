@@ -140,6 +140,7 @@ class AgoraChatPlatform {
         onMessagesReceived: _handleMessages,
         onMessagesRead: _handleMessageUpdates,
         onMessagesDelivered: _handleMessageUpdates,
+        onMessagesRecalledInfo: _handleMessageRecalls,
         onConversationsUpdate: () => _onConversationsChanged?.call(),
         onConversationRead: (_, _) => _onConversationsChanged?.call(),
       ),
@@ -475,6 +476,52 @@ class AgoraChatPlatform {
     }
     return domain.ChatConversationKind.direct;
   }
+
+  Future<void> deleteMessage(
+    String conversationId,
+    String messageId, {
+    domain.ChatConversationKind kind = domain.ChatConversationKind.direct,
+  }) async {
+    final conversation = await ChatClient.getInstance.chatManager
+        .getConversation(
+          conversationId,
+          type: _conversationType(kind),
+          createIfNeed: false,
+        );
+    await conversation?.deleteMessage(messageId);
+  }
+
+  Future<void> recallMessage(String messageId) =>
+      ChatClient.getInstance.chatManager.recallMessage(messageId);
+
+  void _handleMessageRecalls(List<RecallMessageInfo> infos) {
+    final currentUserId = ChatClient.getInstance.currentUserId;
+    for (final info in infos) {
+      final conversationId =
+          info.conversationId ?? info.recallMessage?.conversationId;
+      if (conversationId == null || conversationId.isEmpty) continue;
+      _onMessageUpdate?.call(
+        domain.ChatMessage(
+          id: info.recallMessageId,
+          conversationId: conversationId,
+          senderId: info.recallBy,
+          content: const domain.SystemMessageContent(
+            text: '',
+            systemType: 'recall',
+          ),
+          sentAt: DateTime.now(),
+          deliveryState: domain.ChatMessageDeliveryState.sent,
+          isOutgoing: info.recallBy == currentUserId,
+        ),
+      );
+    }
+    _onConversationsChanged?.call();
+  }
+
+  ChatConversationType _conversationType(domain.ChatConversationKind kind) =>
+      kind == domain.ChatConversationKind.group
+      ? ChatConversationType.GroupChat
+      : ChatConversationType.Chat;
 
   ChatType _chatType(domain.ChatConversationKind kind) =>
       kind == domain.ChatConversationKind.group

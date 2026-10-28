@@ -200,6 +200,22 @@ class AgoraChatService implements UserDirectory, ChatService {
   }
 
   @override
+  Future<void> deleteMessage(
+    String conversationId,
+    String messageId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {
+    if (isSupported) {
+      await platform.deleteMessage(conversationId, messageId, kind: kind);
+    }
+  }
+
+  @override
+  Future<void> recallMessage(String messageId) async {
+    if (isSupported) await platform.recallMessage(messageId);
+  }
+
+  @override
   Future<void> markConversationRead(
     String conversationId, {
     ChatConversationKind kind = ChatConversationKind.direct,

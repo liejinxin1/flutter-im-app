@@ -22,6 +22,10 @@ class MessageTimeline extends StatelessWidget {
     required this.onRetry,
     required this.onReload,
     required this.onDismissError,
+    required this.onLongPress,
+    required this.selectionMode,
+    required this.selectedIds,
+    required this.onToggleSelection,
   });
 
   final List<ChatMessage> messages;
@@ -36,6 +40,10 @@ class MessageTimeline extends StatelessWidget {
   final ValueChanged<String> onRetry;
   final VoidCallback onReload;
   final VoidCallback onDismissError;
+  final ValueChanged<ChatMessage> onLongPress;
+  final bool selectionMode;
+  final Set<String> selectedIds;
+  final ValueChanged<ChatMessage> onToggleSelection;
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +105,7 @@ class MessageTimeline extends StatelessWidget {
       }
       final messageIndex = index - (isLoadingOlder ? 1 : 0);
       final message = messages[messageIndex];
-      return ValueListenableBuilder<String?>(
-        key: ValueKey(message.id),
+      final bubble = ValueListenableBuilder<String?>(
         valueListenable: playingMessageId,
         builder: (context, playingId, _) => MessageBubble(
           message: message,
@@ -107,6 +114,29 @@ class MessageTimeline extends StatelessWidget {
           onOpenImage: onOpenImage,
           onDownloadImage: onDownloadImage,
           onRetry: () => onRetry(message.id),
+        ),
+      );
+      final selected = selectedIds.contains(message.id);
+      return GestureDetector(
+        key: ValueKey(message.id),
+        behavior: HitTestBehavior.opaque,
+        onLongPress: () => onLongPress(message),
+        onTap: selectionMode ? () => onToggleSelection(message) : null,
+        child: Container(
+          color: selected
+              ? AppColors.brandBlueLight.withValues(alpha: .08)
+              : Colors.transparent,
+          child: Row(
+            children: [
+              if (selectionMode)
+                IgnorePointer(
+                  child: Checkbox(value: selected, onChanged: (_) {}),
+                ),
+              Expanded(
+                child: AbsorbPointer(absorbing: selectionMode, child: bubble),
+              ),
+            ],
+          ),
         ),
       );
     },

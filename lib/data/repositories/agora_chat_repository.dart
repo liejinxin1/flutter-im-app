@@ -107,11 +107,12 @@ class AgoraChatRepository implements ChatRepository {
   Future<ChatMessage> sendText(
     String conversationId,
     String text, {
+    ChatMessageQuote? quote,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   }) => _sendWithOutbox(
     conversationId,
-    TextMessageContent(text),
+    TextMessageContent(text, quote: quote),
     kind: kind,
     clientId: clientId,
   );
@@ -194,9 +195,9 @@ class AgoraChatRepository implements ChatRepository {
     required String clientId,
   }) async {
     return switch (content) {
-      TextMessageContent(:final text) => _sendTextContent(
+      TextMessageContent content => _sendTextContent(
         conversationId,
-        text,
+        content,
         kind: kind,
         clientId: clientId,
       ),
@@ -216,21 +217,23 @@ class AgoraChatRepository implements ChatRepository {
 
   Future<ChatMessage> _sendTextContent(
     String conversationId,
-    String text, {
+    TextMessageContent content, {
     required ChatConversationKind kind,
     required String clientId,
   }) {
-    if (transportMode == MessageTransportMode.native) {
+    // Native text has no structured quote field. A quoted text is therefore
+    // sent through the app envelope even in native mode.
+    if (transportMode == MessageTransportMode.native && content.quote == null) {
       return _service.sendText(
         conversationId,
-        text,
+        content.text,
         kind: kind,
         clientId: clientId,
       );
     }
     return _sendEnvelope(
       conversationId,
-      TextMessageContent(text),
+      content,
       kind: kind,
       clientId: clientId,
     );
@@ -401,6 +404,95 @@ class AgoraChatRepository implements ChatRepository {
         message.id,
         thumbnailLocalPath: path,
       );
+    }
+    return path;
+  }
+
+  @override
+  Future<void> deleteMessages(
+    List<ChatMessage> messages, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {
+    if (messages.isEmpty) return;
+    final userId = _service.currentUserId ?? '';
+    for (final message in messages) {
+      try {
+        await _service.deleteMessage(
+          message.conversationId,
+          message.id,
+          kind: kind,
+        );
+      } catch (_) {
+        // Deleting locally should still proceed if the SDK has already removed
+        // the message or is offline.
+      }
+      final clientId = message.clientId;
+      if (clientId != null && clientId.isNotEmpty) {
+        await _removeOutbox(userId, clientId);
+      }
+    }
+    if (userId.isNotEmpty) {
+      final byConversation = <String, Set<String>>{};
+      for (final message in messages) {
+        byConversation
+            .putIfAbsent(message.conversationId, () => <String>{})
+            .add(message.id);
+      }
+      for (final entry in byConversation.entries) {
+        await _cache.removeMessages(userId, entry.key, entry.value);
+      }
+    }
+  }
+
+  @override
+  Future<void> recallMessage(ChatMessage message) =>
+      _service.recallMessage(message.id);
+
+  @override
+  Future<ChatMessage> forwardMessage(
+    ChatMessage message,
+    String toConversationId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) {
+    final clientId = 'forward-${DateTime.now().microsecondsSinceEpoch}';
+    return switch (message.content) {
+      TextMessageContent(:final text, :final quote) => sendText(
+        toConversationId,
+        text,
+        quote: quote,
+        kind: kind,
+        clientId: clientId,
+      ),
+      ImageMessageContent(:final localPath) => sendImage(
+        toConversationId,
+        _requireForwardPath(localPath),
+        kind: kind,
+        clientId: clientId,
+      ),
+      VoiceMessageContent(:final localPath, :final durationSeconds) =>
+        sendVoice(
+          toConversationId,
+          _requireForwardPath(localPath),
+          durationSeconds: durationSeconds,
+          kind: kind,
+          clientId: clientId,
+        ),
+      FileMessageContent(:final localPath, :final fileName) => sendFile(
+        toConversationId,
+        _requireForwardPath(localPath),
+        fileName: fileName,
+        kind: kind,
+        clientId: clientId,
+      ),
+      _ => throw UnsupportedError(
+        'Forwarding ${message.content.kind.name} messages is not supported.',
+      ),
+    };
+  }
+
+  String _requireForwardPath(String? path) {
+    if (path == null || path.isEmpty) {
+      throw StateError('附件尚未下载，暂时无法转发。');
     }
     return path;
   }

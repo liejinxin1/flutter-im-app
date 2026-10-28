@@ -176,7 +176,7 @@ final response = await api.send(
 ## 10. 后续顺序
 
 1. 路由收口：联系人、好友申请、建群、资料页全部走 go_router。
-2. IM 交互补齐：长按菜单、日期分隔、草稿、连接横幅、群资料。
+2. IM 交互补齐：日期分隔、草稿、会话搜索、连接横幅、群资料。
 3. 可观测性：日志、崩溃上报、发送成功率。
 4. RTC R0→R1：纯 Dart 状态机 + 信令，再接 Agora RTC。
 5. CI：format/analyze/test/build + 真机 smoke。

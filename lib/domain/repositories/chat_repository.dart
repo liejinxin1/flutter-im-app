@@ -16,6 +16,7 @@ abstract interface class ChatRepository {
   Future<ChatMessage> sendText(
     String conversationId,
     String text, {
+    ChatMessageQuote? quote,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   });
@@ -45,6 +46,16 @@ abstract interface class ChatRepository {
   ///
   /// Returns `null` when the message carries no downloadable thumbnail.
   Future<String?> downloadThumbnail(ChatMessage message);
+  Future<void> deleteMessages(
+    List<ChatMessage> messages, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  });
+  Future<void> recallMessage(ChatMessage message);
+  Future<ChatMessage> forwardMessage(
+    ChatMessage message,
+    String toConversationId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  });
   Future<void> markConversationRead(
     String conversationId, {
     ChatConversationKind kind = ChatConversationKind.direct,

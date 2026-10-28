@@ -488,6 +488,126 @@ abstract class AppLocalizations {
   /// **'Failed to send. Retry.'**
   String get sendFailedRetry;
 
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @recall.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall'**
+  String get recall;
+
+  /// No description provided for @quote.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote'**
+  String get quote;
+
+  /// No description provided for @forward.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward'**
+  String get forward;
+
+  /// No description provided for @select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get select;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @deleteMessagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete messages?'**
+  String get deleteMessagesTitle;
+
+  /// No description provided for @deleteMessagesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes the selected messages from this device.'**
+  String get deleteMessagesBody;
+
+  /// No description provided for @recallMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recall this message?'**
+  String get recallMessageTitle;
+
+  /// No description provided for @recallMessageBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Recalled messages cannot be restored.'**
+  String get recallMessageBody;
+
+  /// No description provided for @recalledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message recalled'**
+  String get recalledMessage;
+
+  /// No description provided for @quotedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Quoted message'**
+  String get quotedMessage;
+
+  /// No description provided for @forwardTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward to'**
+  String get forwardTo;
+
+  /// No description provided for @noConversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations available'**
+  String get noConversations;
+
+  /// No description provided for @forwarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Forwarded'**
+  String get forwarded;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted;
+
+  /// No description provided for @selectedMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedMessages(num count);
+
+  /// No description provided for @messageActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Action failed: {detail}'**
+  String messageActionFailed(String detail);
+
   /// No description provided for @rtcComingSoon.
   ///
   /// In en, this message translates to:

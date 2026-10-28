@@ -218,6 +218,70 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendFailedRetry => '发送失败，重试';
 
   @override
+  String get copy => '复制';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get recall => '撤回';
+
+  @override
+  String get quote => '引用';
+
+  @override
+  String get forward => '转发';
+
+  @override
+  String get select => '多选';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get deleteMessagesTitle => '删除消息？';
+
+  @override
+  String get deleteMessagesBody => '删除后只会从当前设备移除所选消息。';
+
+  @override
+  String get recallMessageTitle => '撤回这条消息？';
+
+  @override
+  String get recallMessageBody => '撤回后无法恢复。';
+
+  @override
+  String get recalledMessage => '消息已撤回';
+
+  @override
+  String get quotedMessage => '引用的消息';
+
+  @override
+  String get forwardTo => '转发给';
+
+  @override
+  String get noConversations => '暂无可转发的会话';
+
+  @override
+  String get forwarded => '已转发';
+
+  @override
+  String get copied => '已复制';
+
+  @override
+  String get deleted => '已删除';
+
+  @override
+  String selectedMessages(num count) {
+    return '已选择 $count 条';
+  }
+
+  @override
+  String messageActionFailed(String detail) {
+    return '操作失败：$detail';
+  }
+
+  @override
   String rtcComingSoon(String callType) {
     return '$callType通话将在接入 Agora RTC 后开放。';
   }

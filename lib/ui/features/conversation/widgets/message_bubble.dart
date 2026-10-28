@@ -26,6 +26,17 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (message.content case SystemMessageContent(systemType: 'recall')) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Center(
+          child: Text(
+            context.l10n.recalledMessage,
+            style: const TextStyle(color: AppColors.mutedText, fontSize: 12),
+          ),
+        ),
+      );
+    }
     final mine = message.isOutgoing;
     final bubbleColor = mine ? AppColors.outgoing : Colors.white;
     final contentColor = mine ? Colors.white : const Color(0xFF303440);
@@ -55,18 +66,27 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
                 child: switch (message.content) {
-                  TextMessageContent(:final text) => Padding(
+                  TextMessageContent(:final text, :final quote) => Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 10,
                     ),
-                    child: Text(
-                      text,
-                      style: TextStyle(
-                        color: contentColor,
-                        fontSize: 15,
-                        height: 1.35,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (quote != null) ...[
+                          _quotePreview(context, quote, mine),
+                          const SizedBox(height: 8),
+                        ],
+                        Text(
+                          text,
+                          style: TextStyle(
+                            color: contentColor,
+                            fontSize: 15,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   ImageMessageContent content => _imageContent(
@@ -151,6 +171,65 @@ class MessageBubble extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _quotePreview(
+    BuildContext context,
+    ChatMessageQuote quote,
+    bool mine,
+  ) {
+    final l10n = context.l10n;
+    final preview = quote.text.isNotEmpty
+        ? quote.text
+        : switch (quote.kind) {
+            ChatMessageKind.image => l10n.imageMessage,
+            ChatMessageKind.voice => l10n.voiceMessage,
+            ChatMessageKind.file => l10n.fileMessage,
+            ChatMessageKind.video => l10n.videoMessage,
+            ChatMessageKind.location => l10n.locationMessage,
+            ChatMessageKind.contact => l10n.contactMessage,
+            ChatMessageKind.custom => l10n.customMessage,
+            ChatMessageKind.system => l10n.systemMessage,
+            _ => l10n.unsupportedMessage,
+          };
+    final color = mine ? const Color(0x33FFFFFF) : const Color(0xFFF1F3F6);
+    final textColor = mine ? const Color(0xE6FFFFFF) : const Color(0xFF666B78);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          left: BorderSide(
+            color: mine ? Colors.white70 : AppColors.brandBlueLight,
+            width: 2,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            quote.senderId,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            preview,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: textColor, fontSize: 12),
+          ),
+        ],
       ),
     );
   }

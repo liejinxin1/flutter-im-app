@@ -1,4 +1,5 @@
 import 'chat_message_kind.dart';
+import 'chat_message_quote.dart';
 
 /// App-owned message payloads.
 ///
@@ -21,7 +22,12 @@ sealed class ChatMessageContent {
   factory ChatMessageContent.fromJson(Map<String, Object?> json) {
     final type = json['type'] as String?;
     return switch (type) {
-      'text' => TextMessageContent(json['text'] as String? ?? ''),
+      'text' => TextMessageContent(
+        json['text'] as String? ?? '',
+        quote: json['quote'] is Map
+            ? ChatMessageQuote.fromJson(_objectMap(json['quote']))
+            : null,
+      ),
       'image' => ImageMessageContent(
         localPath: json['localPath'] as String?,
         remotePath: json['remotePath'] as String?,
@@ -85,15 +91,20 @@ sealed class ChatMessageContent {
 }
 
 final class TextMessageContent extends ChatMessageContent {
-  const TextMessageContent(this.text);
+  const TextMessageContent(this.text, {this.quote});
 
   final String text;
+  final ChatMessageQuote? quote;
 
   @override
   ChatMessageKind get kind => ChatMessageKind.text;
 
   @override
-  Map<String, Object?> toJson() => {'type': 'text', 'text': text};
+  Map<String, Object?> toJson() => {
+    'type': 'text',
+    'text': text,
+    if (quote != null) 'quote': quote!.toJson(),
+  };
 }
 
 sealed class AttachmentMessageContent extends ChatMessageContent {

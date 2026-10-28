@@ -47,6 +47,9 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
+# Understand Anything generated graph
+.ua/
+
 # Local secrets / signing material
 .env
 .env.*

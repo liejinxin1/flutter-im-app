@@ -6,6 +6,15 @@ void main() {
     test('round-trips every first-class content type', () {
       final contents = <ChatMessageContent>[
         const TextMessageContent('hello'),
+        const TextMessageContent(
+          'reply',
+          quote: ChatMessageQuote(
+            messageId: 'm1',
+            senderId: 'peer',
+            kind: ChatMessageKind.text,
+            text: 'hello',
+          ),
+        ),
         const ImageMessageContent(
           localPath: '/tmp/a.jpg',
           remotePath: 'https://example/a.jpg',

@@ -122,6 +122,82 @@ void main() {
     expect((envelope!.content as TextMessageContent).text, 'hello');
   });
 
+  test('quoted reply is encoded in the app envelope', () async {
+    final repository = AgoraChatRepository(
+      connection,
+      ChatCache(MemoryLocalStore()),
+      outbox,
+      transportMode: MessageTransportMode.custom,
+    );
+
+    await repository.sendText(
+      'peer',
+      'reply',
+      quote: const ChatMessageQuote(
+        messageId: 'm1',
+        senderId: 'peer',
+        kind: ChatMessageKind.text,
+        text: 'hello',
+      ),
+      clientId: 'quoted-1',
+    );
+
+    expect(service.customSends, 1);
+    final envelope = ChatMessageEnvelope.tryDecode(service.lastEnvelopePayload);
+    final content = envelope?.content as TextMessageContent;
+    expect(content.text, 'reply');
+    expect(content.quote?.messageId, 'm1');
+    expect(content.quote?.text, 'hello');
+  });
+
+  test('deletes and recalls messages through the service', () async {
+    final message = ChatMessage(
+      id: 'm-delete',
+      conversationId: 'peer',
+      senderId: 'alice',
+      content: const TextMessageContent('bye'),
+      sentAt: DateTime(2026),
+      deliveryState: ChatMessageDeliveryState.sent,
+      isOutgoing: true,
+    );
+    final repository = AgoraChatRepository(
+      connection,
+      ChatCache(MemoryLocalStore()),
+      outbox,
+    );
+
+    await repository.deleteMessages([message]);
+    await repository.recallMessage(message);
+
+    expect(service.deletedIds, contains('m-delete'));
+    expect(service.recalledIds, contains('m-delete'));
+  });
+
+  test('forwards a text message to another conversation', () async {
+    final message = ChatMessage(
+      id: 'm-forward',
+      conversationId: 'peer',
+      senderId: 'alice',
+      content: const TextMessageContent('forward me'),
+      sentAt: DateTime(2026),
+      deliveryState: ChatMessageDeliveryState.sent,
+      isOutgoing: true,
+    );
+    final repository = AgoraChatRepository(
+      connection,
+      ChatCache(MemoryLocalStore()),
+      outbox,
+      transportMode: MessageTransportMode.custom,
+    );
+
+    final forwarded = await repository.forwardMessage(message, 'other');
+
+    expect(forwarded.conversationId, 'other');
+    expect(service.customSends, 1);
+    final envelope = ChatMessageEnvelope.tryDecode(service.lastEnvelopePayload);
+    expect((envelope?.content as TextMessageContent).text, 'forward me');
+  });
+
   test('hybrid attachment falls back to native without an uploader', () async {
     final hybrid = AgoraChatRepository(
       connection,
@@ -204,6 +280,8 @@ class _FakeChatService extends AgoraChatService {
   int textSends = 0;
   int imageSends = 0;
   int customSends = 0;
+  final Set<String> deletedIds = {};
+  final Set<String> recalledIds = {};
   String? lastEnvelopePayload;
   int _sequence = 0;
   List<ChatConversation> conversations = const [];
@@ -313,6 +391,20 @@ class _FakeChatService extends AgoraChatService {
   @override
   Future<String?> downloadThumbnail(String messageId) async =>
       '/cache/thumb.jpg';
+
+  @override
+  Future<void> deleteMessage(
+    String conversationId,
+    String messageId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {
+    deletedIds.add(messageId);
+  }
+
+  @override
+  Future<void> recallMessage(String messageId) async {
+    recalledIds.add(messageId);
+  }
 
   ChatMessage _message(String conversationId, String text, String clientId) =>
       ChatMessage(

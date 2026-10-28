@@ -10,6 +10,7 @@ export 'chat_message.dart';
 export 'chat_message_content.dart';
 export 'chat_message_envelope.dart';
 export 'chat_message_kind.dart';
+export 'chat_message_quote.dart';
 export 'friend_request_update.dart';
 export 'outbox_message.dart';
 export 'user_profile.dart';

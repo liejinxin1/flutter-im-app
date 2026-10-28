@@ -1,3 +1,4 @@
+import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/ui/features/conversation/views/conversation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,6 +74,53 @@ void main() {
     expect(find.textContaining('send-failed'), findsNothing);
     expect(find.text('try again'), findsOneWidget);
     expect(chat.sendTextCalls, 2);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('opens message actions and enters multi-select', (tester) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+    chat.history['peer'] = [
+      ChatMessage(
+        id: 'm1',
+        conversationId: 'peer',
+        senderId: 'peer',
+        content: const TextMessageContent('hello'),
+        sentAt: DateTime.now(),
+        deliveryState: ChatMessageDeliveryState.sent,
+        isOutgoing: false,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('hello'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('复制'), findsOneWidget);
+    expect(find.text('引用'), findsOneWidget);
+    expect(find.text('转发'), findsOneWidget);
+    expect(find.text('多选'), findsOneWidget);
+    expect(find.text('删除'), findsOneWidget);
+
+    await tester.tap(find.text('多选'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('已选择 1 条'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await chat.dispose();

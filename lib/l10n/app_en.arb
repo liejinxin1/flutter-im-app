@@ -107,6 +107,40 @@
   "messageHint": "Type a message…",
   "addAttachment": "Add attachment",
   "sendFailedRetry": "Failed to send. Retry.",
+  "copy": "Copy",
+  "delete": "Delete",
+  "recall": "Recall",
+  "quote": "Quote",
+  "forward": "Forward",
+  "select": "Select",
+  "cancel": "Cancel",
+  "deleteMessagesTitle": "Delete messages?",
+  "deleteMessagesBody": "This removes the selected messages from this device.",
+  "recallMessageTitle": "Recall this message?",
+  "recallMessageBody": "Recalled messages cannot be restored.",
+  "recalledMessage": "Message recalled",
+  "quotedMessage": "Quoted message",
+  "forwardTo": "Forward to",
+  "noConversations": "No conversations available",
+  "forwarded": "Forwarded",
+  "copied": "Copied",
+  "deleted": "Deleted",
+  "selectedMessages": "{count} selected",
+  "@selectedMessages": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "messageActionFailed": "Action failed: {detail}",
+  "@messageActionFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "rtcComingSoon": "{callType} calls will be available after Agora RTC integration.",
   "@rtcComingSoon": {
     "placeholders": {

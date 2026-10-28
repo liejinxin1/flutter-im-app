@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'chat_message_content.dart';
 import 'chat_message_kind.dart';
+import 'chat_message_quote.dart';
 
 /// Event name for the app-owned wire envelope.
 ///
@@ -62,7 +63,10 @@ class ChatMessageEnvelope {
 }
 
 Map<String, Object?> _payload(ChatMessageContent content) => switch (content) {
-  TextMessageContent(:final text) => {'text': text},
+  TextMessageContent(:final text, :final quote) => {
+    'text': text,
+    if (quote != null) 'quote': quote.toJson(),
+  },
   ImageMessageContent(:final remotePath, :final width, :final height) => {
     'url': _requiredRemoteUrl(remotePath, 'image'),
     'width': width,
@@ -135,7 +139,12 @@ ChatMessageContent? _contentFromPayload(
   ChatMessageKind kind,
   Map<String, Object?> payload,
 ) => switch (kind) {
-  ChatMessageKind.text => TextMessageContent(payload['text'] as String? ?? ''),
+  ChatMessageKind.text => TextMessageContent(
+    payload['text'] as String? ?? '',
+    quote: payload['quote'] is Map
+        ? ChatMessageQuote.fromJson(_map(payload['quote']))
+        : null,
+  ),
   ChatMessageKind.image => ImageMessageContent(
     remotePath: payload['url'] as String?,
     width: (payload['width'] as num?)?.toDouble(),

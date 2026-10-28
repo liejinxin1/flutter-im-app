@@ -37,6 +37,9 @@ class FakeChatRepository implements ChatRepository {
   bool thumbnailMissing = false;
   int attachmentDownloadCalls = 0;
   int thumbnailDownloadCalls = 0;
+  final Set<String> deletedIds = {};
+  final Set<String> recalledIds = {};
+  final Set<String> forwardedMessageIds = {};
   int _serverSequence = 0;
 
   @override
@@ -74,6 +77,7 @@ class FakeChatRepository implements ChatRepository {
   Future<ChatMessage> sendText(
     String conversationId,
     String text, {
+    ChatMessageQuote? quote,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   }) async {
@@ -87,6 +91,7 @@ class FakeChatRepository implements ChatRepository {
       text: text,
       kind: ChatMessageKind.text,
       clientId: clientId,
+      quote: quote,
     );
     _record(message);
     return message;
@@ -162,10 +167,14 @@ class FakeChatRepository implements ChatRepository {
     required String clientId,
     String? localPath,
     int durationSeconds = 0,
+    ChatMessageQuote? quote,
   }) => ChatMessage(
     id: 'server-${++_serverSequence}',
     conversationId: conversationId,
     senderId: 'me',
+    content: kind == ChatMessageKind.text
+        ? TextMessageContent(text, quote: quote)
+        : null,
     text: text,
     sentAt: DateTime.now(),
     deliveryState: ChatMessageDeliveryState.sent,
@@ -195,6 +204,43 @@ class FakeChatRepository implements ChatRepository {
     final path = thumbnailResult;
     if (path != null) return path;
     return '/tmp/thumb-${message.id}';
+  }
+
+  @override
+  Future<void> deleteMessages(
+    List<ChatMessage> messages, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {
+    for (final message in messages) {
+      deletedIds.add(message.id);
+      final items = history[message.conversationId];
+      if (items == null) continue;
+      history[message.conversationId] = items
+          .where((item) => item.id != message.id)
+          .toList(growable: false);
+    }
+  }
+
+  @override
+  Future<void> recallMessage(ChatMessage message) async {
+    recalledIds.add(message.id);
+  }
+
+  @override
+  Future<ChatMessage> forwardMessage(
+    ChatMessage message,
+    String toConversationId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {
+    forwardedMessageIds.add(message.id);
+    final sent = _serverMessage(
+      conversationId: toConversationId,
+      text: message.text,
+      kind: message.kind,
+      clientId: 'forward-${++_serverSequence}',
+    );
+    _record(sent);
+    return sent;
   }
 
   @override

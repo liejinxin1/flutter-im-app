@@ -127,6 +127,23 @@ class ChatCache {
     }
   }
 
+  Future<void> removeMessages(
+    String userId,
+    String conversationId,
+    Set<String> messageIds,
+  ) async {
+    if (userId.isEmpty || messageIds.isEmpty) return;
+    try {
+      final page = await loadMessages(userId, conversationId);
+      final remaining = page.items
+          .where((message) => !messageIds.contains(message.id))
+          .toList(growable: false);
+      await saveMessages(userId, conversationId, remaining);
+    } catch (_) {
+      // Cache cleanup is best effort.
+    }
+  }
+
   /// Loads the device-local attachment paths remembered for [userId].
   ///
   /// Server history never carries downloaded file paths, so they are stored

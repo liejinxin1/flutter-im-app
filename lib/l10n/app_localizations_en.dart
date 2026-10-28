@@ -224,6 +224,71 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendFailedRetry => 'Failed to send. Retry.';
 
   @override
+  String get copy => 'Copy';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get recall => 'Recall';
+
+  @override
+  String get quote => 'Quote';
+
+  @override
+  String get forward => 'Forward';
+
+  @override
+  String get select => 'Select';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get deleteMessagesTitle => 'Delete messages?';
+
+  @override
+  String get deleteMessagesBody =>
+      'This removes the selected messages from this device.';
+
+  @override
+  String get recallMessageTitle => 'Recall this message?';
+
+  @override
+  String get recallMessageBody => 'Recalled messages cannot be restored.';
+
+  @override
+  String get recalledMessage => 'Message recalled';
+
+  @override
+  String get quotedMessage => 'Quoted message';
+
+  @override
+  String get forwardTo => 'Forward to';
+
+  @override
+  String get noConversations => 'No conversations available';
+
+  @override
+  String get forwarded => 'Forwarded';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get deleted => 'Deleted';
+
+  @override
+  String selectedMessages(num count) {
+    return '$count selected';
+  }
+
+  @override
+  String messageActionFailed(String detail) {
+    return 'Action failed: $detail';
+  }
+
+  @override
   String rtcComingSoon(String callType) {
     return '$callType calls will be available after Agora RTC integration.';
   }

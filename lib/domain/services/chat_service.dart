@@ -87,6 +87,12 @@ abstract interface class ChatService implements UserDirectory {
 
   Future<String?> downloadAttachment(String messageId);
   Future<String?> downloadThumbnail(String messageId);
+  Future<void> deleteMessage(
+    String conversationId,
+    String messageId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  });
+  Future<void> recallMessage(String messageId);
 
   Future<void> markConversationRead(
     String conversationId, {

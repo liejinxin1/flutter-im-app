@@ -85,6 +85,16 @@ class AgoraChatPlatform {
   Future<String?> downloadThumbnail(String messageId) =>
       Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
 
+  Future<void> deleteMessage(
+    String conversationId,
+    String messageId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
+  Future<void> recallMessage(String messageId) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
   Future<void> markConversationRead(
     String conversationId, {
     ChatConversationKind kind = ChatConversationKind.direct,

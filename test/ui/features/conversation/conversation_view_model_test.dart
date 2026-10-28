@@ -449,5 +449,76 @@ void main() {
       );
       expect(viewModel.messages.single.clientId, 'queued-1');
     });
+
+    test('sends a quoted reply through the text content', () async {
+      final repository = FakeChatRepository();
+      addTearDown(repository.dispose);
+      final viewModel = ConversationViewModel(
+        repository,
+        FakeOutboxRepository(),
+        conversationId: 'peer',
+        currentUserId: 'me',
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.send(
+        'reply',
+        quote: const ChatMessageQuote(
+          messageId: 'm1',
+          senderId: 'peer',
+          kind: ChatMessageKind.text,
+          text: 'hello',
+        ),
+      );
+
+      final content = viewModel.messages.single.content as TextMessageContent;
+      expect(content.text, 'reply');
+      expect(content.quote?.messageId, 'm1');
+      expect(content.quote?.text, 'hello');
+    });
+
+    test('deletes a message from the repository and timeline', () async {
+      final repository = FakeChatRepository();
+      addTearDown(repository.dispose);
+      final viewModel = ConversationViewModel(
+        repository,
+        FakeOutboxRepository(),
+        conversationId: 'peer',
+        currentUserId: 'me',
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.send('delete me');
+      final message = viewModel.messages.single;
+
+      await viewModel.deleteMessages([message.id]);
+
+      expect(viewModel.messages, isEmpty);
+      expect(repository.deletedIds, contains(message.id));
+    });
+
+    test('recalls an outgoing message and renders the system state', () async {
+      final repository = FakeChatRepository();
+      addTearDown(repository.dispose);
+      final viewModel = ConversationViewModel(
+        repository,
+        FakeOutboxRepository(),
+        conversationId: 'peer',
+        currentUserId: 'me',
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.send('recall me');
+      final message = viewModel.messages.single;
+
+      await viewModel.recallMessage(message.id);
+
+      expect(repository.recalledIds, contains(message.id));
+      expect(viewModel.messages.single.content, isA<SystemMessageContent>());
+      expect(
+        (viewModel.messages.single.content as SystemMessageContent).systemType,
+        'recall',
+      );
+    });
   });
 }

@@ -191,9 +191,10 @@ class PreviewChatRepository implements ChatRepository {
   Future<ChatMessage> sendText(
     String conversationId,
     String text, {
+    ChatMessageQuote? quote,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
-  }) async => _message(conversationId, text, clientId);
+  }) async => _message(conversationId, text, clientId, quote: quote);
 
   @override
   Future<ChatMessage> sendImage(
@@ -221,23 +222,43 @@ class PreviewChatRepository implements ChatRepository {
     required String clientId,
   }) async => _message(conversationId, '', clientId);
 
-  ChatMessage _message(String conversationId, String text, String clientId) =>
-      ChatMessage(
-        id: 'preview-${++_sequence}',
-        conversationId: conversationId,
-        senderId: 'alice',
-        content: TextMessageContent(text),
-        sentAt: previewBaseTime,
-        deliveryState: ChatMessageDeliveryState.sent,
-        isOutgoing: true,
-        clientId: clientId,
-      );
+  ChatMessage _message(
+    String conversationId,
+    String text,
+    String clientId, {
+    ChatMessageQuote? quote,
+  }) => ChatMessage(
+    id: 'preview-${++_sequence}',
+    conversationId: conversationId,
+    senderId: 'alice',
+    content: TextMessageContent(text, quote: quote),
+    sentAt: previewBaseTime,
+    deliveryState: ChatMessageDeliveryState.sent,
+    isOutgoing: true,
+    clientId: clientId,
+  );
 
   @override
   Future<String?> downloadAttachment(ChatMessage message) async => null;
 
   @override
   Future<String?> downloadThumbnail(ChatMessage message) async => null;
+
+  @override
+  Future<void> deleteMessages(
+    List<ChatMessage> messages, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async {}
+
+  @override
+  Future<void> recallMessage(ChatMessage message) async {}
+
+  @override
+  Future<ChatMessage> forwardMessage(
+    ChatMessage message,
+    String toConversationId, {
+    ChatConversationKind kind = ChatConversationKind.direct,
+  }) async => _message(toConversationId, message.text, 'forward-preview');
 
   @override
   Future<void> markConversationRead(

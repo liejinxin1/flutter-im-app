@@ -3,6 +3,7 @@ import 'chat_message_kind.dart';
 
 export 'chat_message_content.dart';
 export 'chat_message_kind.dart';
+export 'chat_message_quote.dart';
 
 enum ChatMessageDeliveryState {
   created,

@@ -48,7 +48,7 @@ ChatMessage.createCustomSendMessage(
 
 | kind | payload |
 |---|---|
-| text | `{"text":"..."}` |
+| text | `{"text":"...","quote":{"messageId":"...","senderId":"...","kind":"text","text":"..."}}`，`quote` 可选 |
 | image | `{"url":"https://...","width":800,"height":600}` |
 | voice | `{"url":"https://...","durationSeconds":7}` |
 | file | `{"url":"https://...","fileName":"brief.pdf","fileSizeBytes":1234,"mimeType":"application/pdf"}` |
@@ -68,7 +68,7 @@ flutter run --dart-define=MESSAGE_TRANSPORT=hybrid
 
 | 模式 | 文本 | 图片/语音/文件 |
 |---|---|---|
-| `native` | Agora TXT | Agora IMAGE/VOICE/FILE |
+| `native` | Agora TXT；带引用的文本仍走 envelope | Agora IMAGE/VOICE/FILE |
 | `custom` | envelope | envelope；必须配置 `AttachmentUploader`，否则发送失败并留在 outbox |
 | `hybrid`（默认） | envelope | 有 uploader 时 envelope；没有时回退原生类型 |
 
