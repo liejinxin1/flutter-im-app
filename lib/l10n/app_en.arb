@@ -120,6 +120,7 @@
   "recallMessageBody": "Recalled messages cannot be restored.",
   "recalledMessage": "Message recalled",
   "quotedMessage": "Quoted message",
+  "quotedMessageNotFound": "The quoted message is no longer available.",
   "forwardTo": "Forward to",
   "noConversations": "No conversations available",
   "forwarded": "Forwarded",

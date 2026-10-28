@@ -16,6 +16,7 @@ class MessageBubble extends StatelessWidget {
     required this.onOpenImage,
     required this.onDownloadImage,
     required this.onRetry,
+    this.onQuoteTap,
   });
 
   final ChatMessage message;
@@ -24,6 +25,7 @@ class MessageBubble extends StatelessWidget {
   final ValueChanged<ChatMessage> onOpenImage;
   final ValueChanged<ChatMessage> onDownloadImage;
   final VoidCallback onRetry;
+  final ValueChanged<String>? onQuoteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +197,11 @@ class MessageBubble extends StatelessWidget {
           ),
         ),
       ),
-      child: QuotedMessagePreview(quote: quote, onDark: mine),
+      child: QuotedMessagePreview(
+        quote: quote,
+        onDark: mine,
+        onTap: onQuoteTap == null ? null : () => onQuoteTap!(quote.messageId),
+      ),
     );
   }
 

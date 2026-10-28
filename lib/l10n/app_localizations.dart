@@ -566,6 +566,12 @@ abstract class AppLocalizations {
   /// **'Quoted message'**
   String get quotedMessage;
 
+  /// No description provided for @quotedMessageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The quoted message is no longer available.'**
+  String get quotedMessageNotFound;
+
   /// No description provided for @forwardTo.
   ///
   /// In en, this message translates to:

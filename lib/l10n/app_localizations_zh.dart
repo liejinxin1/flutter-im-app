@@ -257,6 +257,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quotedMessage => '引用的消息';
 
   @override
+  String get quotedMessageNotFound => '引用的原消息已不存在';
+
+  @override
   String get forwardTo => '转发给';
 
   @override

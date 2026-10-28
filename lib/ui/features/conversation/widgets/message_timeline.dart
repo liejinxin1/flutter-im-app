@@ -26,6 +26,9 @@ class MessageTimeline extends StatelessWidget {
     required this.selectionMode,
     required this.selectedIds,
     required this.onToggleSelection,
+    required this.onQuoteTap,
+    required this.highlightedMessageId,
+    required this.keyForMessage,
   });
 
   final List<ChatMessage> messages;
@@ -44,6 +47,9 @@ class MessageTimeline extends StatelessWidget {
   final bool selectionMode;
   final Set<String> selectedIds;
   final ValueChanged<ChatMessage> onToggleSelection;
+  final ValueChanged<String> onQuoteTap;
+  final String? highlightedMessageId;
+  final GlobalKey Function(String messageId) keyForMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +91,11 @@ class MessageTimeline extends StatelessWidget {
     );
   }
 
-  Widget _messageList() => ListView.builder(
-    controller: scrollController,
-    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-    padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-    itemCount: messages.length + (isLoadingOlder ? 1 : 0),
-    itemBuilder: (context, index) {
-      if (isLoadingOlder && index == 0) {
-        return const Padding(
+  Widget _messageList() {
+    final children = <Widget>[];
+    if (isLoadingOlder) {
+      children.add(
+        const Padding(
           padding: EdgeInsets.all(12),
           child: Center(
             child: SizedBox(
@@ -101,10 +104,10 @@ class MessageTimeline extends StatelessWidget {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ),
-        );
-      }
-      final messageIndex = index - (isLoadingOlder ? 1 : 0);
-      final message = messages[messageIndex];
+        ),
+      );
+    }
+    for (final message in messages) {
       final bubble = ValueListenableBuilder<String?>(
         valueListenable: playingMessageId,
         builder: (context, playingId, _) => MessageBubble(
@@ -114,34 +117,46 @@ class MessageTimeline extends StatelessWidget {
           onOpenImage: onOpenImage,
           onDownloadImage: onDownloadImage,
           onRetry: () => onRetry(message.id),
+          onQuoteTap: onQuoteTap,
         ),
       );
       final selected = selectedIds.contains(message.id);
-      return GestureDetector(
-        key: ValueKey(message.id),
-        behavior: HitTestBehavior.opaque,
-        onLongPressStart: (details) =>
-            onLongPress(message, details.globalPosition),
-        onTap: selectionMode ? () => onToggleSelection(message) : null,
-        child: Container(
-          color: selected
-              ? AppColors.brandBlueLight.withValues(alpha: .08)
-              : Colors.transparent,
-          child: Row(
-            children: [
-              if (selectionMode)
-                IgnorePointer(
-                  child: Checkbox(value: selected, onChanged: (_) {}),
+      final highlighted = highlightedMessageId == message.id;
+      children.add(
+        GestureDetector(
+          key: keyForMessage(message.id),
+          behavior: HitTestBehavior.opaque,
+          onLongPressStart: (details) =>
+              onLongPress(message, details.globalPosition),
+          onTap: selectionMode ? () => onToggleSelection(message) : null,
+          child: Container(
+            color: selected
+                ? AppColors.brandBlueLight.withValues(alpha: .08)
+                : highlighted
+                ? AppColors.brandBlueLight.withValues(alpha: .16)
+                : Colors.transparent,
+            child: Row(
+              children: [
+                if (selectionMode)
+                  IgnorePointer(
+                    child: Checkbox(value: selected, onChanged: (_) {}),
+                  ),
+                Expanded(
+                  child: AbsorbPointer(absorbing: selectionMode, child: bubble),
                 ),
-              Expanded(
-                child: AbsorbPointer(absorbing: selectionMode, child: bubble),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
-    },
-  );
+    }
+    return SingleChildScrollView(
+      controller: scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+      child: Column(children: children),
+    );
+  }
 }
 
 class _TimelineNotice extends StatelessWidget {

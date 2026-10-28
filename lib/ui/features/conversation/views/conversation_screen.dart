@@ -63,6 +63,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
   bool _selectionMode = false;
   final Set<String> _selectedMessageIds = {};
   ChatMessage? _quotedMessage;
+  final Map<String, GlobalKey> _messageKeys = {};
+  String? _highlightedMessageId;
+  Timer? _highlightTimer;
+
+  GlobalKey _messageKey(String messageId) =>
+      _messageKeys.putIfAbsent(messageId, GlobalKey.new);
 
   @override
   void initState() {
@@ -95,6 +101,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _scrollController
       ..removeListener(_onScroll)
       ..dispose();
+    _highlightTimer?.cancel();
     super.dispose();
   }
 
@@ -289,6 +296,44 @@ class _ConversationScreenState extends State<ConversationScreen> {
         });
         break;
     }
+  }
+
+  Future<void> _scrollToMessage(String messageId) async {
+    var found = _conversation.messages.any(
+      (message) => message.id == messageId,
+    );
+    var attempts = 0;
+    while (!found && _conversation.hasMore && attempts < 20) {
+      final added = await _conversation.loadOlder();
+      if (!mounted || added == 0) break;
+      attempts++;
+      found = _conversation.messages.any((message) => message.id == messageId);
+    }
+    if (!mounted) return;
+    if (!found) {
+      _showMessage(context.l10n.quotedMessageNotFound);
+      return;
+    }
+
+    _highlightTimer?.cancel();
+    FocusScope.of(context).unfocus();
+    setState(() => _highlightedMessageId = messageId);
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    final targetContext = _messageKeys[messageId]?.currentContext;
+    if (targetContext != null && targetContext.mounted) {
+      await Scrollable.ensureVisible(
+        targetContext,
+        alignment: 0.4,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOut,
+      );
+    }
+    if (!mounted) return;
+    _highlightTimer = Timer(const Duration(milliseconds: 1600), () {
+      if (!mounted) return;
+      setState(() => _highlightedMessageId = null);
+    });
   }
 
   Future<_MessageAction?> _showFloatingActions(
@@ -503,6 +548,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     selectionMode: _selectionMode,
                     selectedIds: _selectedMessageIds,
                     onToggleSelection: _toggleSelection,
+                    onQuoteTap: (messageId) =>
+                        unawaited(_scrollToMessage(messageId)),
+                    highlightedMessageId: _highlightedMessageId,
+                    keyForMessage: _messageKey,
                   ),
                 ),
               ),
@@ -548,6 +597,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         quote: _quoteFor(_quotedMessage),
                         onCancelQuote: () =>
                             setState(() => _quotedMessage = null),
+                        onQuoteTap: () {
+                          final quoted = _quotedMessage;
+                          if (quoted != null) {
+                            unawaited(_scrollToMessage(quoted.id));
+                          }
+                        },
                       ),
                     ],
                   ],

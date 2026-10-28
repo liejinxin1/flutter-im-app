@@ -1,5 +1,6 @@
 import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/ui/features/conversation/views/conversation_screen.dart';
+import 'package:agora_im_flutter/ui/features/conversation/widgets/quoted_message_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -166,6 +167,69 @@ void main() {
 
     expect(chat.recalledIds, contains('m-recall'));
     expect(find.text('消息已撤回'), findsWidgets);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('scrolls to the quoted message when the quote is tapped', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+    final now = DateTime.now();
+    chat.history['peer'] = [
+      for (var index = 0; index < 29; index++)
+        ChatMessage(
+          id: 'm$index',
+          conversationId: 'peer',
+          senderId: 'peer',
+          content: TextMessageContent('message $index'),
+          sentAt: now.subtract(Duration(minutes: 30 - index)),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: false,
+        ),
+      ChatMessage(
+        id: 'reply',
+        conversationId: 'peer',
+        senderId: 'me',
+        content: const TextMessageContent(
+          'reply',
+          quote: ChatMessageQuote(
+            messageId: 'm0',
+            senderId: 'peer',
+            kind: ChatMessageKind.text,
+            text: 'message 0',
+          ),
+        ),
+        sentAt: now,
+        deliveryState: ChatMessageDeliveryState.sent,
+        isOutgoing: true,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(QuotedMessagePreview));
+    await tester.pumpAndSettle();
+
+    final target = tester.getCenter(find.text('message 0').first);
+    final screenHeight =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    expect(target.dy, greaterThan(0));
+    expect(target.dy, lessThan(screenHeight));
 
     await tester.pumpWidget(const SizedBox.shrink());
     await chat.dispose();

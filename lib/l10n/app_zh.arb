@@ -78,6 +78,7 @@
   "recallMessageBody": "撤回后无法恢复。",
   "recalledMessage": "消息已撤回",
   "quotedMessage": "引用的消息",
+  "quotedMessageNotFound": "引用的原消息已不存在",
   "forwardTo": "转发给",
   "noConversations": "暂无可转发的会话",
   "forwarded": "已转发",

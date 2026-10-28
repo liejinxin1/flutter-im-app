@@ -11,10 +11,12 @@ class QuotedMessagePreview extends StatelessWidget {
     super.key,
     required this.quote,
     this.onDark = false,
+    this.onTap,
   });
 
   final ChatMessageQuote quote;
   final bool onDark;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,37 +41,41 @@ class QuotedMessagePreview extends StatelessWidget {
         ? const Color(0xE6FFFFFF)
         : const Color(0xFF666B78);
     final showThumbnail = quote.kind != ChatMessageKind.text;
-    return Row(
-      children: [
-        if (showThumbnail) ...[
-          _Thumbnail(quote: quote, onDark: onDark),
-          const SizedBox(width: 8),
-        ],
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                quote.senderId,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Row(
+        children: [
+          if (showThumbnail) ...[
+            _Thumbnail(quote: quote, onDark: onDark),
+            const SizedBox(width: 8),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  quote.senderId,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                preview.isNotEmpty ? preview : l10n.quotedMessage,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: textColor, fontSize: 12),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  preview.isNotEmpty ? preview : l10n.quotedMessage,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: textColor, fontSize: 12),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

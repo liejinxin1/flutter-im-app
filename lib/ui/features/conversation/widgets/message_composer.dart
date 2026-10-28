@@ -17,6 +17,7 @@ class MessageComposer extends StatelessWidget {
     required this.onSend,
     this.quote,
     this.onCancelQuote,
+    this.onQuoteTap,
   });
 
   final TextEditingController controller;
@@ -25,6 +26,7 @@ class MessageComposer extends StatelessWidget {
   final VoidCallback onSend;
   final ChatMessageQuote? quote;
   final VoidCallback? onCancelQuote;
+  final VoidCallback? onQuoteTap;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -34,7 +36,7 @@ class MessageComposer extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (quote != null) ...[
-          _QuoteBar(quote: quote!, onCancel: onCancelQuote),
+          _QuoteBar(quote: quote!, onCancel: onCancelQuote, onTap: onQuoteTap),
           const SizedBox(height: 8),
         ],
         Row(
@@ -131,10 +133,11 @@ class MessageComposer extends StatelessWidget {
 }
 
 class _QuoteBar extends StatelessWidget {
-  const _QuoteBar({required this.quote, this.onCancel});
+  const _QuoteBar({required this.quote, this.onCancel, this.onTap});
 
   final ChatMessageQuote quote;
   final VoidCallback? onCancel;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +154,9 @@ class _QuoteBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: QuotedMessagePreview(quote: quote)),
+          Expanded(
+            child: QuotedMessagePreview(quote: quote, onTap: onTap),
+          ),
           IconButton(
             tooltip: l10n.cancel,
             onPressed: onCancel,

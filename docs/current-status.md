@@ -48,6 +48,7 @@
 - 语音时长
 - 文件名
 - 引用发送者 ID
+- 点击引用卡片可定位到原消息；原消息未加载时自动翻页查找
 
 ### 联系人、群组与资料
 
@@ -63,7 +64,7 @@
 - 手机底部导航 + 宽屏 `NavigationRail`
 - 页面内容最大宽度、消息气泡最大宽度
 - Widget Preview，不启动 App、不初始化 SDK 即可预览页面
-- 91 个单元/Widget/预览测试
+- 92 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -112,7 +113,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          91 tests, all passed
+flutter test          92 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

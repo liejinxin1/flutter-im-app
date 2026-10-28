@@ -264,6 +264,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quotedMessage => 'Quoted message';
 
   @override
+  String get quotedMessageNotFound =>
+      'The quoted message is no longer available.';
+
+  @override
   String get forwardTo => 'Forward to';
 
   @override

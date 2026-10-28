@@ -55,7 +55,7 @@
 - [x] `ChatMessageContent` sealed 消息模型
 - [x] 文本 `app.im.message` 自定义 envelope
 - [x] 附件 `native/custom/hybrid` 传输策略、`AttachmentUploader` 接口、按类型白名单
-- [x] Widget Preview、页面 smoke test、91 个测试
+- [x] Widget Preview、页面 smoke test、92 个测试
 - [x] 开源前 AppKey 清理：不提交任何可用 Key
 
 ### 🚧 进行中 / 待完善
