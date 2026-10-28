@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -202,11 +203,42 @@ class _ConversationScreenState extends State<ConversationScreen> {
   ChatMessageQuote? _quoteFor(ChatMessage? message) {
     if (message == null) return null;
     final content = message.content;
+    String? imageUrl;
+    String? thumbnailPath;
+    String? fileName;
+    int? durationSeconds;
+    double? width;
+    double? height;
+    switch (content) {
+      case ImageMessageContent():
+        imageUrl = content.remotePath;
+        thumbnailPath = content.thumbnailLocalPath ?? content.localPath;
+        width = content.width;
+        height = content.height;
+      case VoiceMessageContent():
+        durationSeconds = content.durationSeconds;
+      case FileMessageContent():
+        fileName = content.fileName;
+      case VideoMessageContent():
+        imageUrl = content.remotePath;
+        thumbnailPath = content.thumbnailLocalPath;
+        durationSeconds = content.durationSeconds;
+        width = content.width;
+        height = content.height;
+      default:
+        break;
+    }
     return ChatMessageQuote(
       messageId: message.id,
       senderId: message.senderId,
       kind: content.kind,
       text: content is TextMessageContent ? content.text : '',
+      imageUrl: imageUrl,
+      thumbnailPath: thumbnailPath,
+      fileName: fileName,
+      durationSeconds: durationSeconds,
+      width: width,
+      height: height,
     );
   }
 
@@ -218,7 +250,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           message.deliveryState == ChatMessageDeliveryState.read) &&
       DateTime.now().difference(message.sentAt) < const Duration(minutes: 2);
 
-  Future<void> _onMessageLongPress(ChatMessage message) async {
+  Future<void> _onMessageLongPress(ChatMessage message, Offset position) async {
     if (message.content case SystemMessageContent(systemType: 'recall')) {
       return;
     }
@@ -226,13 +258,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
       _toggleSelection(message);
       return;
     }
-    final action = await showModalBottomSheet<_MessageAction>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => _MessageActionsSheet(
-        message: message,
-        canRecall: _canRecall(message),
-      ),
+    final action = await _showFloatingActions(
+      message,
+      position,
+      canRecall: _canRecall(message),
     );
     if (!mounted || action == null) return;
     switch (action) {
@@ -260,6 +289,50 @@ class _ConversationScreenState extends State<ConversationScreen> {
         });
         break;
     }
+  }
+
+  Future<_MessageAction?> _showFloatingActions(
+    ChatMessage message,
+    Offset position, {
+    required bool canRecall,
+  }) {
+    final size = MediaQuery.sizeOf(context);
+    final menuWidth = math.min(size.width - 16, 344.0);
+    const menuHeight = 72.0;
+    final left = (position.dx - menuWidth / 2)
+        .clamp(8.0, math.max(8.0, size.width - menuWidth - 8))
+        .toDouble();
+    var top = position.dy - menuHeight - 10;
+    if (top < 8) top = position.dy + 14;
+    top = top
+        .clamp(8.0, math.max(8.0, size.height - menuHeight - 8))
+        .toDouble();
+    return showGeneralDialog<_MessageAction>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black26,
+      transitionDuration: const Duration(milliseconds: 120),
+      pageBuilder: (context, animation, secondaryAnimation) => Stack(
+        children: [
+          Positioned(
+            left: left,
+            top: top,
+            width: menuWidth,
+            child: FadeTransition(
+              opacity: animation,
+              child: Material(
+                color: Colors.transparent,
+                child: _FloatingMessageActions(
+                  canCopy: message.content is TextMessageContent,
+                  canRecall: canRecall,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _toggleSelection(ChatMessage message) {
@@ -425,8 +498,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         unawaited(_conversation.retry(messageId)),
                     onReload: () => unawaited(_conversation.loadInitial()),
                     onDismissError: _conversation.clearError,
-                    onLongPress: (message) =>
-                        unawaited(_onMessageLongPress(message)),
+                    onLongPress: (message, position) =>
+                        unawaited(_onMessageLongPress(message, position)),
                     selectionMode: _selectionMode,
                     selectedIds: _selectedMessageIds,
                     onToggleSelection: _toggleSelection,
@@ -490,60 +563,113 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
 enum _MessageAction { copy, quote, forward, recall, delete, select }
 
-class _MessageActionsSheet extends StatelessWidget {
-  const _MessageActionsSheet({required this.message, required this.canRecall});
+class _FloatingMessageActions extends StatelessWidget {
+  const _FloatingMessageActions({
+    required this.canCopy,
+    required this.canRecall,
+  });
 
-  final ChatMessage message;
+  final bool canCopy;
   final bool canRecall;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final canCopy = message.content is TextMessageContent;
-    return SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (canCopy)
-            ListTile(
-              leading: const Icon(Icons.copy_outlined),
-              title: Text(l10n.copy),
-              onTap: () => Navigator.of(context).pop(_MessageAction.copy),
-            ),
-          ListTile(
-            leading: const Icon(Icons.format_quote_outlined),
-            title: Text(l10n.quote),
-            onTap: () => Navigator.of(context).pop(_MessageAction.quote),
-          ),
-          ListTile(
-            leading: const Icon(Icons.forward_outlined),
-            title: Text(l10n.forward),
-            onTap: () => Navigator.of(context).pop(_MessageAction.forward),
-          ),
-          if (canRecall)
-            ListTile(
-              leading: const Icon(Icons.undo_rounded),
-              title: Text(l10n.recall),
-              onTap: () => Navigator.of(context).pop(_MessageAction.recall),
-            ),
-          ListTile(
-            leading: const Icon(Icons.checklist_rounded),
-            title: Text(l10n.select),
-            onTap: () => Navigator.of(context).pop(_MessageAction.select),
-          ),
-          ListTile(
-            leading: const Icon(Icons.delete_outline, color: AppColors.danger),
-            title: Text(
-              l10n.delete,
-              style: const TextStyle(color: AppColors.danger),
-            ),
-            onTap: () => Navigator.of(context).pop(_MessageAction.delete),
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33000000),
+            blurRadius: 18,
+            offset: Offset(0, 6),
           ),
         ],
       ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (canCopy)
+                _FloatingAction(
+                  icon: Icons.copy_rounded,
+                  label: l10n.copy,
+                  action: _MessageAction.copy,
+                ),
+              _FloatingAction(
+                icon: Icons.format_quote_rounded,
+                label: l10n.quote,
+                action: _MessageAction.quote,
+              ),
+              _FloatingAction(
+                icon: Icons.forward_rounded,
+                label: l10n.forward,
+                action: _MessageAction.forward,
+              ),
+              if (canRecall)
+                _FloatingAction(
+                  icon: Icons.undo_rounded,
+                  label: l10n.recall,
+                  action: _MessageAction.recall,
+                ),
+              _FloatingAction(
+                icon: Icons.checklist_rounded,
+                label: l10n.select,
+                action: _MessageAction.select,
+              ),
+              _FloatingAction(
+                icon: Icons.delete_outline_rounded,
+                label: l10n.delete,
+                action: _MessageAction.delete,
+                color: AppColors.danger,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
+}
+
+class _FloatingAction extends StatelessWidget {
+  const _FloatingAction({
+    required this.icon,
+    required this.label,
+    required this.action,
+    this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final _MessageAction action;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: () => Navigator.of(context).pop(action),
+    child: SizedBox(
+      width: 54,
+      height: 66,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 22, color: color ?? const Color(0xFF303440)),
+          const SizedBox(height: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: color ?? const Color(0xFF303440),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _ForwardTargetSheet extends StatelessWidget {

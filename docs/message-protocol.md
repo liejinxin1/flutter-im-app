@@ -48,7 +48,7 @@ ChatMessage.createCustomSendMessage(
 
 | kind | payload |
 |---|---|
-| text | `{"text":"...","quote":{"messageId":"...","senderId":"...","kind":"text","text":"..."}}`，`quote` 可选 |
+| text | `{"text":"...","quote":{"messageId":"...","senderId":"...","kind":"image","imageUrl":"https://..."}}`，`quote` 可选；`thumbnailPath` 只存在本机，不进入 payload |
 | image | `{"url":"https://...","width":800,"height":600}` |
 | voice | `{"url":"https://...","durationSeconds":7}` |
 | file | `{"url":"https://...","fileName":"brief.pdf","fileSizeBytes":1234,"mimeType":"application/pdf"}` |

@@ -5,6 +5,7 @@ import '../../../../domain/models/chat_message.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/local_image.dart';
+import 'quoted_message_preview.dart';
 
 class MessageBubble extends StatelessWidget {
   const MessageBubble({
@@ -180,22 +181,7 @@ class MessageBubble extends StatelessWidget {
     ChatMessageQuote quote,
     bool mine,
   ) {
-    final l10n = context.l10n;
-    final preview = quote.text.isNotEmpty
-        ? quote.text
-        : switch (quote.kind) {
-            ChatMessageKind.image => l10n.imageMessage,
-            ChatMessageKind.voice => l10n.voiceMessage,
-            ChatMessageKind.file => l10n.fileMessage,
-            ChatMessageKind.video => l10n.videoMessage,
-            ChatMessageKind.location => l10n.locationMessage,
-            ChatMessageKind.contact => l10n.contactMessage,
-            ChatMessageKind.custom => l10n.customMessage,
-            ChatMessageKind.system => l10n.systemMessage,
-            _ => l10n.unsupportedMessage,
-          };
     final color = mine ? const Color(0x33FFFFFF) : const Color(0xFFF1F3F6);
-    final textColor = mine ? const Color(0xE6FFFFFF) : const Color(0xFF666B78);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -209,28 +195,7 @@ class MessageBubble extends StatelessWidget {
           ),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            quote.senderId,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            preview,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: textColor, fontSize: 12),
-          ),
-        ],
-      ),
+      child: QuotedMessagePreview(quote: quote, onDark: mine),
     );
   }
 

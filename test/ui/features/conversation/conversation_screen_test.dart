@@ -126,4 +126,49 @@ void main() {
     await chat.dispose();
     await media.dispose();
   });
+
+  testWidgets('recalls a recent outgoing message', (tester) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+    chat.history['peer'] = [
+      ChatMessage(
+        id: 'm-recall',
+        conversationId: 'peer',
+        senderId: 'me',
+        content: const TextMessageContent('recall me'),
+        sentAt: DateTime.now(),
+        deliveryState: ChatMessageDeliveryState.sent,
+        isOutgoing: true,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.longPress(find.text('recall me'));
+    await tester.pumpAndSettle();
+    expect(find.text('撤回'), findsOneWidget);
+
+    await tester.tap(find.text('撤回'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, '撤回'));
+    await tester.pumpAndSettle();
+
+    expect(chat.recalledIds, contains('m-recall'));
+    expect(find.text('消息已撤回'), findsWidgets);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
 }

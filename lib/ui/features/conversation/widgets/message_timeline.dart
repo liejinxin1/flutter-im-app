@@ -40,7 +40,7 @@ class MessageTimeline extends StatelessWidget {
   final ValueChanged<String> onRetry;
   final VoidCallback onReload;
   final VoidCallback onDismissError;
-  final ValueChanged<ChatMessage> onLongPress;
+  final void Function(ChatMessage message, Offset position) onLongPress;
   final bool selectionMode;
   final Set<String> selectedIds;
   final ValueChanged<ChatMessage> onToggleSelection;
@@ -120,7 +120,8 @@ class MessageTimeline extends StatelessWidget {
       return GestureDetector(
         key: ValueKey(message.id),
         behavior: HitTestBehavior.opaque,
-        onLongPress: () => onLongPress(message),
+        onLongPressStart: (details) =>
+            onLongPress(message, details.globalPosition),
         onTap: selectionMode ? () => onToggleSelection(message) : null,
         child: Container(
           color: selected

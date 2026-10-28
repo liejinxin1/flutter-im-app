@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../domain/models/chat_message.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/theme/app_theme.dart';
+import 'quoted_message_preview.dart';
 
 /// Message input row. Stateless by design: text state lives in the owning
 /// screen's [TextEditingController], and sends are forwarded upward.
@@ -138,22 +139,9 @@ class _QuoteBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final preview = quote.text.isNotEmpty
-        ? quote.text
-        : switch (quote.kind) {
-            ChatMessageKind.image => l10n.imageMessage,
-            ChatMessageKind.voice => l10n.voiceMessage,
-            ChatMessageKind.file => l10n.fileMessage,
-            ChatMessageKind.video => l10n.videoMessage,
-            ChatMessageKind.location => l10n.locationMessage,
-            ChatMessageKind.contact => l10n.contactMessage,
-            ChatMessageKind.custom => l10n.customMessage,
-            ChatMessageKind.system => l10n.systemMessage,
-            _ => l10n.unsupportedMessage,
-          };
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(10, 8, 4, 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 4, 8),
       decoration: BoxDecoration(
         color: AppColors.messageBackground,
         borderRadius: BorderRadius.circular(8),
@@ -163,31 +151,7 @@ class _QuoteBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.quotedMessage,
-                  style: const TextStyle(
-                    color: AppColors.mutedText,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  preview,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF303440),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: QuotedMessagePreview(quote: quote)),
           IconButton(
             tooltip: l10n.cancel,
             onPressed: onCancel,
