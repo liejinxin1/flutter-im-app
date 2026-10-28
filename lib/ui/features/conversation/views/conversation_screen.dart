@@ -571,24 +571,33 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         onDelete: () => unawaited(_deleteSelection()),
                       )
                     else ...[
-                      if (_composer.attachmentsExpanded)
-                        AttachmentPanel(
-                          isRecording: _composer.isRecording,
-                          elapsed: _composer.elapsed,
-                          isBusy: _composer.isBusy,
-                          onCamera: () =>
-                              unawaited(_pickImage(MediaImageSource.camera)),
-                          onGallery: () =>
-                              unawaited(_pickImage(MediaImageSource.gallery)),
-                          onRecord: () => unawaited(_toggleRecording()),
-                          onContact: () => _showMessage(
-                            context.l10n.contactShareUnavailable,
-                          ),
-                          onLocation: () =>
-                              _showMessage(context.l10n.locationUnavailable),
-                          onDocument: () =>
-                              _showMessage(context.l10n.documentUnavailable),
-                        ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        child: _composer.attachmentsExpanded
+                            ? AttachmentPanel(
+                                isRecording: _composer.isRecording,
+                                elapsed: _composer.elapsed,
+                                isBusy: _composer.isBusy,
+                                onCamera: () => unawaited(
+                                  _pickImage(MediaImageSource.camera),
+                                ),
+                                onGallery: () => unawaited(
+                                  _pickImage(MediaImageSource.gallery),
+                                ),
+                                onRecord: () => unawaited(_toggleRecording()),
+                                onContact: () => _showMessage(
+                                  context.l10n.contactShareUnavailable,
+                                ),
+                                onLocation: () => _showMessage(
+                                  context.l10n.locationUnavailable,
+                                ),
+                                onDocument: () => _showMessage(
+                                  context.l10n.documentUnavailable,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
                       MessageComposer(
                         controller: _messageController,
                         attachmentsExpanded: _composer.attachmentsExpanded,
