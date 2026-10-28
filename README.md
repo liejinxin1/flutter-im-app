@@ -139,6 +139,7 @@ flutter build apk --debug \
 
 ## 详细文档
 
+- [当前功能与项目状态](docs/current-status.md)
 - [架构说明](docs/architecture.md)
 - [SDK 替换边界](docs/sdk-boundary.md)
 - [消息协议与传输策略](docs/message-protocol.md)
