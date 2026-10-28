@@ -13,6 +13,7 @@ class ChatConversation {
     required this.isPinned,
     this.avatarUrl,
     this.lastMessageKind,
+    this.lastMessageSystemType,
   });
 
   final String id;
@@ -28,6 +29,10 @@ class ChatConversation {
   /// for image/voice messages without storing UI strings in the model.
   final ChatMessageKind? lastMessageKind;
 
+  /// For system messages: `recall` currently distinguishes a recall preview
+  /// from a generic system notice.
+  final String? lastMessageSystemType;
+
   ChatConversation copyWith({
     String? id,
     String? name,
@@ -38,6 +43,7 @@ class ChatConversation {
     bool? isPinned,
     String? avatarUrl,
     ChatMessageKind? lastMessageKind,
+    String? lastMessageSystemType,
   }) => ChatConversation(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -48,6 +54,7 @@ class ChatConversation {
     isPinned: isPinned ?? this.isPinned,
     avatarUrl: avatarUrl ?? this.avatarUrl,
     lastMessageKind: lastMessageKind ?? this.lastMessageKind,
+    lastMessageSystemType: lastMessageSystemType ?? this.lastMessageSystemType,
   );
 
   Map<String, Object?> toJson() => {
@@ -60,6 +67,7 @@ class ChatConversation {
     'isPinned': isPinned,
     'avatarUrl': avatarUrl,
     'lastMessageKind': lastMessageKind?.name,
+    'lastMessageSystemType': lastMessageSystemType,
   };
 
   factory ChatConversation.fromJson(Map<String, Object?> json) {
@@ -92,6 +100,7 @@ class ChatConversation {
       isPinned: json['isPinned'] as bool? ?? false,
       avatarUrl: json['avatarUrl'] as String?,
       lastMessageKind: lastMessageKind,
+      lastMessageSystemType: json['lastMessageSystemType'] as String?,
     );
   }
 }

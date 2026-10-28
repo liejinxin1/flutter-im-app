@@ -19,6 +19,7 @@
 
 - 密码 / Token 登录，会话失效自动回登录页
 - 单聊、群聊、分页历史消息、未读/已读状态
+- 会话列表按最后一条消息类型显示文本或 `[图片]/[视频]/[语音]/[文件]` 等预览
 - 文本、图片、语音消息发送与接收
 - 消息长按：微信式悬浮菜单，支持复制、删除、撤回、引用、转发、多选
 - 引用消息支持文本摘要、图片/视频缩略图、语音时长和文件名
@@ -55,7 +56,8 @@
 - [x] `ChatMessageContent` sealed 消息模型
 - [x] 文本 `app.im.message` 自定义 envelope
 - [x] 附件 `native/custom/hybrid` 传输策略、`AttachmentUploader` 接口、按类型白名单
-- [x] Widget Preview、页面 smoke test、92 个测试
+- [x] 会话列表按最后一条消息类型显示文本或 `[图片]/[视频]/[语音]/[文件]` 等预览
+- [x] Widget Preview、页面 smoke test、94 个测试
 - [x] 开源前 AppKey 清理：不提交任何可用 Key
 
 ### 🚧 进行中 / 待完善

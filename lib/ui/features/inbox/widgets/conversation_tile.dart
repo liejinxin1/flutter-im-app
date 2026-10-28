@@ -94,19 +94,32 @@ class ConversationTile extends StatelessWidget {
   );
 
   /// Matches the kit: today shows only time, older rows show time + MM/dd.
+  /// Text previews keep the message body; every other kind uses a WeChat-style
+  /// localized placeholder instead of leaking a generic "message" string.
   String _preview(BuildContext context) {
-    if (conversation.lastMessage.isNotEmpty) return conversation.lastMessage;
-    return switch (conversation.lastMessageKind) {
-      ChatMessageKind.image => context.l10n.imageMessage,
-      ChatMessageKind.voice => context.l10n.voiceMessage,
-      ChatMessageKind.file => context.l10n.fileMessage,
-      ChatMessageKind.video => context.l10n.videoMessage,
-      ChatMessageKind.location => context.l10n.locationMessage,
-      ChatMessageKind.contact => context.l10n.contactMessage,
-      ChatMessageKind.custom => context.l10n.customMessage,
-      ChatMessageKind.system => context.l10n.systemMessage,
-      ChatMessageKind.unknown => context.l10n.unsupportedMessage,
-      _ => context.l10n.startConversation,
+    final kind = conversation.lastMessageKind;
+    if (kind == null || kind == ChatMessageKind.text) {
+      return conversation.lastMessage.isNotEmpty
+          ? conversation.lastMessage
+          : context.l10n.startConversation;
+    }
+    final l10n = context.l10n;
+    return switch (kind) {
+      ChatMessageKind.image => l10n.conversationPreviewImage,
+      ChatMessageKind.voice => l10n.conversationPreviewVoice,
+      ChatMessageKind.file => l10n.conversationPreviewFile,
+      ChatMessageKind.video => l10n.conversationPreviewVideo,
+      ChatMessageKind.location => l10n.conversationPreviewLocation,
+      ChatMessageKind.contact => l10n.conversationPreviewContact,
+      ChatMessageKind.custom => l10n.conversationPreviewCustom,
+      ChatMessageKind.system =>
+        conversation.lastMessageSystemType == 'recall'
+            ? l10n.recalledMessage
+            : conversation.lastMessage.isNotEmpty
+            ? conversation.lastMessage
+            : l10n.conversationPreviewSystem,
+      ChatMessageKind.unknown => l10n.conversationPreviewUnknown,
+      ChatMessageKind.text => conversation.lastMessage,
     };
   }
 

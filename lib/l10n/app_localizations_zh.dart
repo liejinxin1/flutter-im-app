@@ -191,6 +191,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unsupportedMessage => '暂不支持的消息';
 
   @override
+  String get conversationPreviewImage => '[图片]';
+
+  @override
+  String get conversationPreviewVoice => '[语音]';
+
+  @override
+  String get conversationPreviewFile => '[文件]';
+
+  @override
+  String get conversationPreviewVideo => '[视频]';
+
+  @override
+  String get conversationPreviewLocation => '[位置]';
+
+  @override
+  String get conversationPreviewContact => '[名片]';
+
+  @override
+  String get conversationPreviewCustom => '[自定义消息]';
+
+  @override
+  String get conversationPreviewSystem => '[系统消息]';
+
+  @override
+  String get conversationPreviewUnknown => '[暂不支持的消息]';
+
+  @override
   String get chatTitle => '聊天';
 
   @override

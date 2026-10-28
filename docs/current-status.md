@@ -19,6 +19,7 @@
 ### 会话与消息
 
 - 会话列表、未读数、已读状态
+- 会话预览按最后一条消息类型显示文本或 `[图片]/[视频]/[语音]/[文件]` 等
 - 单聊、群聊
 - 分页历史消息
 - 文本、图片、语音发送与接收
@@ -64,7 +65,7 @@
 - 手机底部导航 + 宽屏 `NavigationRail`
 - 页面内容最大宽度、消息气泡最大宽度
 - Widget Preview，不启动 App、不初始化 SDK 即可预览页面
-- 92 个单元/Widget/预览测试
+- 94 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -113,7 +114,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          92 tests, all passed
+flutter test          94 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

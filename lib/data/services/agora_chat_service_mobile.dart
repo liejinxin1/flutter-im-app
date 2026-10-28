@@ -220,6 +220,9 @@ class AgoraChatPlatform {
               ? latestContent.text
               : '',
           lastMessageKind: latestContent?.kind,
+          lastMessageSystemType: latestContent is domain.SystemMessageContent
+              ? latestContent.systemType
+              : null,
           lastActivity: latest == null ? null : _messageTime(latest),
           unreadCount: unreadCount,
           isPinned: false,

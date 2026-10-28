@@ -197,6 +197,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unsupportedMessage => 'Unsupported message';
 
   @override
+  String get conversationPreviewImage => '[Image]';
+
+  @override
+  String get conversationPreviewVoice => '[Voice]';
+
+  @override
+  String get conversationPreviewFile => '[File]';
+
+  @override
+  String get conversationPreviewVideo => '[Video]';
+
+  @override
+  String get conversationPreviewLocation => '[Location]';
+
+  @override
+  String get conversationPreviewContact => '[Contact]';
+
+  @override
+  String get conversationPreviewCustom => '[Custom message]';
+
+  @override
+  String get conversationPreviewSystem => '[System message]';
+
+  @override
+  String get conversationPreviewUnknown => '[Unsupported message]';
+
+  @override
   String get chatTitle => 'Chat';
 
   @override

@@ -150,6 +150,9 @@ class InboxViewModel extends ViewModel {
       final updated = current.copyWith(
         lastMessage: message.kind == ChatMessageKind.text ? message.text : '',
         lastMessageKind: message.kind,
+        lastMessageSystemType: message.content is SystemMessageContent
+            ? (message.content as SystemMessageContent).systemType
+            : null,
         lastActivity: message.sentAt,
         unreadCount: unread,
       );

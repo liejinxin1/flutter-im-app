@@ -434,6 +434,60 @@ abstract class AppLocalizations {
   /// **'Unsupported message'**
   String get unsupportedMessage;
 
+  /// No description provided for @conversationPreviewImage.
+  ///
+  /// In en, this message translates to:
+  /// **'[Image]'**
+  String get conversationPreviewImage;
+
+  /// No description provided for @conversationPreviewVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'[Voice]'**
+  String get conversationPreviewVoice;
+
+  /// No description provided for @conversationPreviewFile.
+  ///
+  /// In en, this message translates to:
+  /// **'[File]'**
+  String get conversationPreviewFile;
+
+  /// No description provided for @conversationPreviewVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'[Video]'**
+  String get conversationPreviewVideo;
+
+  /// No description provided for @conversationPreviewLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'[Location]'**
+  String get conversationPreviewLocation;
+
+  /// No description provided for @conversationPreviewContact.
+  ///
+  /// In en, this message translates to:
+  /// **'[Contact]'**
+  String get conversationPreviewContact;
+
+  /// No description provided for @conversationPreviewCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'[Custom message]'**
+  String get conversationPreviewCustom;
+
+  /// No description provided for @conversationPreviewSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'[System message]'**
+  String get conversationPreviewSystem;
+
+  /// No description provided for @conversationPreviewUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'[Unsupported message]'**
+  String get conversationPreviewUnknown;
+
   /// No description provided for @chatTitle.
   ///
   /// In en, this message translates to:
