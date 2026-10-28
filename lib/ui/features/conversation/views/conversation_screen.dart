@@ -253,6 +253,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         break;
       case _MessageAction.select:
         if (!mounted) return;
+        FocusScope.of(context).unfocus();
         setState(() {
           _selectionMode = true;
           _selectedMessageIds.add(message.id);
