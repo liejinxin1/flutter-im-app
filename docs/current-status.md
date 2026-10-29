@@ -80,7 +80,8 @@
 - 输入框外点击/按钮操作收起软键盘
 - 发送后自动滚到底部，浏览历史时显示新消息条数，加载到底提示没有更多
 - 删除/撤回状态本地持久化，重新进入会话不会复活旧内容
-- 112 个单元/Widget/预览测试
+- 消息缓存限制：单会话 60 条、最多 80 个会话
+- 113 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -129,7 +130,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          112 tests, all passed
+flutter test          113 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

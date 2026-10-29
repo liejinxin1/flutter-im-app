@@ -114,6 +114,31 @@ void main() {
       },
     );
 
+    test('caps the number of cached conversations', () async {
+      final store = MemoryLocalStore();
+      final cache = ChatCache(store);
+      for (var i = 0; i < 81; i++) {
+        await cache.saveMessages('alice', 'conv-$i', [
+          ChatMessage(
+            id: 'm-$i',
+            conversationId: 'conv-$i',
+            senderId: 'peer',
+            text: 'message $i',
+            sentAt: DateTime(2026, 1, 1, 0, i),
+            deliveryState: ChatMessageDeliveryState.sent,
+            isOutgoing: false,
+            kind: ChatMessageKind.text,
+          ),
+        ]);
+      }
+
+      expect((await cache.loadMessages('alice', 'conv-0')).items, isEmpty);
+      expect(
+        (await cache.loadMessages('alice', 'conv-80')).items,
+        hasLength(1),
+      );
+    });
+
     test('never returns another account cache', () async {
       final store = MemoryLocalStore();
       final cache = ChatCache(store);

@@ -13,6 +13,7 @@ class ChatCache {
 
   final LocalStore _store;
   static const _maxCachedMessages = 60;
+  static const _maxCachedConversations = 80;
   static const _maxAttachmentPaths = 200;
 
   String _conversationsKey(String userId) => 'cache.conversations.v1.$userId';
@@ -25,6 +26,9 @@ class ChatCache {
 
   String _recalledKey(String userId, String conversationId) =>
       'cache.recalled.v1.$userId.$conversationId';
+
+  String _conversationIndexKey(String userId) =>
+      'cache.message_index.v1.$userId';
 
   String _attachmentPathsKey(String userId) =>
       'cache.attachment_paths.v1.$userId';
@@ -124,8 +128,41 @@ class ChatCache {
           }).toList(),
         ),
       );
+      await _touchConversation(userId, conversationId);
     } catch (_) {
       // A cache write must never fail sending/loading.
+    }
+  }
+
+  Future<void> _touchConversation(String userId, String conversationId) async {
+    final index = await _loadConversationIndex(userId);
+    index[conversationId] = DateTime.now().millisecondsSinceEpoch;
+    if (index.length > _maxCachedConversations) {
+      final entries = index.entries.toList()
+        ..sort((a, b) => a.value.compareTo(b.value));
+      final stale = entries.take(index.length - _maxCachedConversations);
+      for (final entry in stale) {
+        await _store.remove(_messagesKey(userId, entry.key));
+        await _store.remove(_deletedKey(userId, entry.key));
+        await _store.remove(_recalledKey(userId, entry.key));
+        index.remove(entry.key);
+      }
+    }
+    await _store.write(_conversationIndexKey(userId), jsonEncode(index));
+  }
+
+  Future<Map<String, int>> _loadConversationIndex(String userId) async {
+    try {
+      final raw = await _store.read(_conversationIndexKey(userId));
+      if (raw == null) return {};
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) return {};
+      return {
+        for (final entry in decoded.entries)
+          '${entry.key}': (entry.value as num?)?.toInt() ?? 0,
+      };
+    } catch (_) {
+      return {};
     }
   }
 
