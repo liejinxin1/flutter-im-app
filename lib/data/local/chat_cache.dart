@@ -20,6 +20,12 @@ class ChatCache {
   String _messagesKey(String userId, String conversationId) =>
       'cache.messages.v1.$userId.$conversationId';
 
+  String _deletedKey(String userId, String conversationId) =>
+      'cache.deleted.v1.$userId.$conversationId';
+
+  String _recalledKey(String userId, String conversationId) =>
+      'cache.recalled.v1.$userId.$conversationId';
+
   String _attachmentPathsKey(String userId) =>
       'cache.attachment_paths.v1.$userId';
 
@@ -84,7 +90,11 @@ class ChatCache {
           )
           .where((message) => message.id.isNotEmpty)
           .toList(growable: false);
-      return ChatMessagePage(items: items, cursor: null, hasMore: false);
+      return ChatMessagePage(
+        items: await _applyOverrides(userId, conversationId, items),
+        cursor: null,
+        hasMore: false,
+      );
     } catch (_) {
       return const ChatMessagePage(items: [], cursor: null, hasMore: false);
     }
@@ -97,10 +107,11 @@ class ChatCache {
   ) async {
     if (userId.isEmpty) return;
     try {
-      final start = messages.length > _maxCachedMessages
-          ? messages.length - _maxCachedMessages
+      final visible = await _applyOverrides(userId, conversationId, messages);
+      final start = visible.length > _maxCachedMessages
+          ? visible.length - _maxCachedMessages
           : 0;
-      final tail = messages.sublist(start);
+      final tail = visible.sublist(start);
       await _store.write(
         _messagesKey(userId, conversationId),
         jsonEncode(
@@ -134,6 +145,7 @@ class ChatCache {
   ) async {
     if (userId.isEmpty || messageIds.isEmpty) return;
     try {
+      await _addIds(_deletedKey(userId, conversationId), messageIds);
       final page = await loadMessages(userId, conversationId);
       final remaining = page.items
           .where((message) => !messageIds.contains(message.id))
@@ -142,6 +154,72 @@ class ChatCache {
     } catch (_) {
       // Cache cleanup is best effort.
     }
+  }
+
+  /// Persists a recall so re-entering the chat cannot resurrect the old body.
+  Future<void> markRecalled(
+    String userId,
+    String conversationId,
+    String messageId,
+  ) async {
+    if (userId.isEmpty || messageId.isEmpty) return;
+    try {
+      await _addIds(_recalledKey(userId, conversationId), {messageId});
+      final page = await loadMessages(userId, conversationId);
+      await saveMessages(userId, conversationId, page.items);
+    } catch (_) {
+      // Recall persistence is best effort.
+    }
+  }
+
+  /// Applies local delete tombstones and recall overrides to a server page.
+  Future<List<ChatMessage>> applyOverrides(
+    String userId,
+    String conversationId,
+    List<ChatMessage> messages,
+  ) => _applyOverrides(userId, conversationId, messages);
+
+  Future<List<ChatMessage>> _applyOverrides(
+    String userId,
+    String conversationId,
+    List<ChatMessage> messages,
+  ) async {
+    if (messages.isEmpty) return messages;
+    final deleted = await _loadIds(_deletedKey(userId, conversationId));
+    final recalled = await _loadIds(_recalledKey(userId, conversationId));
+    if (deleted.isEmpty && recalled.isEmpty) return messages;
+    return messages
+        .where((message) => !deleted.contains(message.id))
+        .map((message) {
+          if (!recalled.contains(message.id)) return message;
+          if (message.content is SystemMessageContent) return message;
+          return message.copyWith(
+            content: const SystemMessageContent(text: '', systemType: 'recall'),
+            deliveryState: ChatMessageDeliveryState.sent,
+          );
+        })
+        .toList(growable: false);
+  }
+
+  Future<Set<String>> _loadIds(String key) async {
+    try {
+      final raw = await _store.read(key);
+      if (raw == null) return <String>{};
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return <String>{};
+      return decoded.whereType<String>().toSet();
+    } catch (_) {
+      return <String>{};
+    }
+  }
+
+  Future<void> _addIds(String key, Set<String> ids) async {
+    final existing = await _loadIds(key);
+    existing.addAll(ids);
+    final kept = existing.length > 500
+        ? existing.toList().sublist(existing.length - 500).toSet()
+        : existing;
+    await _store.write(key, jsonEncode(kept.toList()));
   }
 
   /// Loads the device-local attachment paths remembered for [userId].

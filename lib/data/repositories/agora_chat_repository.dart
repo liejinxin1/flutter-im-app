@@ -101,7 +101,12 @@ class AgoraChatRepository implements ChatRepository {
       );
       // Server history carries no local attachment paths; restore the ones
       // this device already downloaded so images stay visible after re-entry.
-      final items = await _cache.mergeAttachmentPaths(userId, page.items);
+      final withPaths = await _cache.mergeAttachmentPaths(userId, page.items);
+      final items = await _cache.applyOverrides(
+        userId,
+        conversationId,
+        withPaths,
+      );
       if (cursor == null && userId.isNotEmpty) {
         unawaited(_cache.saveMessages(userId, conversationId, items));
       }
@@ -476,8 +481,11 @@ class AgoraChatRepository implements ChatRepository {
   }
 
   @override
-  Future<void> recallMessage(ChatMessage message) =>
-      _service.recallMessage(message.id);
+  Future<void> recallMessage(ChatMessage message) async {
+    await _service.recallMessage(message.id);
+    final userId = _service.currentUserId ?? '';
+    await _cache.markRecalled(userId, message.conversationId, message.id);
+  }
 
   @override
   Future<ChatMessage> forwardMessage(

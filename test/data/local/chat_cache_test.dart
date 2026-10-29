@@ -45,6 +45,75 @@ void main() {
       expect(page.hasMore, isFalse);
     });
 
+    test('keeps deleted messages hidden after a server refresh', () async {
+      final store = MemoryLocalStore();
+      final cache = ChatCache(store);
+      final messages = [
+        ChatMessage(
+          id: 'm1',
+          conversationId: 'peer',
+          senderId: 'peer',
+          text: 'delete me',
+          sentAt: DateTime(2026),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: false,
+          kind: ChatMessageKind.text,
+        ),
+        ChatMessage(
+          id: 'm2',
+          conversationId: 'peer',
+          senderId: 'peer',
+          text: 'keep me',
+          sentAt: DateTime(2026, 1, 2),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: false,
+          kind: ChatMessageKind.text,
+        ),
+      ];
+      await cache.saveMessages('alice', 'peer', messages);
+      await cache.removeMessages('alice', 'peer', {'m1'});
+
+      expect((await cache.loadMessages('alice', 'peer')).items, hasLength(1));
+      expect(
+        (await cache.applyOverrides('alice', 'peer', messages)).single.id,
+        'm2',
+      );
+
+      await cache.saveMessages('alice', 'peer', messages);
+      final page = await cache.loadMessages('alice', 'peer');
+      expect(page.items.map((message) => message.id), ['m2']);
+    });
+
+    test(
+      'restores recall state instead of the original message body',
+      () async {
+        final store = MemoryLocalStore();
+        final cache = ChatCache(store);
+        final original = ChatMessage(
+          id: 'm1',
+          conversationId: 'peer',
+          senderId: 'me',
+          text: 'recall me',
+          sentAt: DateTime(2026),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: true,
+          kind: ChatMessageKind.text,
+        );
+        await cache.saveMessages('alice', 'peer', [original]);
+        await cache.markRecalled('alice', 'peer', 'm1');
+
+        final cached = await cache.loadMessages('alice', 'peer');
+        expect(cached.items.single.content, isA<SystemMessageContent>());
+        expect(
+          (cached.items.single.content as SystemMessageContent).systemType,
+          'recall',
+        );
+
+        final server = await cache.applyOverrides('alice', 'peer', [original]);
+        expect(server.single.content, isA<SystemMessageContent>());
+      },
+    );
+
     test('never returns another account cache', () async {
       final store = MemoryLocalStore();
       final cache = ChatCache(store);
