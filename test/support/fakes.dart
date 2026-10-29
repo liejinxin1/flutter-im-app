@@ -390,6 +390,7 @@ class FakeContactRepository implements ContactRepository {
 
 class FakeGroupRepository implements GroupRepository {
   final List<List<String>> createdMemberIds = [];
+  List<String> memberIds = const [];
   Object? createError;
   @override
   Future<String> createGroup({
@@ -401,6 +402,9 @@ class FakeGroupRepository implements GroupRepository {
     createdMemberIds.add(memberIds);
     return 'group-${createdMemberIds.length}';
   }
+
+  @override
+  Future<List<String>> loadMemberIds(String groupId) async => memberIds;
 }
 
 class FakeProfileRepository implements ProfileRepository {
@@ -420,6 +424,12 @@ class FakeProfileRepository implements ProfileRepository {
     return {
       for (final id in userIds) id: profiles[id] ?? UserProfile(userId: id),
     };
+  }
+
+  @override
+  Future<void> updateRemark(String userId, String remark) async {
+    profiles[userId] = (profiles[userId] ?? UserProfile(userId: userId))
+        .copyWith(remark: remark);
   }
 }
 

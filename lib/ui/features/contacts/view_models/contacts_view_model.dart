@@ -167,6 +167,7 @@ class ContactsViewModel extends ViewModel {
   Future<bool> updateRemark(String userId, String remark) async {
     try {
       await _contacts.updateRemark(userId, remark);
+      await _profiles.updateRemark(userId, remark);
       _items = _items
           .map(
             (profile) => profile.userId == userId

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../domain/models/chat_conversation.dart';
 import '../../../../domain/models/chat_message.dart';
@@ -568,8 +569,21 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     Navigator.of(context).pop();
                   }
                 },
-                onShowDetails: () =>
-                    _showMessage(context.l10n.conversationDetailsUnavailable),
+                onShowDetails: () {
+                  if (widget.kind == ChatConversationKind.group) {
+                    final query = <String, String>{
+                      if (widget.peerName != null) 'name': widget.peerName!,
+                      if (widget.memberCount != null)
+                        'members': '${widget.memberCount}',
+                    };
+                    context.push<void>(
+                      '/groups/${Uri.encodeComponent(widget.peerId)}'
+                      '${query.isEmpty ? '' : '?${Uri(queryParameters: query).query}'}',
+                    );
+                  } else {
+                    _showMessage(context.l10n.conversationDetailsUnavailable);
+                  }
+                },
                 onShowPeerId: () =>
                     _showMessage(context.l10n.userIdValue(widget.peerId)),
                 onVideoCall: widget.kind != ChatConversationKind.chatRoom

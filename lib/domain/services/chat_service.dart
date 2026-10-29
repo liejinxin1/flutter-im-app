@@ -115,6 +115,7 @@ abstract interface class ChatService implements UserDirectory {
     required String name,
     required List<String> memberIds,
   });
+  Future<List<String>> loadGroupMemberIds(String groupId);
 
   Future<void> dispose();
 }

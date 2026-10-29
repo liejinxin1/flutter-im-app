@@ -1,9 +1,10 @@
 import '../data/local/chat_cache.dart';
+import '../data/local/friend_cache_factory.dart';
 import '../data/local/local_store_factory.dart';
 import '../data/local/prefs_app_settings.dart';
 import '../data/local/prefs_friend_request_store.dart';
 import '../data/local/prefs_outbox_repository.dart';
-import '../data/local/prefs_profile_repository.dart';
+import '../data/local/profile_repository_factory.dart';
 import '../data/repositories/agora_chat_repository.dart';
 import '../data/repositories/agora_contact_repository.dart';
 import '../data/repositories/agora_group_repository.dart';
@@ -79,11 +80,11 @@ class AppDependencies {
         uploader: attachmentUploader,
         customAttachmentKinds: AppConfig.customAttachmentKindSet,
       ),
-      contacts: AgoraContactRepository(connection),
+      contacts: AgoraContactRepository(connection, cache: createFriendCache()),
       groups: AgoraGroupRepository(connection.service),
       media: mediaGateway,
       outbox: outbox,
-      profiles: PrefsProfileRepository(connection.service, store),
+      profiles: createProfileRepository(connection.service, store),
       friendRequests: PrefsFriendRequestStore(store),
       settings: settings ?? PrefsAppSettings(store),
       api: apiClient,

@@ -711,6 +711,12 @@ class AgoraChatPlatform {
     return group.groupId;
   }
 
+  Future<List<String>> loadGroupMemberIds(String groupId) async {
+    final result = await ChatClient.getInstance.groupManager
+        .fetchMemberListFromServer(groupId, pageSize: 200);
+    return result.data;
+  }
+
   domain.ChatMessage? _mapMessage(ChatMessage message) {
     final body = message.body;
     final currentUserId = ChatClient.getInstance.currentUserId;

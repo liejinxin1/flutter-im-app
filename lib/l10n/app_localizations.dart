@@ -536,6 +536,18 @@ abstract class AppLocalizations {
   /// **'{count} members'**
   String groupMembers(num count);
 
+  /// No description provided for @groupProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Group profile'**
+  String get groupProfile;
+
+  /// No description provided for @groupMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group members'**
+  String get groupMembersTitle;
+
   /// No description provided for @videoCall.
   ///
   /// In en, this message translates to:
@@ -757,6 +769,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send message'**
   String get sendMessage;
+
+  /// No description provided for @friendProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact profile'**
+  String get friendProfile;
+
+  /// No description provided for @remark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remark'**
+  String get remark;
+
+  /// No description provided for @noRemark.
+  ///
+  /// In en, this message translates to:
+  /// **'No remark'**
+  String get noRemark;
 
   /// No description provided for @remarkHint.
   ///

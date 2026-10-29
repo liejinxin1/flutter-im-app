@@ -8,6 +8,10 @@ import 'package:sqflite/sqflite.dart';
 /// friendships, and request history. Repositories are the only callers; the UI
 /// never sees SQLite.
 class AppDatabase {
+  AppDatabase._();
+
+  static final AppDatabase instance = AppDatabase._();
+
   Database? _database;
   Future<Database>? _opening;
 

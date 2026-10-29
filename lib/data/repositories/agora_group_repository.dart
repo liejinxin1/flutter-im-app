@@ -11,4 +11,8 @@ class AgoraGroupRepository implements GroupRepository {
     required String name,
     required List<String> memberIds,
   }) => _service.createGroup(name: name, memberIds: memberIds);
+
+  @override
+  Future<List<String>> loadMemberIds(String groupId) =>
+      _service.loadGroupMemberIds(groupId);
 }

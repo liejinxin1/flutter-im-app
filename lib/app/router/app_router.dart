@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../domain/models/chat_conversation.dart';
 import '../../ui/features/auth/view_models/auth_view_model.dart';
 import '../../ui/features/auth/views/auth_screen.dart';
+import '../../ui/features/contacts/views/friend_detail_screen.dart';
 import '../../ui/features/conversation/views/conversation_screen.dart';
+import '../../ui/features/groups/views/group_detail_screen.dart';
 import '../../ui/features/shell/views/app_shell.dart';
 import '../app_dependencies.dart';
 import '../navigation/app_navigation.dart';
@@ -64,6 +66,43 @@ class AppRouter {
               dependencies: dependencies,
               authViewModel: auth,
               currentUserId: userId,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/groups/:groupId',
+          builder: (context, state) {
+            final groupId = Uri.decodeComponent(
+              state.pathParameters['groupId'] ?? '',
+            );
+            final members = int.tryParse(
+              state.uri.queryParameters['members'] ?? '',
+            );
+            return GroupDetailScreen(
+              groupId: groupId,
+              groupName: state.uri.queryParameters['name'],
+              memberCount: members,
+              groups: dependencies.groups,
+              profiles: dependencies.profiles,
+              onOpenMember: (userId) =>
+                  context.push<void>('/friends/${Uri.encodeComponent(userId)}'),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/friends/:userId',
+          builder: (context, state) {
+            final userId = Uri.decodeComponent(
+              state.pathParameters['userId'] ?? '',
+            );
+            return FriendDetailScreen(
+              userId: userId,
+              profiles: dependencies.profiles,
+              contacts: dependencies.contacts,
+              onOpenChat: (peerId) => context.push<void>(
+                '/chats/${Uri.encodeComponent(peerId)}',
+                extra: const ConversationRouteArgs(),
+              ),
             );
           },
         ),

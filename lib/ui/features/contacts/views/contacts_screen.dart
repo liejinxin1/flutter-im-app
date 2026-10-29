@@ -15,10 +15,12 @@ class ContactsScreen extends StatelessWidget {
     super.key,
     required this.viewModel,
     required this.onOpenConversation,
+    this.onOpenProfile,
   });
 
   final ContactsViewModel viewModel;
   final ValueChanged<String> onOpenConversation;
+  final ValueChanged<String>? onOpenProfile;
 
   @override
   Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
@@ -111,14 +113,12 @@ class ContactsScreen extends StatelessWidget {
                               Icons.more_vert_rounded,
                               color: AppColors.mutedText,
                             ),
-                            onSelected: (action) {
-                              if (action == 'chat') {
-                                onOpenConversation(profile.userId);
-                              } else {
-                                _editRemark(context, profile);
-                              }
-                            },
                             itemBuilder: (context) => [
+                              if (onOpenProfile != null)
+                                PopupMenuItem(
+                                  value: 'profile',
+                                  child: Text(context.l10n.friendProfile),
+                                ),
                               PopupMenuItem(
                                 value: 'chat',
                                 child: Text(context.l10n.sendMessage),
@@ -128,6 +128,15 @@ class ContactsScreen extends StatelessWidget {
                                 child: Text(context.l10n.editRemark),
                               ),
                             ],
+                            onSelected: (action) {
+                              if (action == 'profile') {
+                                onOpenProfile?.call(profile.userId);
+                              } else if (action == 'chat') {
+                                onOpenConversation(profile.userId);
+                              } else {
+                                _editRemark(context, profile);
+                              }
+                            },
                           ),
                         );
                       },

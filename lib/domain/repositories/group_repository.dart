@@ -3,4 +3,6 @@ abstract interface class GroupRepository {
     required String name,
     required List<String> memberIds,
   });
+
+  Future<List<String>> loadMemberIds(String groupId);
 }

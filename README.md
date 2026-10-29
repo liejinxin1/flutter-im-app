@@ -64,6 +64,9 @@
 - [x] 附件 `native/custom/hybrid` 传输策略、`AttachmentUploader` 接口、按类型白名单
 - [x] 会话列表按最后一条消息类型显示文本或 `[图片]/[视频]/[语音]/[文件]` 等预览
 - [x] SQLite 本地数据层，旧 SharedPreferences 缓存惰性迁移
+- [x] SQLite `profiles` / `friendships` 表接入资料与好友缓存
+- [x] 好友资料页、备注展示与编辑
+- [x] 群资料页、群成员列表（Agora 成员 + 本地资料补全）
 - [x] 账号隔离的资料缓存和联系人备注编辑
 - [x] 单聊/群聊输入框按 Figma Ver2 区分：单聊相机/附件/麦克风，群聊 + / 发送
 - [x] 会话/消息本地缓存优先加载，网络历史随后合并

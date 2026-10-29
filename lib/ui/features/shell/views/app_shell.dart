@@ -198,9 +198,11 @@ class _AppShellState extends State<AppShell> {
     if (!mounted) return;
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) => ContactsScreen(
+        builder: (context) => ContactsScreen(
           viewModel: _contacts,
           onOpenConversation: (userId) => _openConversation(userId),
+          onOpenProfile: (userId) =>
+              context.push<void>('/friends/${Uri.encodeComponent(userId)}'),
         ),
       ),
     );

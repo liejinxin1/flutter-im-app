@@ -9,4 +9,6 @@ abstract interface class ProfileRepository {
     Iterable<String> userIds, {
     bool forceRefresh = false,
   });
+
+  Future<void> updateRemark(String userId, String remark);
 }

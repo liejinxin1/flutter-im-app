@@ -250,6 +250,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get groupProfile => '群资料';
+
+  @override
+  String get groupMembersTitle => '群成员';
+
+  @override
   String get videoCall => '视频通话';
 
   @override
@@ -367,6 +373,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sendMessage => '发消息';
+
+  @override
+  String get friendProfile => '好友资料';
+
+  @override
+  String get remark => '备注';
+
+  @override
+  String get noRemark => '暂无备注';
 
   @override
   String get remarkHint => '添加备注';

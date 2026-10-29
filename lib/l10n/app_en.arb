@@ -139,6 +139,8 @@
   "showUserId": "Show user ID",
   "groupChat": "Group chat",
   "groupMembers": "{count} members",
+  "groupProfile": "Group profile",
+  "groupMembersTitle": "Group members",
   "@groupMembers": {
     "placeholders": {
       "count": {
@@ -211,6 +213,9 @@
   "camera": "Camera",
   "editRemark": "Edit remark",
   "sendMessage": "Send message",
+  "friendProfile": "Contact profile",
+  "remark": "Remark",
+  "noRemark": "No remark",
   "remarkHint": "Add a remark",
   "save": "Save",
   "remarkUpdated": "Remark updated",

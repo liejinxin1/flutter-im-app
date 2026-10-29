@@ -256,6 +256,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get groupProfile => 'Group profile';
+
+  @override
+  String get groupMembersTitle => 'Group members';
+
+  @override
   String get videoCall => 'Video call';
 
   @override
@@ -378,6 +384,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendMessage => 'Send message';
+
+  @override
+  String get friendProfile => 'Contact profile';
+
+  @override
+  String get remark => 'Remark';
+
+  @override
+  String get noRemark => 'No remark';
 
   @override
   String get remarkHint => 'Add a remark';

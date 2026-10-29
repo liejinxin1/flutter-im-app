@@ -23,7 +23,7 @@ conversations    account_id + conversation_id + payload + last_activity
 messages         account_id + conversation_id + message_id + payload + sent_at
 ```
 
-`profiles`、`friendships` 是后续资料/好友功能的稳定表结构；当前联系人仍由 Agora SDK 提供，备注写入通过 `ContactRepository.updateRemark` → `ChatService.setContactRemark` 进入 SDK。之后若改用业务服务器，只需要替换 `ContactRepository` / `ChatService` 实现，不改变 ViewModel 和页面。
+`profiles` 已由 `SqliteProfileRepository` 作为资料缓存主路径；`friendships` 由 `FriendCache` 作为联系人/备注缓存，Agora SDK 仍是关系动作的事实来源。
 
 ## 分层边界
 
@@ -47,7 +47,7 @@ AgoraChatService → agora_chat_sdk
 
 ## 仍待完成
 
-- 把 `profiles` / `friendships` 表接入对应的 Repository，替换当前 JSON profile cache。
+- 业务服务器模式下，由服务器返回资料/好友关系，SQLite 只作为只读缓存。
 - 将消息 payload 从 JSON 列逐步拆成可索引的摘要列（当前按 conversation + sent_at 建索引）。
 - 迁移旧 SharedPreferences 后清理旧 key（当前是惰性迁移并删除旧 key）。
 - 资料/好友/备注编辑页面。

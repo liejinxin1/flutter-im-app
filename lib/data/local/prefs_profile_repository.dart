@@ -109,4 +109,12 @@ class PrefsProfileRepository implements ProfileRepository {
 
     return {for (final id in ids) id: _cache[id] ?? UserProfile(userId: id)};
   }
+
+  @override
+  Future<void> updateRemark(String userId, String remark) async {
+    await _ensureCache();
+    final current = _cache[userId] ?? UserProfile(userId: userId);
+    _cache[userId] = current.copyWith(remark: remark);
+    await _persist();
+  }
 }

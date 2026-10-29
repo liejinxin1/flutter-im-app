@@ -339,6 +339,12 @@ class PreviewProfileRepository implements ProfileRepository {
   }) async => {
     for (final id in userIds) id: _profiles[id] ?? UserProfile(userId: id),
   };
+
+  @override
+  Future<void> updateRemark(String userId, String remark) async {
+    _profiles[userId] = (_profiles[userId] ?? UserProfile(userId: userId))
+        .copyWith(remark: remark);
+  }
 }
 
 class PreviewFriendRequestStore implements FriendRequestStore {
@@ -372,6 +378,13 @@ class PreviewGroupRepository implements GroupRepository {
     required String name,
     required List<String> memberIds,
   }) async => 'preview-group';
+
+  @override
+  Future<List<String>> loadMemberIds(String groupId) async => const [
+    'alice',
+    'bob',
+    'charlie',
+  ];
 }
 
 class PreviewMediaGateway implements MediaGateway {

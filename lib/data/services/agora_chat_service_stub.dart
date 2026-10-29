@@ -130,6 +130,9 @@ class AgoraChatPlatform {
   }) =>
       Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
 
+  Future<List<String>> loadGroupMemberIds(String groupId) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
   Future<void> logout() async {}
 
   Future<void> dispose() async {}
