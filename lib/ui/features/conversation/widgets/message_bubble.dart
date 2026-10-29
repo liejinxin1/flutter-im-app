@@ -5,6 +5,7 @@ import '../../../../domain/models/chat_message.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/local_image.dart';
+import '../../../core/widgets/user_avatar.dart';
 import 'quoted_message_preview.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -18,6 +19,8 @@ class MessageBubble extends StatelessWidget {
     required this.onRetry,
     this.onQuoteTap,
     this.showSenderName = false,
+    this.senderName,
+    this.senderAvatarUrl,
   });
 
   final ChatMessage message;
@@ -28,6 +31,8 @@ class MessageBubble extends StatelessWidget {
   final VoidCallback onRetry;
   final ValueChanged<String>? onQuoteTap;
   final bool showSenderName;
+  final String? senderName;
+  final String? senderAvatarUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +53,7 @@ class MessageBubble extends StatelessWidget {
     final maxWidth = (MediaQuery.sizeOf(context).width * .76)
         .clamp(260.0, 520.0)
         .toDouble();
-    return Align(
+    final bubble = Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -63,7 +68,7 @@ class MessageBubble extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 4),
                   child: Text(
-                    message.senderId,
+                    senderName ?? message.senderId,
                     style: const TextStyle(
                       color: AppColors.mutedText,
                       fontSize: 11,
@@ -187,6 +192,24 @@ class MessageBubble extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+    if (!showSenderName || mine) return bubble;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          UserAvatar(
+            userId: message.senderId,
+            radius: 16,
+            foregroundImage: senderAvatarUrl == null
+                ? null
+                : NetworkImage(senderAvatarUrl!),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: bubble),
+        ],
       ),
     );
   }

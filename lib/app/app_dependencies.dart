@@ -1,9 +1,9 @@
 import '../data/local/chat_cache.dart';
+import '../data/local/local_store_factory.dart';
 import '../data/local/prefs_app_settings.dart';
 import '../data/local/prefs_friend_request_store.dart';
 import '../data/local/prefs_outbox_repository.dart';
 import '../data/local/prefs_profile_repository.dart';
-import '../data/local/shared_preferences_local_store.dart';
 import '../data/repositories/agora_chat_repository.dart';
 import '../data/repositories/agora_contact_repository.dart';
 import '../data/repositories/agora_group_repository.dart';
@@ -56,7 +56,7 @@ class AppDependencies {
     AttachmentUploader? attachmentUploader,
     AppSettings? settings,
   }) {
-    final store = localStore ?? SharedPreferencesLocalStore();
+    final store = localStore ?? createLocalStore();
     final connection = ChatConnection(service ?? AgoraChatService());
     final outbox = PrefsOutboxRepository(store);
     final mediaGateway = media ?? DeviceMediaGateway();

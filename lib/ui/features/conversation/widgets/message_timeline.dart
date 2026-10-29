@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../domain/models/chat_message.dart';
+import '../../../../domain/models/user_profile.dart';
 import '../../../core/localization/app_error.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/theme/app_theme.dart';
@@ -30,6 +31,7 @@ class MessageTimeline extends StatelessWidget {
     required this.highlightedMessageId,
     required this.keyForMessage,
     this.showSenderNames = false,
+    this.senderProfiles = const {},
   });
 
   final List<ChatMessage> messages;
@@ -52,6 +54,7 @@ class MessageTimeline extends StatelessWidget {
   final String? highlightedMessageId;
   final GlobalKey Function(String messageId) keyForMessage;
   final bool showSenderNames;
+  final Map<String, UserProfile> senderProfiles;
 
   @override
   Widget build(BuildContext context) {
@@ -110,6 +113,7 @@ class MessageTimeline extends StatelessWidget {
       );
     }
     for (final message in messages) {
+      final sender = senderProfiles[message.senderId];
       final bubble = ValueListenableBuilder<String?>(
         valueListenable: playingMessageId,
         builder: (context, playingId, _) => MessageBubble(
@@ -121,6 +125,8 @@ class MessageTimeline extends StatelessWidget {
           onRetry: () => onRetry(message.id),
           onQuoteTap: onQuoteTap,
           showSenderName: showSenderNames,
+          senderName: sender?.displayName,
+          senderAvatarUrl: sender?.effectiveAvatarUrl,
         ),
       );
       final selected = selectedIds.contains(message.id);

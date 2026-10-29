@@ -14,6 +14,7 @@ class ChatConversation {
     this.avatarUrl,
     this.lastMessageKind,
     this.lastMessageSystemType,
+    this.memberCount,
   });
 
   final String id;
@@ -33,6 +34,9 @@ class ChatConversation {
   /// from a generic system notice.
   final String? lastMessageSystemType;
 
+  /// Group member count when the backend provides it.
+  final int? memberCount;
+
   ChatConversation copyWith({
     String? id,
     String? name,
@@ -44,6 +48,7 @@ class ChatConversation {
     String? avatarUrl,
     ChatMessageKind? lastMessageKind,
     String? lastMessageSystemType,
+    int? memberCount,
   }) => ChatConversation(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -55,6 +60,7 @@ class ChatConversation {
     avatarUrl: avatarUrl ?? this.avatarUrl,
     lastMessageKind: lastMessageKind ?? this.lastMessageKind,
     lastMessageSystemType: lastMessageSystemType ?? this.lastMessageSystemType,
+    memberCount: memberCount ?? this.memberCount,
   );
 
   Map<String, Object?> toJson() => {
@@ -68,6 +74,7 @@ class ChatConversation {
     'avatarUrl': avatarUrl,
     'lastMessageKind': lastMessageKind?.name,
     'lastMessageSystemType': lastMessageSystemType,
+    'memberCount': memberCount,
   };
 
   factory ChatConversation.fromJson(Map<String, Object?> json) {
@@ -101,6 +108,7 @@ class ChatConversation {
       avatarUrl: json['avatarUrl'] as String?,
       lastMessageKind: lastMessageKind,
       lastMessageSystemType: json['lastMessageSystemType'] as String?,
+      memberCount: (json['memberCount'] as num?)?.toInt(),
     );
   }
 }

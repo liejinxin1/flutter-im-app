@@ -252,10 +252,12 @@ class AgoraChatPlatform {
       final kind = _conversationKind(conversation.type);
       String? name;
       String? avatarUrl;
+      int? memberCount;
       if (kind == domain.ChatConversationKind.group) {
         final info = await _loadGroupInfo(conversation.id);
         name = info?.$1;
         avatarUrl = info?.$2;
+        memberCount = info?.$3;
       }
       records.add(
         domain.ChatConversation(
@@ -263,6 +265,7 @@ class AgoraChatPlatform {
           kind: kind,
           name: name,
           avatarUrl: avatarUrl,
+          memberCount: memberCount,
           lastMessage: latestContent is domain.TextMessageContent
               ? latestContent.text
               : '',
@@ -517,7 +520,7 @@ class AgoraChatPlatform {
         : null;
   }
 
-  Future<(String?, String?)?> _loadGroupInfo(String groupId) async {
+  Future<(String?, String?, int?)?> _loadGroupInfo(String groupId) async {
     try {
       final manager = ChatClient.getInstance.groupManager;
       var group = await manager.getGroupWithId(groupId);
@@ -532,6 +535,7 @@ class AgoraChatPlatform {
             // ignore: deprecated_member_use
             : group.name,
         group.avatarUrl,
+        group.memberCount,
       );
     } catch (_) {
       return null;
@@ -660,6 +664,11 @@ class AgoraChatPlatform {
 
   Future<void> declineContactRequest(String userId) =>
       ChatClient.getInstance.contactManager.declineInvitation(userId);
+
+  Future<void> setContactRemark(String userId, String remark) => ChatClient
+      .getInstance
+      .contactManager
+      .setContactRemark(userId: userId, remark: remark);
 
   Future<void> acceptGroupInvitation(String groupId, String inviter) async {
     final client = ChatClient.getInstance;

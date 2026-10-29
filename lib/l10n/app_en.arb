@@ -138,6 +138,14 @@
   "conversationDetails": "Conversation details",
   "showUserId": "Show user ID",
   "groupChat": "Group chat",
+  "groupMembers": "{count} members",
+  "@groupMembers": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
   "videoCall": "Video call",
   "voiceCall": "Voice call",
   "messageHint": "Type a message…",

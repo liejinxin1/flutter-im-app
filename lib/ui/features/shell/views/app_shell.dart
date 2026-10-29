@@ -320,6 +320,7 @@ class _AppShellState extends State<AppShell> {
           title: conversation?.name ?? contact?.displayName,
           avatarUrl: conversation?.avatarUrl ?? contact?.effectiveAvatarUrl,
           kind: kind,
+          memberCount: conversation?.memberCount,
         ),
       );
     } finally {

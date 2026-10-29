@@ -6,8 +6,10 @@ import 'package:flutter/services.dart';
 
 import '../../../../domain/models/chat_conversation.dart';
 import '../../../../domain/models/chat_message.dart';
+import '../../../../domain/models/user_profile.dart';
 import '../../../../domain/repositories/chat_repository.dart';
 import '../../../../domain/repositories/outbox_repository.dart';
+import '../../../../domain/repositories/profile_repository.dart';
 import '../../../../domain/services/app_settings.dart';
 import '../../../../domain/services/media_gateway.dart';
 import '../../../core/layout/app_layout.dart';
@@ -37,7 +39,9 @@ class ConversationScreen extends StatefulWidget {
     required this.currentUserId,
     required this.peerId,
     this.settings,
+    this.profiles,
     this.kind = ChatConversationKind.direct,
+    this.memberCount,
     this.peerName,
     this.peerAvatarUrl,
   });
@@ -48,7 +52,9 @@ class ConversationScreen extends StatefulWidget {
   final String currentUserId;
   final String peerId;
   final AppSettings? settings;
+  final ProfileRepository? profiles;
   final ChatConversationKind kind;
+  final int? memberCount;
   final String? peerName;
   final String? peerAvatarUrl;
 
@@ -66,6 +72,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   bool _selectionMode = false;
   final Set<String> _selectedMessageIds = {};
   ChatMessage? _quotedMessage;
+  Map<String, UserProfile> _senderProfiles = const {};
+  final Set<String> _loadingSenderIds = {};
   final Map<String, GlobalKey> _messageKeys = {};
   String? _highlightedMessageId;
   Timer? _highlightTimer;
@@ -91,6 +99,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     )..addListener(_onComposerChanged);
     _scrollController.addListener(_onScroll);
     unawaited(_conversation.loadInitial());
+    unawaited(_loadSenderProfiles());
   }
 
   @override
@@ -110,6 +119,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void _onConversationChanged() {
+    unawaited(_loadSenderProfiles());
     final messageCount = _conversation.messages.length;
     final messageAdded = messageCount > _lastMessageCount;
     _lastMessageCount = messageCount;
@@ -127,6 +137,36 @@ class _ConversationScreenState extends State<ConversationScreen> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+  Future<void> _loadSenderProfiles() async {
+    final repository = widget.profiles;
+    if (repository == null || widget.kind != ChatConversationKind.group) {
+      return;
+    }
+    final ids = _conversation.messages
+        .where((message) => !message.isOutgoing)
+        .map((message) => message.senderId)
+        .where(
+          (id) =>
+              id.isNotEmpty &&
+              !_senderProfiles.containsKey(id) &&
+              !_loadingSenderIds.contains(id),
+        )
+        .toSet();
+    if (ids.isEmpty) return;
+    _loadingSenderIds.addAll(ids);
+    try {
+      final loaded = await repository.loadAll(ids);
+      if (!mounted) return;
+      setState(() {
+        _senderProfiles = {..._senderProfiles, ...loaded};
+      });
+    } catch (_) {
+      // Sender names are decoration; keep the sender ID fallback.
+    } finally {
+      _loadingSenderIds.removeAll(ids);
+    }
   }
 
   void _onComposerChanged() {
@@ -508,6 +548,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ConversationHeader(
                 peerId: widget.peerId,
                 kind: widget.kind,
+                memberCount: widget.memberCount,
                 displayName: widget.peerName,
                 avatarUrl: widget.peerAvatarUrl,
                 onBack: () {
@@ -521,10 +562,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     _showMessage(context.l10n.conversationDetailsUnavailable),
                 onShowPeerId: () =>
                     _showMessage(context.l10n.userIdValue(widget.peerId)),
-                onVideoCall: widget.kind == ChatConversationKind.direct
+                onVideoCall: widget.kind != ChatConversationKind.chatRoom
                     ? () => _showRtcMessage('video')
                     : null,
-                onVoiceCall: widget.kind == ChatConversationKind.direct
+                onVoiceCall: widget.kind != ChatConversationKind.chatRoom
                     ? () => _showRtcMessage('voice')
                     : null,
               ),
@@ -557,6 +598,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     highlightedMessageId: _highlightedMessageId,
                     keyForMessage: _messageKey,
                     showSenderNames: widget.kind == ChatConversationKind.group,
+                    senderProfiles: _senderProfiles,
                   ),
                 ),
               ),

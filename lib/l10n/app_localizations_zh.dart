@@ -245,6 +245,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get groupChat => '群聊';
 
   @override
+  String groupMembers(num count) {
+    return '$count 位成员';
+  }
+
+  @override
   String get videoCall => '视频通话';
 
   @override

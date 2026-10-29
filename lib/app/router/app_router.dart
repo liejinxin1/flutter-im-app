@@ -17,11 +17,13 @@ class ConversationRouteArgs {
     this.title,
     this.avatarUrl,
     this.kind = ChatConversationKind.direct,
+    this.memberCount,
   });
 
   final String? title;
   final String? avatarUrl;
   final ChatConversationKind kind;
+  final int? memberCount;
 }
 
 class AppRouter {
@@ -88,7 +90,9 @@ class AppRouter {
               currentUserId: userId,
               peerId: peerId,
               settings: dependencies.settings,
+              profiles: dependencies.profiles,
               kind: args.kind,
+              memberCount: args.memberCount,
               peerName: args.title,
               peerAvatarUrl: args.avatarUrl,
             );

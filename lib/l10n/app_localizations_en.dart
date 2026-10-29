@@ -251,6 +251,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupChat => 'Group chat';
 
   @override
+  String groupMembers(num count) {
+    return '$count members';
+  }
+
+  @override
   String get videoCall => 'Video call';
 
   @override

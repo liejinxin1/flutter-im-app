@@ -21,6 +21,7 @@ class ConversationHeader extends StatelessWidget {
     this.onVideoCall,
     this.displayName,
     this.avatarUrl,
+    this.memberCount,
   });
 
   final String peerId;
@@ -32,6 +33,7 @@ class ConversationHeader extends StatelessWidget {
   final VoidCallback? onVideoCall;
   final String? displayName;
   final String? avatarUrl;
+  final int? memberCount;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +122,9 @@ class ConversationHeader extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       kind == ChatConversationKind.group
-                          ? l10n.groupChat
+                          ? (memberCount != null
+                                ? l10n.groupMembers(memberCount!)
+                                : l10n.groupChat)
                           : peerId,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

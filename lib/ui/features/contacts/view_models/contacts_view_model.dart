@@ -164,6 +164,25 @@ class ContactsViewModel extends ViewModel {
     }
   }
 
+  Future<bool> updateRemark(String userId, String remark) async {
+    try {
+      await _contacts.updateRemark(userId, remark);
+      _items = _items
+          .map(
+            (profile) => profile.userId == userId
+                ? profile.copyWith(remark: remark)
+                : profile,
+          )
+          .toList(growable: false);
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _error = AppError.from(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> _restoreRequests() async {
     try {
       final stored = await _store.load(_currentUserId);

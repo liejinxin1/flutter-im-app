@@ -368,6 +368,9 @@ class FakeContactRepository implements ContactRepository {
       declined.add(userId);
 
   @override
+  Future<void> updateRemark(String userId, String remark) async {}
+
+  @override
   Future<void> acceptGroupInvitation(String groupId, String inviter) async {
     acceptedGroups.add(groupId);
   }

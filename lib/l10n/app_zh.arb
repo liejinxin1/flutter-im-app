@@ -72,6 +72,7 @@
   "conversationDetails": "会话详情",
   "showUserId": "显示用户 ID",
   "groupChat": "群聊",
+  "groupMembers": "{count} 位成员",
   "videoCall": "视频通话",
   "voiceCall": "语音通话",
   "messageHint": "输入消息…",

@@ -315,6 +315,8 @@ class PreviewContactRepository implements ContactRepository {
   @override
   Future<void> declineContactRequest(String userId) async {}
   @override
+  Future<void> updateRemark(String userId, String remark) async {}
+  @override
   Future<void> acceptGroupInvitation(String groupId, String inviter) async {}
   @override
   Future<void> declineGroupInvitation(String groupId, String inviter) async {}

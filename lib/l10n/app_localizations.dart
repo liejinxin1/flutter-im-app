@@ -530,6 +530,12 @@ abstract class AppLocalizations {
   /// **'Group chat'**
   String get groupChat;
 
+  /// No description provided for @groupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} members'**
+  String groupMembers(num count);
+
   /// No description provided for @videoCall.
   ///
   /// In en, this message translates to:
