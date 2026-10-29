@@ -18,6 +18,9 @@ class MessageComposer extends StatelessWidget {
     this.quote,
     this.onCancelQuote,
     this.onQuoteTap,
+    this.isGroup = false,
+    this.onCamera,
+    this.onVoice,
   });
 
   final TextEditingController controller;
@@ -27,6 +30,9 @@ class MessageComposer extends StatelessWidget {
   final ChatMessageQuote? quote;
   final VoidCallback? onCancelQuote;
   final VoidCallback? onQuoteTap;
+  final bool isGroup;
+  final VoidCallback? onCamera;
+  final VoidCallback? onVoice;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -42,30 +48,37 @@ class MessageComposer extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            SizedBox(
-              width: 38,
-              height: 38,
-              child: IconButton(
-                tooltip: context.l10n.addAttachment,
-                onPressed: onToggleAttachments,
-                style: IconButton.styleFrom(
-                  backgroundColor: AppColors.send,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.zero,
-                ),
-                icon: Icon(
-                  attachmentsExpanded ? Icons.close_rounded : Icons.add_rounded,
-                  size: 24,
+            if (isGroup) ...[
+              SizedBox(
+                width: 38,
+                height: 38,
+                child: IconButton(
+                  tooltip: context.l10n.addAttachment,
+                  onPressed: onToggleAttachments,
+                  style: IconButton.styleFrom(
+                    backgroundColor: AppColors.send,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.zero,
+                  ),
+                  icon: Icon(
+                    attachmentsExpanded
+                        ? Icons.close_rounded
+                        : Icons.add_rounded,
+                    size: 24,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 9),
+              const SizedBox(width: 9),
+            ],
             Expanded(
               child: Container(
-                constraints: const BoxConstraints(minHeight: 38),
+                constraints: const BoxConstraints(minHeight: 42),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(20),
+                  color: isGroup ? const Color(0xFFF3F4F6) : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: isGroup
+                      ? null
+                      : Border.all(color: const Color(0xFFE5E8EC)),
                 ),
                 child: TextField(
                   controller: controller,
@@ -85,23 +98,65 @@ class MessageComposer extends StatelessWidget {
                       fontSize: 14,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 9,
+                      horizontal: 14,
+                      vertical: 11,
                     ),
                     border: InputBorder.none,
                     isDense: true,
+                    suffixIcon: isGroup
+                        ? null
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (onCamera != null)
+                                IconButton(
+                                  tooltip: context.l10n.camera,
+                                  onPressed: onCamera,
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(
+                                    Icons.photo_camera_outlined,
+                                    size: 21,
+                                    color: AppColors.mutedText,
+                                  ),
+                                ),
+                              IconButton(
+                                tooltip: context.l10n.addAttachment,
+                                onPressed: onToggleAttachments,
+                                visualDensity: VisualDensity.compact,
+                                icon: Icon(
+                                  attachmentsExpanded
+                                      ? Icons.close_rounded
+                                      : Icons.attach_file_rounded,
+                                  size: 21,
+                                  color: AppColors.mutedText,
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
             SizedBox(
-              width: 38,
-              height: 38,
+              width: 42,
+              height: 42,
               child: ValueListenableBuilder<TextEditingValue>(
                 valueListenable: controller,
                 builder: (context, value, _) {
                   final canSend = value.text.trim().isNotEmpty;
+                  if (!isGroup && !canSend && onVoice != null) {
+                    return IconButton.filled(
+                      tooltip: context.l10n.holdToTalk,
+                      onPressed: onVoice,
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.send,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.zero,
+                      ),
+                      icon: const Icon(Icons.mic_none_rounded, size: 22),
+                    );
+                  }
                   return FilledButton(
                     onPressed: canSend ? onSend : null,
                     style: FilledButton.styleFrom(
@@ -113,7 +168,9 @@ class MessageComposer extends StatelessWidget {
                       shape: const CircleBorder(),
                     ),
                     child: SvgPicture.asset(
-                      'assets/icons/send.svg',
+                      isGroup
+                          ? 'assets/icons/send.svg'
+                          : 'assets/icons/send.svg',
                       width: 19,
                       height: 19,
                       colorFilter: const ColorFilter.mode(

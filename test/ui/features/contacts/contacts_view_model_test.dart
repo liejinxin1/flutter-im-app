@@ -132,6 +132,26 @@ void main() {
       expect(viewModel.requestHistory.single.groupName, 'Flutter');
     });
 
+    test('updates a contact remark through the repository', () async {
+      final contacts = FakeContactRepository()
+        ..contactItems = const [UserProfile(userId: 'peer')];
+      final viewModel = ContactsViewModel(
+        contacts,
+        FakeProfileRepository(),
+        FakeFriendRequestStore(),
+        'alice',
+      );
+      addTearDown(viewModel.dispose);
+      await viewModel.load();
+
+      final success = await viewModel.updateRemark('peer', 'Bobby');
+
+      expect(success, isTrue);
+      expect(contacts.remarks['peer'], 'Bobby');
+      expect(viewModel.profileById('peer')?.remark, 'Bobby');
+      expect(viewModel.profileById('peer')?.displayName, 'Bobby');
+    });
+
     test('keeps only the latest status for the same group', () async {
       final contacts = FakeContactRepository();
       final viewModel = ContactsViewModel(

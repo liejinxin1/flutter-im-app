@@ -12,6 +12,7 @@ import 'user_directory.dart';
 /// `AppDependencies.create`.
 abstract interface class ChatService implements UserDirectory {
   bool get isSupported;
+  @override
   String? get currentUserId;
 
   Future<String?> restoreSession({

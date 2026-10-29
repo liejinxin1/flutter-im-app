@@ -224,6 +224,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
     await _conversation.sendImage(path);
   }
 
+  Future<void> _startVoice() async {
+    if (!_composer.attachmentsExpanded) {
+      _composer.toggleAttachments();
+      if (!mounted) return;
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+    }
+    if (!mounted) return;
+    await _toggleRecording();
+  }
+
   Future<void> _toggleRecording() async {
     final recording = await _composer.toggleRecording();
     if (recording == null || !mounted) return;
@@ -647,8 +657,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       ),
                       MessageComposer(
                         controller: _messageController,
+                        isGroup: widget.kind == ChatConversationKind.group,
                         attachmentsExpanded: _composer.attachmentsExpanded,
                         onToggleAttachments: _composer.toggleAttachments,
+                        onCamera: () =>
+                            unawaited(_pickImage(MediaImageSource.camera)),
+                        onVoice: () => unawaited(_startVoice()),
                         onSend: () => unawaited(_send()),
                         quote: _quoteFor(_quotedMessage),
                         onCancelQuote: () =>

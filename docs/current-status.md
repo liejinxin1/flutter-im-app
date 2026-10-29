@@ -64,6 +64,7 @@
 - 同一好友/群聊只保留最新一条请求状态
 - 接受群邀请后自动创建群会话，群聊页可见
 - 好友申请与群邀请本地持久化
+- 联系人备注编辑（写入 Agora，后续可切业务服务器）
 - 创建群组
 - 用户昵称、头像、备注缓存
 
@@ -73,7 +74,7 @@
 - 手机底部导航 + 宽屏 `NavigationRail`
 - 页面内容最大宽度、消息气泡最大宽度
 - Widget Preview，不启动 App、不初始化 SDK 即可预览页面
-- 99 个单元/Widget/预览测试
+- 101 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -122,7 +123,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          99 tests, all passed
+flutter test          101 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

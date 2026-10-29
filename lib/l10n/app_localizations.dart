@@ -746,6 +746,42 @@ abstract class AppLocalizations {
   /// **'Camera'**
   String get camera;
 
+  /// No description provided for @editRemark.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit remark'**
+  String get editRemark;
+
+  /// No description provided for @sendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get sendMessage;
+
+  /// No description provided for @remarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a remark'**
+  String get remarkHint;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @remarkUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Remark updated'**
+  String get remarkUpdated;
+
+  /// No description provided for @holdToTalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to talk'**
+  String get holdToTalk;
+
   /// No description provided for @gallery.
   ///
   /// In en, this message translates to:

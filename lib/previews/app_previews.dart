@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 
 import '../app/app_dependencies.dart';
+import '../domain/models/chat_conversation.dart';
 import '../domain/models/friend_request_update.dart';
 import '../ui/features/auth/view_models/auth_view_model.dart';
 import '../ui/features/auth/views/auth_screen.dart';
@@ -106,6 +107,21 @@ Widget conversationPreview() => PreviewHost(
     currentUserId: 'alice',
     peerId: 'echat001',
     peerName: 'David Wayne',
+  ),
+);
+
+@Preview(name: 'Group conversation', group: 'IM Screens', size: Size(393, 852))
+Widget groupConversationPreview() => PreviewHost(
+  child: ConversationScreen(
+    repository: PreviewChatRepository(),
+    media: PreviewMediaGateway(),
+    outbox: PreviewOutboxRepository(),
+    currentUserId: 'alice',
+    peerId: 'group-1',
+    peerName: 'Game',
+    memberCount: 3,
+    kind: ChatConversationKind.group,
+    profiles: PreviewProfileRepository(),
   ),
 );
 

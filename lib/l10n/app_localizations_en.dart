@@ -374,6 +374,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get camera => 'Camera';
 
   @override
+  String get editRemark => 'Edit remark';
+
+  @override
+  String get sendMessage => 'Send message';
+
+  @override
+  String get remarkHint => 'Add a remark';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get remarkUpdated => 'Remark updated';
+
+  @override
+  String get holdToTalk => 'Hold to talk';
+
+  @override
   String get gallery => 'Gallery';
 
   @override

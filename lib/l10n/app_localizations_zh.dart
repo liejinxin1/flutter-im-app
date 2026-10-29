@@ -363,6 +363,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get camera => '拍摄';
 
   @override
+  String get editRemark => '修改备注';
+
+  @override
+  String get sendMessage => '发消息';
+
+  @override
+  String get remarkHint => '添加备注';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get remarkUpdated => '备注已更新';
+
+  @override
+  String get holdToTalk => '按住说话';
+
+  @override
   String get gallery => '相册';
 
   @override

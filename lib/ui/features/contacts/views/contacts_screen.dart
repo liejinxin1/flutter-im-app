@@ -7,6 +7,7 @@ import '../../../core/system_ui/app_system_ui.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/gradient_header.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../../../../domain/models/user_profile.dart';
 import '../view_models/contacts_view_model.dart';
 
 class ContactsScreen extends StatelessWidget {
@@ -105,9 +106,28 @@ class ContactsScreen extends StatelessWidget {
                                 ? context.l10n.agoraChatContact
                                 : profile.userId,
                           ),
-                          trailing: const Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            color: AppColors.brandBlueLight,
+                          trailing: PopupMenuButton<String>(
+                            icon: const Icon(
+                              Icons.more_vert_rounded,
+                              color: AppColors.mutedText,
+                            ),
+                            onSelected: (action) {
+                              if (action == 'chat') {
+                                onOpenConversation(profile.userId);
+                              } else {
+                                _editRemark(context, profile);
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'chat',
+                                child: Text(context.l10n.sendMessage),
+                              ),
+                              PopupMenuItem(
+                                value: 'remark',
+                                child: Text(context.l10n.editRemark),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -121,4 +141,46 @@ class ContactsScreen extends StatelessWidget {
       ),
     ),
   );
+
+  Future<void> _editRemark(BuildContext context, UserProfile profile) async {
+    final controller = TextEditingController(text: profile.remark);
+    final value = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.editRemark),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 64,
+          decoration: InputDecoration(hintText: context.l10n.remarkHint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
+            child: Text(context.l10n.save),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (value == null || !context.mounted) return;
+
+    final success = await viewModel.updateRemark(profile.userId, value);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            success
+                ? context.l10n.remarkUpdated
+                : context.l10n.requestUpdateFailed,
+          ),
+        ),
+      );
+  }
 }

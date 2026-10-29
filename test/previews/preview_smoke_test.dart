@@ -10,6 +10,7 @@ void main() {
     'profile tab': profileTabPreview,
     'more tab': moreTabPreview,
     'conversation': conversationPreview,
+    'group conversation': groupConversationPreview,
     'contacts': contactsPreview,
     'friend requests': friendRequestsPreview,
     'add friend': addFriendPreview,

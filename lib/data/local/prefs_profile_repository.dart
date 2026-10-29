@@ -14,18 +14,24 @@ class PrefsProfileRepository implements ProfileRepository {
 
   final UserDirectory _directory;
   final LocalStore _store;
-  static const _cacheKey = 'profiles.v1';
 
   final Map<String, UserProfile> _cache = {};
   bool _cacheLoaded = false;
+  String? _cacheAccountId;
   Future<void>? _loadingCache;
   Future<void>? _persisting;
 
+  String _cacheKey(String accountId) => 'profiles.v2.$accountId';
+
   Future<void> _ensureCache() async {
-    if (_cacheLoaded) return;
+    final accountId = _directory.currentUserId ?? '';
+    if (_cacheLoaded && _cacheAccountId == accountId) return;
+    _cache.clear();
+    _cacheLoaded = false;
+    _cacheAccountId = accountId;
     final pending = _loadingCache ??= () async {
       try {
-        final raw = await _store.read(_cacheKey);
+        final raw = await _store.read(_cacheKey(accountId));
         if (raw != null) {
           final decoded = jsonDecode(raw);
           if (decoded is Map) {
@@ -56,7 +62,7 @@ class PrefsProfileRepository implements ProfileRepository {
     return _persisting ??= () async {
       try {
         await _store.write(
-          _cacheKey,
+          _cacheKey(_cacheAccountId ?? ''),
           jsonEncode(_cache.map((key, value) => MapEntry(key, value.toJson()))),
         );
       } catch (_) {
