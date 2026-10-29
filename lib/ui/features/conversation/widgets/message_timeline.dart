@@ -33,6 +33,7 @@ class MessageTimeline extends StatelessWidget {
     this.showSenderNames = false,
     this.senderProfiles = const {},
     this.onOpenSender,
+    this.hasMore = true,
   });
 
   final List<ChatMessage> messages;
@@ -57,6 +58,7 @@ class MessageTimeline extends StatelessWidget {
   final bool showSenderNames;
   final Map<String, UserProfile> senderProfiles;
   final ValueChanged<String>? onOpenSender;
+  final bool hasMore;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +85,7 @@ class MessageTimeline extends StatelessWidget {
             text: l10n.startConversation,
           )
         else
-          _messageList(),
+          _messageList(context),
         if (error != null && messages.isNotEmpty)
           Positioned(
             top: 10,
@@ -98,7 +100,7 @@ class MessageTimeline extends StatelessWidget {
     );
   }
 
-  Widget _messageList() {
+  Widget _messageList(BuildContext context) {
     final children = <Widget>[];
     if (isLoadingOlder) {
       children.add(
@@ -109,6 +111,18 @@ class MessageTimeline extends StatelessWidget {
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        ),
+      );
+    } else if (!hasMore && messages.isNotEmpty) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Center(
+            child: Text(
+              context.l10n.noMoreMessages,
+              style: const TextStyle(color: AppColors.mutedText, fontSize: 12),
             ),
           ),
         ),

@@ -21,6 +21,7 @@ class MessageComposer extends StatelessWidget {
     this.isGroup = false,
     this.onCamera,
     this.onVoice,
+    this.fieldKey,
   });
 
   final TextEditingController controller;
@@ -33,6 +34,7 @@ class MessageComposer extends StatelessWidget {
   final bool isGroup;
   final VoidCallback? onCamera;
   final VoidCallback? onVoice;
+  final GlobalKey? fieldKey;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -81,6 +83,7 @@ class MessageComposer extends StatelessWidget {
                       : Border.all(color: const Color(0xFFE5E8EC)),
                 ),
                 child: TextField(
+                  key: fieldKey,
                   controller: controller,
                   minLines: 1,
                   maxLines: 5,

@@ -380,6 +380,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get camera => 'Camera';
 
   @override
+  String get send => 'Send';
+
+  @override
+  String get withdrawRecording => 'Withdraw';
+
+  @override
+  String get recordingExitTitle => 'Send voice message?';
+
+  @override
+  String get recordingExitBody =>
+      'You tapped outside the recording bar. Send this recording or withdraw it?';
+
+  @override
+  String get noMoreMessages => 'No more messages';
+
+  @override
+  String newMessages(int count) {
+    return '$count new messages';
+  }
+
+  @override
+  String get voiceLimitReached => '60s limit reached, sending…';
+
+  @override
   String get myLocation => 'My Location';
 
   @override

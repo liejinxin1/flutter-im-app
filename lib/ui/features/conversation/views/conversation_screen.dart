@@ -69,8 +69,15 @@ class _ConversationScreenState extends State<ConversationScreen> {
   late final ComposerViewModel _composer;
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  final _messageFieldKey = GlobalKey();
+  final _recordingBarKey = GlobalKey();
   bool _requestingOlder = false;
   int _lastMessageCount = 0;
+  String? _lastMessageId;
+  bool _atBottom = true;
+  int _unseenMessages = 0;
+  bool _recordingPromptOpen = false;
+  bool _autoSendingRecording = false;
   bool _selectionMode = false;
   final Set<String> _selectedMessageIds = {};
   ChatMessage? _quotedMessage;
@@ -122,23 +129,153 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   void _onConversationChanged() {
     unawaited(_loadSenderProfiles());
-    final messageCount = _conversation.messages.length;
-    final messageAdded = messageCount > _lastMessageCount;
+    final messages = _conversation.messages;
+    final messageCount = messages.length;
+    final added = messageCount - _lastMessageCount;
+    final latestId = messages.isEmpty ? null : messages.last.id;
+    final latestChanged = latestId != null && latestId != _lastMessageId;
     _lastMessageCount = messageCount;
-    if (!messageAdded) return;
+    _lastMessageId = latestId;
+    if (added <= 0) return;
 
-    final wasAtBottom =
-        !_scrollController.hasClients ||
-        _scrollController.position.extentAfter < 100;
-    if (!wasAtBottom) return;
+    if (_atBottom) {
+      if (_unseenMessages != 0) {
+        setState(() => _unseenMessages = 0);
+      }
+      _scrollToBottomSoon();
+      return;
+    }
+    if (!latestChanged) return;
+    setState(() => _unseenMessages += added);
+  }
+
+  void _onComposerChanged() {
+    if (_composer.isRecording &&
+        _composer.elapsed >= ComposerViewModel.maxRecordingDuration &&
+        !_autoSendingRecording) {
+      _autoSendingRecording = true;
+      unawaited(_finishAtLimit());
+    } else if (!_composer.isRecording) {
+      _autoSendingRecording = false;
+    }
+
+    final notice = _composer.notice;
+    if (notice == null || !mounted) return;
+    _composer.consumeNotice();
+    _showMessage(localizedError(context.l10n, notice));
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final atBottom = _scrollController.position.extentAfter < 80;
+    if (atBottom != _atBottom) {
+      _atBottom = atBottom;
+      if (atBottom && _unseenMessages != 0) {
+        setState(() => _unseenMessages = 0);
+      }
+    }
+    if (_requestingOlder) return;
+    if (_scrollController.position.pixels <= 64 && _conversation.hasMore) {
+      unawaited(_loadOlderKeepingPosition());
+    }
+  }
+
+  void _scrollToBottomSoon({bool animate = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !_scrollController.hasClients) return;
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      );
+      final target = _scrollController.position.maxScrollExtent;
+      if (animate) {
+        _scrollController.animateTo(
+          target,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+        );
+      } else {
+        _scrollController.jumpTo(target);
+      }
     });
+  }
+
+  void _scrollToBottom({bool animate = true}) {
+    if (_unseenMessages != 0) setState(() => _unseenMessages = 0);
+    _scrollToBottomSoon(animate: animate);
+  }
+
+  bool _isInside(GlobalKey key, Offset globalPosition) {
+    final box = key.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return false;
+    final rect = box.localToGlobal(Offset.zero) & box.size;
+    return rect.contains(globalPosition);
+  }
+
+  void _dismissKeyboard() {
+    FocusScope.of(context).unfocus();
+  }
+
+  void _onPointerDown(PointerDownEvent event) {
+    if (_composer.isRecording) {
+      if (_isInside(_recordingBarKey, event.position)) return;
+      unawaited(_promptRecordingExit());
+      return;
+    }
+    if (MediaQuery.viewInsetsOf(context).bottom <= 0) return;
+    if (_isInside(_messageFieldKey, event.position)) return;
+    _dismissKeyboard();
+  }
+
+  Future<void> _promptRecordingExit() async {
+    if (!_composer.isRecording || _recordingPromptOpen) return;
+    _recordingPromptOpen = true;
+    final recording = await _composer.finishRecording();
+    if (!mounted) {
+      _recordingPromptOpen = false;
+      if (recording != null) {
+        await _composer.discardFinishedRecording(recording);
+      }
+      return;
+    }
+    if (recording == null) {
+      _recordingPromptOpen = false;
+      return;
+    }
+
+    final send = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.recordingExitTitle),
+        content: Text(context.l10n.recordingExitBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(context.l10n.withdrawRecording),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(context.l10n.send),
+          ),
+        ],
+      ),
+    );
+    _recordingPromptOpen = false;
+    if (!mounted) return;
+    if (send == true) {
+      await _conversation.sendVoice(
+        recording.path,
+        recording.duration.inSeconds,
+      );
+      if (mounted) _scrollToBottom();
+    } else {
+      await _composer.discardFinishedRecording(recording);
+    }
+  }
+
+  Future<void> _finishAtLimit() async {
+    if (mounted) _showMessage(context.l10n.voiceLimitReached);
+    final recording = await _composer.finishRecording();
+    if (recording == null || !mounted) return;
+    await _conversation.sendVoice(recording.path, recording.duration.inSeconds);
+    if (mounted) _scrollToBottom();
   }
 
   Future<void> _loadSenderProfiles() async {
@@ -168,20 +305,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       // Sender names are decoration; keep the sender ID fallback.
     } finally {
       _loadingSenderIds.removeAll(ids);
-    }
-  }
-
-  void _onComposerChanged() {
-    final notice = _composer.notice;
-    if (notice == null || !mounted) return;
-    _composer.consumeNotice();
-    _showMessage(localizedError(context.l10n, notice));
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients || _requestingOlder) return;
-    if (_scrollController.position.pixels <= 64 && _conversation.hasMore) {
-      unawaited(_loadOlderKeepingPosition());
     }
   }
 
@@ -218,15 +341,19 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _messageController.clear();
     setState(() => _quotedMessage = null);
     await _conversation.send(text, quote: _quoteFor(quoted));
+    if (mounted) _scrollToBottom();
   }
 
   Future<void> _pickImage(MediaImageSource source) async {
+    _dismissKeyboard();
     final path = await _composer.pickImage(source);
     if (path == null || !mounted) return;
     await _conversation.sendImage(path);
+    if (mounted) _scrollToBottom();
   }
 
   Future<void> _startVoice() async {
+    _dismissKeyboard();
     await _composer.startRecordingMode();
   }
 
@@ -234,6 +361,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     final recording = await _composer.finishRecording();
     if (recording == null || !mounted) return;
     await _conversation.sendVoice(recording.path, recording.duration.inSeconds);
+    if (mounted) _scrollToBottom();
   }
 
   void _showMessage(String text) {
@@ -544,163 +672,199 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
     value: AppSystemUi.darkStatus,
-    child: Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: AppContentFrame(
-          maxWidth: 920,
-          child: Column(
-            children: [
-              ConversationHeader(
-                peerId: widget.peerId,
-                kind: widget.kind,
-                memberCount: widget.memberCount,
-                displayName: widget.peerName,
-                avatarUrl: widget.peerAvatarUrl,
-                onBack: () {
-                  if (_selectionMode) {
-                    _exitSelection();
-                  } else {
-                    Navigator.of(context).pop();
-                  }
-                },
-                onShowDetails: () {
-                  if (widget.kind == ChatConversationKind.group) {
-                    final query = <String, String>{
-                      if (widget.peerName != null) 'name': widget.peerName!,
-                      if (widget.memberCount != null)
-                        'members': '${widget.memberCount}',
-                    };
-                    context.push<void>(
-                      '/groups/${Uri.encodeComponent(widget.peerId)}'
-                      '${query.isEmpty ? '' : '?${Uri(queryParameters: query).query}'}',
-                    );
-                  } else if (widget.kind == ChatConversationKind.direct) {
-                    context.push<void>(
-                      '/friends/${Uri.encodeComponent(widget.peerId)}',
-                    );
-                  } else {
-                    _showMessage(context.l10n.conversationDetailsUnavailable);
-                  }
-                },
-                onShowPeerId: () =>
-                    _showMessage(context.l10n.userIdValue(widget.peerId)),
-                onVideoCall: widget.kind != ChatConversationKind.chatRoom
-                    ? () => _showRtcMessage('video')
-                    : null,
-                onVoiceCall: widget.kind != ChatConversationKind.chatRoom
-                    ? () => _showRtcMessage('voice')
-                    : null,
-              ),
-              Expanded(
-                child: ListenableBuilder(
-                  listenable: _conversation,
-                  builder: (context, _) => MessageTimeline(
-                    messages: _conversation.messages,
-                    isLoading: _conversation.isLoading,
-                    isLoadingOlder: _conversation.isLoadingOlder,
-                    error: _conversation.error,
-                    playingMessageId: _composer.playingMessageId,
-                    scrollController: _scrollController,
-                    onPlayVoice: (message) =>
-                        unawaited(_composer.togglePlayback(message)),
-                    onOpenImage: (message) => unawaited(_openImage(message)),
-                    onDownloadImage: (message) =>
-                        unawaited(_conversation.downloadAttachment(message)),
-                    onRetry: (messageId) =>
-                        unawaited(_conversation.retry(messageId)),
-                    onReload: () => unawaited(_conversation.loadInitial()),
-                    onDismissError: _conversation.clearError,
-                    onLongPress: (message, position) =>
-                        unawaited(_onMessageLongPress(message, position)),
-                    selectionMode: _selectionMode,
-                    selectedIds: _selectedMessageIds,
-                    onToggleSelection: _toggleSelection,
-                    onQuoteTap: (messageId) =>
-                        unawaited(_scrollToMessage(messageId)),
-                    highlightedMessageId: _highlightedMessageId,
-                    keyForMessage: _messageKey,
-                    showSenderNames: widget.kind == ChatConversationKind.group,
-                    senderProfiles: _senderProfiles,
-                    onOpenSender: (userId) => context.push<void>(
-                      '/friends/${Uri.encodeComponent(userId)}',
-                    ),
+    child: Listener(
+      onPointerDown: _onPointerDown,
+      child: Scaffold(
+        backgroundColor: AppColors.surface,
+        body: SafeArea(
+          child: AppContentFrame(
+            maxWidth: 920,
+            child: Column(
+              children: [
+                ConversationHeader(
+                  peerId: widget.peerId,
+                  kind: widget.kind,
+                  memberCount: widget.memberCount,
+                  displayName: widget.peerName,
+                  avatarUrl: widget.peerAvatarUrl,
+                  onBack: () {
+                    if (_selectionMode) {
+                      _exitSelection();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  onShowDetails: () {
+                    if (widget.kind == ChatConversationKind.group) {
+                      final query = <String, String>{
+                        if (widget.peerName != null) 'name': widget.peerName!,
+                        if (widget.memberCount != null)
+                          'members': '${widget.memberCount}',
+                      };
+                      context.push<void>(
+                        '/groups/${Uri.encodeComponent(widget.peerId)}'
+                        '${query.isEmpty ? '' : '?${Uri(queryParameters: query).query}'}',
+                      );
+                    } else if (widget.kind == ChatConversationKind.direct) {
+                      context.push<void>(
+                        '/friends/${Uri.encodeComponent(widget.peerId)}',
+                      );
+                    } else {
+                      _showMessage(context.l10n.conversationDetailsUnavailable);
+                    }
+                  },
+                  onShowPeerId: () =>
+                      _showMessage(context.l10n.userIdValue(widget.peerId)),
+                  onVideoCall: widget.kind != ChatConversationKind.chatRoom
+                      ? () => _showRtcMessage('video')
+                      : null,
+                  onVoiceCall: widget.kind != ChatConversationKind.chatRoom
+                      ? () => _showRtcMessage('voice')
+                      : null,
+                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ListenableBuilder(
+                          listenable: _conversation,
+                          builder: (context, _) => MessageTimeline(
+                            messages: _conversation.messages,
+                            isLoading: _conversation.isLoading,
+                            isLoadingOlder: _conversation.isLoadingOlder,
+                            hasMore: _conversation.hasMore,
+                            error: _conversation.error,
+                            playingMessageId: _composer.playingMessageId,
+                            scrollController: _scrollController,
+                            onPlayVoice: (message) =>
+                                unawaited(_composer.togglePlayback(message)),
+                            onOpenImage: (message) =>
+                                unawaited(_openImage(message)),
+                            onDownloadImage: (message) => unawaited(
+                              _conversation.downloadAttachment(message),
+                            ),
+                            onRetry: (messageId) =>
+                                unawaited(_conversation.retry(messageId)),
+                            onReload: () =>
+                                unawaited(_conversation.loadInitial()),
+                            onDismissError: _conversation.clearError,
+                            onLongPress: (message, position) => unawaited(
+                              _onMessageLongPress(message, position),
+                            ),
+                            selectionMode: _selectionMode,
+                            selectedIds: _selectedMessageIds,
+                            onToggleSelection: _toggleSelection,
+                            onQuoteTap: (messageId) =>
+                                unawaited(_scrollToMessage(messageId)),
+                            highlightedMessageId: _highlightedMessageId,
+                            keyForMessage: _messageKey,
+                            showSenderNames:
+                                widget.kind == ChatConversationKind.group,
+                            senderProfiles: _senderProfiles,
+                            onOpenSender: (userId) => context.push<void>(
+                              '/friends/${Uri.encodeComponent(userId)}',
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_unseenMessages > 0)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 10,
+                          child: Center(
+                            child: _NewMessagesPill(
+                              count: _unseenMessages,
+                              onTap: () => _scrollToBottom(),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ),
-              ListenableBuilder(
-                listenable: _composer,
-                builder: (context, _) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_selectionMode)
-                      MessageSelectionBar(
-                        count: _selectedMessageIds.length,
-                        onClose: _exitSelection,
-                        onCopy: () => unawaited(_copySelection()),
-                        onForward: () => unawaited(
-                          _forwardMessages({..._selectedMessageIds}),
+                ListenableBuilder(
+                  listenable: _composer,
+                  builder: (context, _) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_selectionMode)
+                        MessageSelectionBar(
+                          count: _selectedMessageIds.length,
+                          onClose: _exitSelection,
+                          onCopy: () => unawaited(_copySelection()),
+                          onForward: () => unawaited(
+                            _forwardMessages({..._selectedMessageIds}),
+                          ),
+                          onDelete: () => unawaited(_deleteSelection()),
+                        )
+                      else if (_composer.isRecording)
+                        VoiceRecordingBar(
+                          key: _recordingBarKey,
+                          elapsed: _composer.elapsed,
+                          isPaused: _composer.isPaused,
+                          isBusy: _composer.isBusy,
+                          onPause: () => unawaited(_composer.togglePause()),
+                          onCancel: () =>
+                              unawaited(_composer.cancelRecording()),
+                          onSend: () => unawaited(_sendRecording()),
+                        )
+                      else ...[
+                        MessageComposer(
+                          fieldKey: _messageFieldKey,
+                          controller: _messageController,
+                          isGroup: widget.kind == ChatConversationKind.group,
+                          attachmentsExpanded: _composer.attachmentsExpanded,
+                          onToggleAttachments: () {
+                            _dismissKeyboard();
+                            _composer.toggleAttachments();
+                          },
+                          onCamera: () =>
+                              unawaited(_pickImage(MediaImageSource.camera)),
+                          onVoice: () => unawaited(_startVoice()),
+                          onSend: () {
+                            _dismissKeyboard();
+                            unawaited(_send());
+                          },
+                          quote: _quoteFor(_quotedMessage),
+                          onCancelQuote: () =>
+                              setState(() => _quotedMessage = null),
+                          onQuoteTap: () {
+                            final quoted = _quotedMessage;
+                            if (quoted != null) {
+                              unawaited(_scrollToMessage(quoted.id));
+                            }
+                          },
                         ),
-                        onDelete: () => unawaited(_deleteSelection()),
-                      )
-                    else if (_composer.isRecording)
-                      VoiceRecordingBar(
-                        elapsed: _composer.elapsed,
-                        isPaused: _composer.isPaused,
-                        isBusy: _composer.isBusy,
-                        onPause: () => unawaited(_composer.togglePause()),
-                        onCancel: () => unawaited(_composer.cancelRecording()),
-                        onSend: () => unawaited(_sendRecording()),
-                      )
-                    else ...[
-                      MessageComposer(
-                        controller: _messageController,
-                        isGroup: widget.kind == ChatConversationKind.group,
-                        attachmentsExpanded: _composer.attachmentsExpanded,
-                        onToggleAttachments: _composer.toggleAttachments,
-                        onCamera: () =>
-                            unawaited(_pickImage(MediaImageSource.camera)),
-                        onVoice: () => unawaited(_startVoice()),
-                        onSend: () => unawaited(_send()),
-                        quote: _quoteFor(_quotedMessage),
-                        onCancelQuote: () =>
-                            setState(() => _quotedMessage = null),
-                        onQuoteTap: () {
-                          final quoted = _quotedMessage;
-                          if (quoted != null) {
-                            unawaited(_scrollToMessage(quoted.id));
-                          }
-                        },
-                      ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 220),
-                        curve: Curves.easeOutCubic,
-                        child: _composer.attachmentsExpanded
-                            ? AttachmentPanel(
-                                onCamera: () => unawaited(
-                                  _pickImage(MediaImageSource.camera),
-                                ),
-                                onGallery: () => unawaited(
-                                  _pickImage(MediaImageSource.gallery),
-                                ),
-                                onRecord: () => unawaited(_startVoice()),
-                                onContact: () => _showMessage(
-                                  context.l10n.contactShareUnavailable,
-                                ),
-                                onLocation: () => _showMessage(
-                                  context.l10n.locationUnavailable,
-                                ),
-                                onDocument: () => _showMessage(
-                                  context.l10n.documentUnavailable,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOutCubic,
+                          child: _composer.attachmentsExpanded
+                              ? AttachmentPanel(
+                                  onCamera: () => unawaited(
+                                    _pickImage(MediaImageSource.camera),
+                                  ),
+                                  onGallery: () => unawaited(
+                                    _pickImage(MediaImageSource.gallery),
+                                  ),
+                                  onRecord: () => unawaited(_startVoice()),
+                                  onContact: () => _showMessage(
+                                    context.l10n.contactShareUnavailable,
+                                  ),
+                                  onLocation: () => _showMessage(
+                                    context.l10n.locationUnavailable,
+                                  ),
+                                  onDocument: () => _showMessage(
+                                    context.l10n.documentUnavailable,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -709,6 +873,47 @@ class _ConversationScreenState extends State<ConversationScreen> {
 }
 
 enum _MessageAction { copy, quote, forward, recall, delete, select }
+
+class _NewMessagesPill extends StatelessWidget {
+  const _NewMessagesPill({required this.count, required this.onTap});
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: AppColors.brandBlueLight,
+    borderRadius: BorderRadius.circular(18),
+    elevation: 3,
+    shadowColor: const Color(0x33000000),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              context.l10n.newMessages(count),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
 class _FloatingMessageActions extends StatelessWidget {
   const _FloatingMessageActions({

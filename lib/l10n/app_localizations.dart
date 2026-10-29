@@ -758,6 +758,48 @@ abstract class AppLocalizations {
   /// **'Camera'**
   String get camera;
 
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @withdrawRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw'**
+  String get withdrawRecording;
+
+  /// No description provided for @recordingExitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send voice message?'**
+  String get recordingExitTitle;
+
+  /// No description provided for @recordingExitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You tapped outside the recording bar. Send this recording or withdraw it?'**
+  String get recordingExitBody;
+
+  /// No description provided for @noMoreMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No more messages'**
+  String get noMoreMessages;
+
+  /// No description provided for @newMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new messages'**
+  String newMessages(int count);
+
+  /// No description provided for @voiceLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'60s limit reached, sending…'**
+  String get voiceLimitReached;
+
   /// No description provided for @myLocation.
   ///
   /// In en, this message translates to:

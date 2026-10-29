@@ -96,6 +96,7 @@ Android 15 的 edge-to-edge 会忽略 `systemNavigationBarColor`，因此不只�
 - 附件面板改为 2×3 圆形图标网格：Camera / Record / Contact，Gallery / My Location / Document；
 - 面板位于输入框下方，输入框保持可见；
 - 录音改为独立录音条：左侧取消，中间青色暂停/波形/时长，右侧发送；
+- 录音最长 60 秒，超时自动发送；点击录音条外弹出发送/撤回确认；
 - `MediaGateway` 增加 `pauseRecording` / `resumeRecording`，录音条支持暂停和继续；
 - 单聊右上角“会话详情”进入好友资料页；
 - 群聊点击发送者头像/昵称进入好友资料页；
@@ -112,4 +113,4 @@ flutter build web --no-tree-shake-icons
 flutter build apk --debug
 ```
 
-本轮结果：format 无改动、analyze 零问题、107 个测试通过、Android debug 构建成功（Web 构建仅在 Web 相关改动时执行）。
+本轮结果：format 无改动、analyze 零问题、110 个测试通过、Android debug 构建成功（Web 构建仅在 Web 相关改动时执行）。

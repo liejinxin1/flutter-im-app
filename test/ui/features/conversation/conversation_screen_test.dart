@@ -88,6 +88,143 @@ void main() {
     await media.dispose();
   });
 
+  testWidgets('prompts to send or withdraw when tapping outside recording', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.attach_file_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('录音'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(VoiceRecordingBar), findsOneWidget);
+
+    await tester.tapAt(const Offset(220, 120));
+    await tester.pumpAndSettle();
+
+    expect(find.text('发送语音？'), findsOneWidget);
+    expect(media.stopRecordingCalls, 1);
+
+    await tester.tap(find.text('撤回'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(VoiceRecordingBar), findsNothing);
+    expect(media.discardedPaths, contains('/tmp/voice.m4a'));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('stops and sends a recording at the 60 second limit', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.attach_file_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('录音'));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.pump(const Duration(seconds: 61));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(VoiceRecordingBar), findsNothing);
+    expect(media.stopRecordingCalls, 1);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('shows a new message pill when reading older messages', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+    chat.history['peer'] = [
+      for (var i = 0; i < 40; i++)
+        ChatMessage(
+          id: 'old-$i',
+          conversationId: 'peer',
+          senderId: i.isEven ? 'peer' : 'me',
+          content: TextMessageContent('message $i'),
+          sentAt: DateTime.now().subtract(Duration(minutes: 40 - i)),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: i.isOdd,
+        ),
+    ];
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(SingleChildScrollView), const Offset(0, 500));
+    await tester.pumpAndSettle();
+
+    chat.emitIncoming(
+      ChatMessage(
+        id: 'incoming-new',
+        conversationId: 'peer',
+        senderId: 'peer',
+        content: const TextMessageContent('new message'),
+        sentAt: DateTime.now(),
+        deliveryState: ChatMessageDeliveryState.sent,
+        isOutgoing: false,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 条新消息'), findsOneWidget);
+
+    await tester.tap(find.text('1 条新消息'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 条新消息'), findsNothing);
+    expect(find.text('new message'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
   testWidgets('retries a failed message and clears the error banner', (
     tester,
   ) async {
@@ -157,6 +294,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.text('没有更多消息了'), findsOneWidget);
     await tester.longPress(find.text('hello'));
     await tester.pumpAndSettle();
 

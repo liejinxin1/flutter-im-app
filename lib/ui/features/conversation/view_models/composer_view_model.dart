@@ -22,6 +22,8 @@ class ComposerViewModel extends ViewModel {
     });
   }
 
+  static const maxRecordingDuration = Duration(seconds: 60);
+
   final MediaGateway _media;
   final Future<String?> Function(ChatMessage message) _resolveAttachment;
   late final StreamSubscription<void> _playbackSubscription;
@@ -82,6 +84,15 @@ class ComposerViewModel extends ViewModel {
 
   /// Stops the active recording and returns it for sending.
   Future<VoiceRecording?> finishRecording() => _stopRecording();
+
+  /// Deletes a finished clip that the user chose not to send.
+  Future<void> discardFinishedRecording(VoiceRecording recording) async {
+    try {
+      await _media.discardRecording(recording.path);
+    } catch (_) {
+      // Best-effort cleanup.
+    }
+  }
 
   /// Discards the active recording without sending it.
   Future<void> cancelRecording() async {
@@ -151,6 +162,11 @@ class ComposerViewModel extends ViewModel {
       _recordingTicker = Timer.periodic(const Duration(seconds: 1), (_) {
         if (_isPaused) return;
         _elapsed += const Duration(seconds: 1);
+        if (_elapsed >= maxRecordingDuration) {
+          _elapsed = maxRecordingDuration;
+          _recordingTicker?.cancel();
+          _recordingTicker = null;
+        }
         notifyListeners();
       });
       return null;

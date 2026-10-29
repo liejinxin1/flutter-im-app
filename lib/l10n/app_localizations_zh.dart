@@ -369,6 +369,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get camera => '拍摄';
 
   @override
+  String get send => '发送';
+
+  @override
+  String get withdrawRecording => '撤回';
+
+  @override
+  String get recordingExitTitle => '发送语音？';
+
+  @override
+  String get recordingExitBody => '你点击了录音条以外的区域。要发送这条语音，还是撤回？';
+
+  @override
+  String get noMoreMessages => '没有更多消息了';
+
+  @override
+  String newMessages(int count) {
+    return '$count 条新消息';
+  }
+
+  @override
+  String get voiceLimitReached => '录音已达 60 秒，正在发送';
+
+  @override
   String get myLocation => '我的位置';
 
   @override

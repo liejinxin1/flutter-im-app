@@ -76,7 +76,10 @@
 - 手机底部导航 + 宽屏 `NavigationRail`
 - 页面内容最大宽度、消息气泡最大宽度
 - Widget Preview，不启动 App、不初始化 SDK 即可预览页面
-- 107 个单元/Widget/预览测试
+- 录音最长 60 秒、点击录音条外弹出发送/撤回、撤回删除临时文件
+- 输入框外点击/按钮操作收起软键盘
+- 发送后自动滚到底部，浏览历史时显示新消息条数，加载到底提示没有更多
+- 110 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -125,7 +128,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          107 tests, all passed
+flutter test          110 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

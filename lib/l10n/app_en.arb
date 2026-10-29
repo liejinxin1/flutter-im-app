@@ -211,6 +211,20 @@
   "locationUnavailable": "Location messages are not available yet.",
   "documentUnavailable": "File messages are not available yet.",
   "camera": "Camera",
+  "send": "Send",
+  "withdrawRecording": "Withdraw",
+  "recordingExitTitle": "Send voice message?",
+  "recordingExitBody": "You tapped outside the recording bar. Send this recording or withdraw it?",
+  "noMoreMessages": "No more messages",
+  "newMessages": "{count} new messages",
+  "voiceLimitReached": "60s limit reached, sending…",
+  "@newMessages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "myLocation": "My Location",
   "documentAction": "Document",
   "editRemark": "Edit remark",
