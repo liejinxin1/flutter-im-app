@@ -35,6 +35,8 @@ class ComposerViewModel extends ViewModel {
   bool get attachmentsExpanded => _attachmentsExpanded;
   bool _isRecording = false;
   bool get isRecording => _isRecording;
+  bool _isPaused = false;
+  bool get isPaused => _isPaused;
   Duration _elapsed = Duration.zero;
   Duration get elapsed => _elapsed;
   bool _isBusy = false;
@@ -70,6 +72,52 @@ class ComposerViewModel extends ViewModel {
     }
   }
 
+  /// Starts recording and switches the composer into the recording bar.
+  Future<void> startRecordingMode() async {
+    if (_isRecording) return;
+    _attachmentsExpanded = false;
+    notifyListeners();
+    await _startRecording();
+  }
+
+  /// Stops the active recording and returns it for sending.
+  Future<VoiceRecording?> finishRecording() => _stopRecording();
+
+  /// Discards the active recording without sending it.
+  Future<void> cancelRecording() async {
+    if (!_isRecording) return;
+    _recordingTicker?.cancel();
+    _recordingTicker = null;
+    final wasPaused = _isPaused;
+    _isRecording = false;
+    _isPaused = false;
+    _elapsed = Duration.zero;
+    try {
+      if (wasPaused) await _media.resumeRecording();
+      final recording = await _media.stopRecording();
+      if (recording != null) await _media.discardRecording(recording.path);
+    } catch (_) {
+      // Canceling must not surface an error.
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> togglePause() async {
+    if (!_isRecording || _isBusy) return;
+    _isPaused = !_isPaused;
+    try {
+      if (_isPaused) {
+        await _media.pauseRecording();
+      } else {
+        await _media.resumeRecording();
+      }
+    } catch (_) {
+      _isPaused = !_isPaused;
+    }
+    notifyListeners();
+  }
+
   /// Starts a recording, or stops and returns the finished recording.
   ///
   /// Returns `null` when starting, when permission is denied, or when the clip
@@ -98,8 +146,10 @@ class ComposerViewModel extends ViewModel {
         return null;
       }
       _isRecording = true;
+      _isPaused = false;
       _elapsed = Duration.zero;
       _recordingTicker = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (_isPaused) return;
         _elapsed += const Duration(seconds: 1);
         notifyListeners();
       });
@@ -126,6 +176,7 @@ class ComposerViewModel extends ViewModel {
     try {
       final recording = await _media.stopRecording();
       _isRecording = false;
+      _isPaused = false;
       _elapsed = Duration.zero;
       if (recording == null) return null;
       if (recording.duration < const Duration(seconds: 1)) {

@@ -26,6 +26,12 @@ class DeviceMediaGateway implements MediaGateway {
   Future<void> startRecording() => Future.error(_unsupported);
 
   @override
+  Future<void> pauseRecording() => Future.error(_unsupported);
+
+  @override
+  Future<void> resumeRecording() => Future.error(_unsupported);
+
+  @override
   Future<VoiceRecording?> stopRecording() async => null;
 
   @override

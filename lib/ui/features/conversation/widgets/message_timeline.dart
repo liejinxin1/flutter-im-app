@@ -32,6 +32,7 @@ class MessageTimeline extends StatelessWidget {
     required this.keyForMessage,
     this.showSenderNames = false,
     this.senderProfiles = const {},
+    this.onOpenSender,
   });
 
   final List<ChatMessage> messages;
@@ -55,6 +56,7 @@ class MessageTimeline extends StatelessWidget {
   final GlobalKey Function(String messageId) keyForMessage;
   final bool showSenderNames;
   final Map<String, UserProfile> senderProfiles;
+  final ValueChanged<String>? onOpenSender;
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +129,9 @@ class MessageTimeline extends StatelessWidget {
           showSenderName: showSenderNames,
           senderName: sender?.displayName,
           senderAvatarUrl: sender?.effectiveAvatarUrl,
+          onOpenSender: onOpenSender == null
+              ? null
+              : () => onOpenSender!(message.senderId),
         ),
       );
       final selected = selectedIds.contains(message.id);

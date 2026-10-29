@@ -63,6 +63,18 @@ class DeviceMediaGateway implements MediaGateway {
   }
 
   @override
+  Future<void> pauseRecording() async {
+    if (_recordingPath == null) return;
+    await _recorder.pause();
+  }
+
+  @override
+  Future<void> resumeRecording() async {
+    if (_recordingPath == null) return;
+    await _recorder.resume();
+  }
+
+  @override
   Future<VoiceRecording?> stopRecording() async {
     final startedAt = _recordingStartedAt;
     _recordingPath = null;

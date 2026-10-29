@@ -758,6 +758,18 @@ abstract class AppLocalizations {
   /// **'Camera'**
   String get camera;
 
+  /// No description provided for @myLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'My Location'**
+  String get myLocation;
+
+  /// No description provided for @documentAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get documentAction;
+
   /// No description provided for @editRemark.
   ///
   /// In en, this message translates to:

@@ -11,6 +11,8 @@ void main() {
     'more tab': moreTabPreview,
     'conversation': conversationPreview,
     'group conversation': groupConversationPreview,
+    'attachment sheet': attachmentSheetPreview,
+    'voice recording': voiceRecordingPreview,
     'contacts': contactsPreview,
     'friend requests': friendRequestsPreview,
     'add friend': addFriendPreview,

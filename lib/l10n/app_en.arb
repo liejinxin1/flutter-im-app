@@ -211,6 +211,8 @@
   "locationUnavailable": "Location messages are not available yet.",
   "documentUnavailable": "File messages are not available yet.",
   "camera": "Camera",
+  "myLocation": "My Location",
+  "documentAction": "Document",
   "editRemark": "Edit remark",
   "sendMessage": "Send message",
   "friendProfile": "Contact profile",

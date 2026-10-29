@@ -1,6 +1,7 @@
 import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/ui/features/conversation/views/conversation_screen.dart';
 import 'package:agora_im_flutter/ui/features/conversation/widgets/quoted_message_preview.dart';
+import 'package:agora_im_flutter/ui/features/conversation/widgets/voice_recording_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,6 +35,53 @@ void main() {
 
     expect(find.text('hello'), findsOneWidget);
     expect(chat.sendTextCalls, 1);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('opens the attachment grid and records from the sheet', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.attach_file_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.text('拍摄'), findsOneWidget);
+    expect(find.text('录音'), findsOneWidget);
+    expect(find.text('联系人'), findsOneWidget);
+    expect(find.text('相册'), findsOneWidget);
+    expect(find.text('我的位置'), findsOneWidget);
+    expect(find.text('文件'), findsOneWidget);
+
+    await tester.tap(find.text('录音'));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byType(VoiceRecordingBar), findsOneWidget);
+    expect(find.text('00:00'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.send_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(VoiceRecordingBar), findsNothing);
+    expect(media.startRecordingCalls, 1);
+    expect(media.stopRecordingCalls, 1);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await chat.dispose();

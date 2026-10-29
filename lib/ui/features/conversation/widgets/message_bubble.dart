@@ -21,6 +21,7 @@ class MessageBubble extends StatelessWidget {
     this.showSenderName = false,
     this.senderName,
     this.senderAvatarUrl,
+    this.onOpenSender,
   });
 
   final ChatMessage message;
@@ -33,6 +34,7 @@ class MessageBubble extends StatelessWidget {
   final bool showSenderName;
   final String? senderName;
   final String? senderAvatarUrl;
+  final VoidCallback? onOpenSender;
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +69,14 @@ class MessageBubble extends StatelessWidget {
               if (showSenderName && !mine)
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 4),
-                  child: Text(
-                    senderName ?? message.senderId,
-                    style: const TextStyle(
-                      color: AppColors.mutedText,
-                      fontSize: 11,
+                  child: GestureDetector(
+                    onTap: onOpenSender,
+                    child: Text(
+                      senderName ?? message.senderId,
+                      style: const TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 11,
+                      ),
                     ),
                   ),
                 ),
@@ -200,12 +205,15 @@ class MessageBubble extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          UserAvatar(
-            userId: message.senderId,
-            radius: 16,
-            foregroundImage: senderAvatarUrl == null
-                ? null
-                : NetworkImage(senderAvatarUrl!),
+          GestureDetector(
+            onTap: onOpenSender,
+            child: UserAvatar(
+              userId: message.senderId,
+              radius: 16,
+              foregroundImage: senderAvatarUrl == null
+                  ? null
+                  : NetworkImage(senderAvatarUrl!),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(child: bubble),

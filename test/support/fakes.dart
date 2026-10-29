@@ -574,6 +574,12 @@ class FakeMediaGateway implements MediaGateway {
   }
 
   @override
+  Future<void> pauseRecording() async {}
+
+  @override
+  Future<void> resumeRecording() async {}
+
+  @override
   Future<VoiceRecording?> stopRecording() async {
     stopRecordingCalls++;
     return nextRecording;

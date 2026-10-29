@@ -11,6 +11,7 @@ void main() {
     final profiles = FakeProfileRepository()
       ..profiles['peer'] = const UserProfile(userId: 'peer', nickname: 'Bobby');
     final contacts = FakeContactRepository();
+    String? openedChat;
 
     await tester.pumpWidget(
       testApp(
@@ -18,7 +19,7 @@ void main() {
           userId: 'peer',
           profiles: profiles,
           contacts: contacts,
-          onOpenChat: (_) {},
+          onOpenChat: (userId) => openedChat = userId,
         ),
       ),
     );
@@ -26,6 +27,9 @@ void main() {
 
     expect(find.text('Bobby'), findsOneWidget);
     expect(find.text('暂无备注'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, '发消息'));
+    expect(openedChat, 'peer');
 
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();

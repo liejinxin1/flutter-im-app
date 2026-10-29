@@ -380,6 +380,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get camera => 'Camera';
 
   @override
+  String get myLocation => 'My Location';
+
+  @override
+  String get documentAction => 'Document';
+
+  @override
   String get editRemark => 'Edit remark';
 
   @override

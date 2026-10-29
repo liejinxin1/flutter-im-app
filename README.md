@@ -69,10 +69,13 @@
 - [x] 群资料页、群成员列表（Agora 成员 + 本地资料补全）
 - [x] 账号隔离的资料缓存和联系人备注编辑
 - [x] 单聊/群聊输入框按 Figma Ver2 区分：单聊相机/附件/麦克风，群聊 + / 发送
+- [x] Figma 附件面板（Camera/Record/Contact、Gallery/My Location/Document）
+- [x] Figma 录音条（取消、暂停/继续、波形、时长、发送）
+- [x] 单聊右上角、群聊发送者、群成员列表均可进入好友资料页
 - [x] 会话/消息本地缓存优先加载，网络历史随后合并
 - [x] More 设置：显示/隐藏网络聊天记录
 - [x] 群会话名称/头像从 Agora 群资料读取，群聊消息显示发送者
-- [x] Widget Preview、页面 smoke test、102 个测试
+- [x] Widget Preview、页面 smoke test、107 个测试
 - [x] 开源前 AppKey 清理：不提交任何可用 Key
 
 ### 🚧 进行中 / 待完善

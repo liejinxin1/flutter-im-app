@@ -84,7 +84,25 @@ Android 15 的 edge-to-edge 会忽略 `systemNavigationBarColor`，因此不只�
 4. **其他页面**：Contacts/Groups/Profile/More 的独立 Frame 还没有逐个采样，目前先复用同一套 token 和渐变头。
 5. **MCP**：开启后可以直接读 `get_variable_defs` / `get_design_context`，把上面的近似值替换成精确值，并导出真实头像/图标资源。
 
-## 5. 复现验证
+## 5. Ver2 输入区与资料入口（2026-10-30）
+
+本轮通过 Figma REST API 读取并渲染了：
+
+- 附件面板：node `106:6738`
+- 录音中状态：node `104:6443`
+
+已落地：
+
+- 附件面板改为 2×3 圆形图标网格：Camera / Record / Contact，Gallery / My Location / Document；
+- 面板位于输入框下方，输入框保持可见；
+- 录音改为独立录音条：左侧取消，中间青色暂停/波形/时长，右侧发送；
+- `MediaGateway` 增加 `pauseRecording` / `resumeRecording`，录音条支持暂停和继续；
+- 单聊右上角“会话详情”进入好友资料页；
+- 群聊点击发送者头像/昵称进入好友资料页；
+- 群资料页点击成员进入好友资料页；
+- 新增附件面板、录音条、好友资料、群资料 Widget 测试和 Preview。
+
+## 6. 复现验证
 
 ```shell
 dart format lib test
@@ -94,4 +112,4 @@ flutter build web --no-tree-shake-icons
 flutter build apk --debug
 ```
 
-本轮结果：format 无改动、analyze 零问题、102 个测试通过、Android debug 构建成功（Web 构建仅在 Web 相关改动时执行）。
+本轮结果：format 无改动、analyze 零问题、107 个测试通过、Android debug 构建成功（Web 构建仅在 Web 相关改动时执行）。

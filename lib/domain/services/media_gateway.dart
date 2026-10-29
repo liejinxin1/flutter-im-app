@@ -17,6 +17,10 @@ abstract interface class MediaGateway {
 
   Future<void> startRecording();
 
+  Future<void> pauseRecording();
+
+  Future<void> resumeRecording();
+
   /// Stops the active recording. Returns `null` when nothing was recorded.
   Future<VoiceRecording?> stopRecording();
 

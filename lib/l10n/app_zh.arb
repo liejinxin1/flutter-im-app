@@ -110,6 +110,8 @@
   "locationUnavailable": "位置消息暂未接入",
   "documentUnavailable": "文件消息暂未接入",
   "camera": "拍摄",
+  "myLocation": "我的位置",
+  "documentAction": "文件",
   "editRemark": "修改备注",
   "sendMessage": "发消息",
   "friendProfile": "好友资料",

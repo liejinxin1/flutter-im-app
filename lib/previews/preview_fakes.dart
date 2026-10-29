@@ -397,6 +397,10 @@ class PreviewMediaGateway implements MediaGateway {
   @override
   Future<void> startRecording() async {}
   @override
+  Future<void> pauseRecording() async {}
+  @override
+  Future<void> resumeRecording() async {}
+  @override
   Future<VoiceRecording?> stopRecording() async => null;
   @override
   Future<void> discardRecording(String path) async {}

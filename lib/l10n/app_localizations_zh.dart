@@ -369,6 +369,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get camera => '拍摄';
 
   @override
+  String get myLocation => '我的位置';
+
+  @override
+  String get documentAction => '文件';
+
+  @override
   String get editRemark => '修改备注';
 
   @override

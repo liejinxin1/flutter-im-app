@@ -13,6 +13,8 @@ import '../ui/features/contacts/views/add_friend_screen.dart';
 import '../ui/features/contacts/views/contacts_screen.dart';
 import '../ui/features/contacts/views/friend_requests_screen.dart';
 import '../ui/features/conversation/views/conversation_screen.dart';
+import '../ui/features/conversation/widgets/attachment_panel.dart';
+import '../ui/features/conversation/widgets/voice_recording_bar.dart';
 import '../ui/features/groups/views/create_group_screen.dart';
 import '../ui/features/more/views/more_screen.dart';
 import '../ui/features/profile/view_models/profile_view_model.dart';
@@ -122,6 +124,40 @@ Widget groupConversationPreview() => PreviewHost(
     memberCount: 3,
     kind: ChatConversationKind.group,
     profiles: PreviewProfileRepository(),
+  ),
+);
+
+@Preview(name: 'Attachment sheet', group: 'IM Screens', size: Size(393, 360))
+Widget attachmentSheetPreview() => PreviewHost(
+  child: Scaffold(
+    body: Align(
+      alignment: Alignment.bottomCenter,
+      child: AttachmentPanel(
+        onCamera: () {},
+        onGallery: () {},
+        onRecord: () {},
+        onContact: () {},
+        onLocation: () {},
+        onDocument: () {},
+      ),
+    ),
+  ),
+);
+
+@Preview(name: 'Voice recording', group: 'IM Screens', size: Size(393, 140))
+Widget voiceRecordingPreview() => PreviewHost(
+  child: Scaffold(
+    body: Align(
+      alignment: Alignment.bottomCenter,
+      child: VoiceRecordingBar(
+        elapsed: const Duration(seconds: 5),
+        isPaused: false,
+        isBusy: false,
+        onPause: () {},
+        onCancel: () {},
+        onSend: () {},
+      ),
+    ),
   ),
 );
 

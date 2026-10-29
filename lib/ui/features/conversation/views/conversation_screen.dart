@@ -26,6 +26,7 @@ import '../widgets/image_preview_dialog.dart';
 import '../widgets/message_composer.dart';
 import '../widgets/message_selection_bar.dart';
 import '../widgets/message_timeline.dart';
+import '../widgets/voice_recording_bar.dart';
 
 /// Conversation page.
 ///
@@ -226,17 +227,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   Future<void> _startVoice() async {
-    if (!_composer.attachmentsExpanded) {
-      _composer.toggleAttachments();
-      if (!mounted) return;
-      await Future<void>.delayed(const Duration(milliseconds: 80));
-    }
-    if (!mounted) return;
-    await _toggleRecording();
+    await _composer.startRecordingMode();
   }
 
-  Future<void> _toggleRecording() async {
-    final recording = await _composer.toggleRecording();
+  Future<void> _sendRecording() async {
+    final recording = await _composer.finishRecording();
     if (recording == null || !mounted) return;
     await _conversation.sendVoice(recording.path, recording.duration.inSeconds);
   }
@@ -580,6 +575,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       '/groups/${Uri.encodeComponent(widget.peerId)}'
                       '${query.isEmpty ? '' : '?${Uri(queryParameters: query).query}'}',
                     );
+                  } else if (widget.kind == ChatConversationKind.direct) {
+                    context.push<void>(
+                      '/friends/${Uri.encodeComponent(widget.peerId)}',
+                    );
                   } else {
                     _showMessage(context.l10n.conversationDetailsUnavailable);
                   }
@@ -623,6 +622,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     keyForMessage: _messageKey,
                     showSenderNames: widget.kind == ChatConversationKind.group,
                     senderProfiles: _senderProfiles,
+                    onOpenSender: (userId) => context.push<void>(
+                      '/friends/${Uri.encodeComponent(userId)}',
+                    ),
                   ),
                 ),
               ),
@@ -641,34 +643,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         ),
                         onDelete: () => unawaited(_deleteSelection()),
                       )
+                    else if (_composer.isRecording)
+                      VoiceRecordingBar(
+                        elapsed: _composer.elapsed,
+                        isPaused: _composer.isPaused,
+                        isBusy: _composer.isBusy,
+                        onPause: () => unawaited(_composer.togglePause()),
+                        onCancel: () => unawaited(_composer.cancelRecording()),
+                        onSend: () => unawaited(_sendRecording()),
+                      )
                     else ...[
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 220),
-                        curve: Curves.easeOutCubic,
-                        child: _composer.attachmentsExpanded
-                            ? AttachmentPanel(
-                                isRecording: _composer.isRecording,
-                                elapsed: _composer.elapsed,
-                                isBusy: _composer.isBusy,
-                                onCamera: () => unawaited(
-                                  _pickImage(MediaImageSource.camera),
-                                ),
-                                onGallery: () => unawaited(
-                                  _pickImage(MediaImageSource.gallery),
-                                ),
-                                onRecord: () => unawaited(_toggleRecording()),
-                                onContact: () => _showMessage(
-                                  context.l10n.contactShareUnavailable,
-                                ),
-                                onLocation: () => _showMessage(
-                                  context.l10n.locationUnavailable,
-                                ),
-                                onDocument: () => _showMessage(
-                                  context.l10n.documentUnavailable,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
                       MessageComposer(
                         controller: _messageController,
                         isGroup: widget.kind == ChatConversationKind.group,
@@ -687,6 +671,30 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             unawaited(_scrollToMessage(quoted.id));
                           }
                         },
+                      ),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        child: _composer.attachmentsExpanded
+                            ? AttachmentPanel(
+                                onCamera: () => unawaited(
+                                  _pickImage(MediaImageSource.camera),
+                                ),
+                                onGallery: () => unawaited(
+                                  _pickImage(MediaImageSource.gallery),
+                                ),
+                                onRecord: () => unawaited(_startVoice()),
+                                onContact: () => _showMessage(
+                                  context.l10n.contactShareUnavailable,
+                                ),
+                                onLocation: () => _showMessage(
+                                  context.l10n.locationUnavailable,
+                                ),
+                                onDocument: () => _showMessage(
+                                  context.l10n.documentUnavailable,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ),
                     ],
                   ],
