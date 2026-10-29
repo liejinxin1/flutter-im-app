@@ -114,7 +114,7 @@ void main() {
       },
     );
 
-    test('caps the number of cached conversations', () async {
+    test('retains cached history without a conversation cap', () async {
       final store = MemoryLocalStore();
       final cache = ChatCache(store);
       for (var i = 0; i < 81; i++) {
@@ -132,7 +132,7 @@ void main() {
         ]);
       }
 
-      expect((await cache.loadMessages('alice', 'conv-0')).items, isEmpty);
+      expect((await cache.loadMessages('alice', 'conv-0')).items, hasLength(1));
       expect(
         (await cache.loadMessages('alice', 'conv-80')).items,
         hasLength(1),

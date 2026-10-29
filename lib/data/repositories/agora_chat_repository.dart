@@ -77,11 +77,12 @@ class AgoraChatRepository implements ChatRepository {
     if (userId.isEmpty) {
       return const ChatMessagePage(items: [], cursor: null, hasMore: false);
     }
-    final page = await _cache.loadMessages(userId, conversationId);
-    final items = page.items.length > limit
-        ? page.items.sublist(page.items.length - limit)
-        : page.items;
-    return ChatMessagePage(items: items, cursor: null, hasMore: false);
+    final page = await _cache.loadMessages(
+      userId,
+      conversationId,
+      limit: limit,
+    );
+    return ChatMessagePage(items: page.items, cursor: null, hasMore: false);
   }
 
   @override
@@ -107,7 +108,7 @@ class AgoraChatRepository implements ChatRepository {
         conversationId,
         withPaths,
       );
-      if (cursor == null && userId.isNotEmpty) {
+      if (userId.isNotEmpty) {
         unawaited(_cache.saveMessages(userId, conversationId, items));
       }
       return ChatMessagePage(

@@ -33,7 +33,7 @@ abstract interface class ChatMessageStore {
 class KvChatMessageStore implements ChatMessageStore {
   KvChatMessageStore(this._store);
 
-  static const maxMessages = 60;
+  static const defaultLoadLimit = 60;
 
   final LocalStore _store;
 
@@ -44,7 +44,7 @@ class KvChatMessageStore implements ChatMessageStore {
   Future<List<ChatMessage>> load(
     String userId,
     String conversationId, {
-    int limit = 60,
+    int limit = defaultLoadLimit,
   }) async {
     if (userId.isEmpty) return const [];
     try {
@@ -75,13 +75,9 @@ class KvChatMessageStore implements ChatMessageStore {
     List<ChatMessage> messages,
   ) async {
     if (userId.isEmpty) return;
-    final start = messages.length > maxMessages
-        ? messages.length - maxMessages
-        : 0;
-    final tail = messages.sublist(start);
     await _store.write(
       _key(userId, conversationId),
-      jsonEncode(tail.map(_encode).toList()),
+      jsonEncode(messages.map(_encode).toList()),
     );
   }
 
@@ -92,7 +88,7 @@ class KvChatMessageStore implements ChatMessageStore {
     Set<String> messageIds,
   ) async {
     if (messageIds.isEmpty) return;
-    final existing = await load(userId, conversationId, limit: maxMessages);
+    final existing = await load(userId, conversationId, limit: 1 << 30);
     await save(
       userId,
       conversationId,

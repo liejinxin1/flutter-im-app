@@ -11,7 +11,7 @@ import 'chat_message_store.dart';
 class SqliteChatMessageStore implements ChatMessageStore {
   SqliteChatMessageStore(this._database, {this.legacy});
 
-  static const maxMessages = 60;
+  static const defaultLoadLimit = 60;
 
   final AppDatabase _database;
   final LocalStore? legacy;
@@ -23,7 +23,7 @@ class SqliteChatMessageStore implements ChatMessageStore {
   Future<List<ChatMessage>> load(
     String userId,
     String conversationId, {
-    int limit = maxMessages,
+    int limit = defaultLoadLimit,
   }) async {
     if (userId.isEmpty) return const [];
     final db = await _database.database;
@@ -65,21 +65,6 @@ class SqliteChatMessageStore implements ChatMessageStore {
           'payload': jsonEncode(_encode(message)),
           'sent_at': message.sentAt.millisecondsSinceEpoch,
         }, conflictAlgorithm: ConflictAlgorithm.replace);
-      }
-      final stale = await txn.query(
-        'messages',
-        columns: ['message_id'],
-        where: 'account_id = ? AND conversation_id = ?',
-        whereArgs: [userId, conversationId],
-        orderBy: 'sent_at DESC',
-        offset: maxMessages,
-      );
-      for (final row in stale) {
-        await txn.delete(
-          'messages',
-          where: 'account_id = ? AND conversation_id = ? AND message_id = ?',
-          whereArgs: [userId, conversationId, row['message_id']],
-        );
       }
     });
   }

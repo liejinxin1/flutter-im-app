@@ -15,7 +15,6 @@ class ChatCache {
 
   final LocalStore _store;
   final ChatMessageStore _messages;
-  static const _maxCachedConversations = 80;
   static const _maxAttachmentPaths = 200;
 
   String _conversationsKey(String userId) => 'cache.conversations.v1.$userId';
@@ -28,9 +27,6 @@ class ChatCache {
 
   String _recalledKey(String userId, String conversationId) =>
       'cache.recalled.v1.$userId.$conversationId';
-
-  String _conversationIndexKey(String userId) =>
-      'cache.message_index.v1.$userId';
 
   String _attachmentPathsKey(String userId) =>
       'cache.attachment_paths.v1.$userId';
@@ -73,13 +69,14 @@ class ChatCache {
 
   Future<ChatMessagePage> loadMessages(
     String userId,
-    String conversationId,
-  ) async {
+    String conversationId, {
+    int limit = 60,
+  }) async {
     if (userId.isEmpty) {
       return const ChatMessagePage(items: [], cursor: null, hasMore: false);
     }
     try {
-      final items = await _messages.load(userId, conversationId);
+      final items = await _messages.load(userId, conversationId, limit: limit);
       return ChatMessagePage(
         items: await _applyOverrides(userId, conversationId, items),
         cursor: null,
@@ -99,42 +96,8 @@ class ChatCache {
     try {
       final visible = await _applyOverrides(userId, conversationId, messages);
       await _messages.save(userId, conversationId, visible);
-      await _touchConversation(userId, conversationId);
     } catch (_) {
       // A cache write must never fail sending/loading.
-    }
-  }
-
-  Future<void> _touchConversation(String userId, String conversationId) async {
-    final index = await _loadConversationIndex(userId);
-    index[conversationId] = DateTime.now().millisecondsSinceEpoch;
-    if (index.length > _maxCachedConversations) {
-      final entries = index.entries.toList()
-        ..sort((a, b) => a.value.compareTo(b.value));
-      final stale = entries.take(index.length - _maxCachedConversations);
-      for (final entry in stale) {
-        await _messages.clear(userId, entry.key);
-        await _store.remove(_legacyMessagesKey(userId, entry.key));
-        await _store.remove(_deletedKey(userId, entry.key));
-        await _store.remove(_recalledKey(userId, entry.key));
-        index.remove(entry.key);
-      }
-    }
-    await _store.write(_conversationIndexKey(userId), jsonEncode(index));
-  }
-
-  Future<Map<String, int>> _loadConversationIndex(String userId) async {
-    try {
-      final raw = await _store.read(_conversationIndexKey(userId));
-      if (raw == null) return {};
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map) return {};
-      return {
-        for (final entry in decoded.entries)
-          '${entry.key}': (entry.value as num?)?.toInt() ?? 0,
-      };
-    } catch (_) {
-      return {};
     }
   }
 
