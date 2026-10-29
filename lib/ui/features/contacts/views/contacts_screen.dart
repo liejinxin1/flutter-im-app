@@ -9,6 +9,7 @@ import '../../../core/widgets/gradient_header.dart';
 import '../../../core/widgets/user_avatar.dart';
 import '../../../../domain/models/user_profile.dart';
 import '../view_models/contacts_view_model.dart';
+import '../widgets/remark_dialog.dart';
 
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({
@@ -152,30 +153,10 @@ class ContactsScreen extends StatelessWidget {
   );
 
   Future<void> _editRemark(BuildContext context, UserProfile profile) async {
-    final controller = TextEditingController(text: profile.remark);
     final value = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.editRemark),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: 64,
-          decoration: InputDecoration(hintText: context.l10n.remarkHint),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(context.l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: Text(context.l10n.save),
-          ),
-        ],
-      ),
+      builder: (context) => RemarkDialog(initialRemark: profile.remark),
     );
-    controller.dispose();
     if (value == null || !context.mounted) return;
 
     final success = await viewModel.updateRemark(profile.userId, value);

@@ -10,6 +10,7 @@ import '../../../core/system_ui/app_system_ui.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/gradient_header.dart';
 import '../../../core/widgets/user_avatar.dart';
+import '../widgets/remark_dialog.dart';
 
 class FriendDetailScreen extends StatefulWidget {
   const FriendDetailScreen({
@@ -53,30 +54,10 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
   }
 
   Future<void> _editRemark() async {
-    final controller = TextEditingController(text: _profile?.remark);
     final value = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(context.l10n.editRemark),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: 64,
-          decoration: InputDecoration(hintText: context.l10n.remarkHint),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(context.l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: Text(context.l10n.save),
-          ),
-        ],
-      ),
+      builder: (context) => RemarkDialog(initialRemark: _profile?.remark),
     );
-    controller.dispose();
     if (value == null || !mounted) return;
     try {
       await widget.contacts.updateRemark(widget.userId, value);

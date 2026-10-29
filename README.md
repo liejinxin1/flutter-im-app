@@ -72,7 +72,7 @@
 - [x] 会话/消息本地缓存优先加载，网络历史随后合并
 - [x] More 设置：显示/隐藏网络聊天记录
 - [x] 群会话名称/头像从 Agora 群资料读取，群聊消息显示发送者
-- [x] Widget Preview、页面 smoke test、101 个测试
+- [x] Widget Preview、页面 smoke test、102 个测试
 - [x] 开源前 AppKey 清理：不提交任何可用 Key
 
 ### 🚧 进行中 / 待完善
