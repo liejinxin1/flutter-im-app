@@ -188,6 +188,16 @@ class PreviewChatRepository implements ChatRepository {
   );
 
   @override
+  Future<ChatMessagePage> loadCachedMessages(
+    String conversationId, {
+    int limit = 30,
+  }) async => ChatMessagePage(
+    items: _history[conversationId] ?? const [],
+    cursor: null,
+    hasMore: false,
+  );
+
+  @override
   Future<ChatMessage> sendText(
     String conversationId,
     String text, {

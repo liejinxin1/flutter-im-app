@@ -1,4 +1,5 @@
 import '../data/local/chat_cache.dart';
+import '../data/local/prefs_app_settings.dart';
 import '../data/local/prefs_friend_request_store.dart';
 import '../data/local/prefs_outbox_repository.dart';
 import '../data/local/prefs_profile_repository.dart';
@@ -20,6 +21,7 @@ import '../domain/repositories/outbox_repository.dart';
 import '../domain/repositories/profile_repository.dart';
 import '../domain/repositories/session_repository.dart';
 import '../domain/services/api_client.dart';
+import '../domain/services/app_settings.dart';
 import '../domain/services/chat_service.dart';
 import '../domain/services/local_store.dart';
 import '../domain/services/media_gateway.dart';
@@ -41,6 +43,7 @@ class AppDependencies {
     required this.profiles,
     required this.friendRequests,
     this.api,
+    this.settings,
     this.attachmentUploader,
     this.onDispose,
   });
@@ -51,6 +54,7 @@ class AppDependencies {
     LocalStore? localStore,
     ApiClient? api,
     AttachmentUploader? attachmentUploader,
+    AppSettings? settings,
   }) {
     final store = localStore ?? SharedPreferencesLocalStore();
     final connection = ChatConnection(service ?? AgoraChatService());
@@ -81,6 +85,7 @@ class AppDependencies {
       outbox: outbox,
       profiles: PrefsProfileRepository(connection.service, store),
       friendRequests: PrefsFriendRequestStore(store),
+      settings: settings ?? PrefsAppSettings(store),
       api: apiClient,
       attachmentUploader: attachmentUploader,
       onDispose: () async {
@@ -99,6 +104,7 @@ class AppDependencies {
   final OutboxRepository outbox;
   final ProfileRepository profiles;
   final FriendRequestStore friendRequests;
+  final AppSettings? settings;
   final ApiClient? api;
   final AttachmentUploader? attachmentUploader;
 

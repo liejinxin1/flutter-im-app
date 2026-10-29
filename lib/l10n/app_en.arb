@@ -279,6 +279,8 @@
   "moreTitle": "More",
   "privacySecurity": "Privacy & Security",
   "storage": "Storage",
+  "networkHistory": "Show network chat history",
+  "networkHistorySubtitle": "When off, only locally cached history is shown",
   "helpFeedback": "Help & Feedback",
   "aboutEchat": "About E-Chat",
   "contacts": "Contacts",

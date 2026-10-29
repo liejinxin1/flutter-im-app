@@ -8,6 +8,7 @@ import '../../../../domain/models/chat_conversation.dart';
 import '../../../../domain/models/chat_message.dart';
 import '../../../../domain/repositories/chat_repository.dart';
 import '../../../../domain/repositories/outbox_repository.dart';
+import '../../../../domain/services/app_settings.dart';
 import '../../../../domain/services/media_gateway.dart';
 import '../../../core/layout/app_layout.dart';
 import '../../../core/localization/app_error.dart';
@@ -35,6 +36,7 @@ class ConversationScreen extends StatefulWidget {
     required this.outbox,
     required this.currentUserId,
     required this.peerId,
+    this.settings,
     this.kind = ChatConversationKind.direct,
     this.peerName,
     this.peerAvatarUrl,
@@ -45,6 +47,7 @@ class ConversationScreen extends StatefulWidget {
   final OutboxRepository outbox;
   final String currentUserId;
   final String peerId;
+  final AppSettings? settings;
   final ChatConversationKind kind;
   final String? peerName;
   final String? peerAvatarUrl;
@@ -80,6 +83,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       currentUserId: widget.currentUserId,
       kind: widget.kind,
       media: widget.media,
+      settings: widget.settings,
     )..addListener(_onConversationChanged);
     _composer = ComposerViewModel(
       widget.media,
@@ -552,6 +556,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         unawaited(_scrollToMessage(messageId)),
                     highlightedMessageId: _highlightedMessageId,
                     keyForMessage: _messageKey,
+                    showSenderNames: widget.kind == ChatConversationKind.group,
                   ),
                 ),
               ),

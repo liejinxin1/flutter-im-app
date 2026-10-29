@@ -13,6 +13,10 @@ abstract interface class ChatRepository {
     String? cursor,
     int limit = 30,
   });
+  Future<ChatMessagePage> loadCachedMessages(
+    String conversationId, {
+    int limit = 30,
+  });
   Future<ChatMessage> sendText(
     String conversationId,
     String text, {

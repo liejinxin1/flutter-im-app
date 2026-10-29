@@ -407,6 +407,7 @@ class _AppShellState extends State<AppShell> {
       onFriendRequests: _openFriendRequests,
       onContacts: _openContacts,
       friendRequestCount: _contacts.pendingFriendRequests.length,
+      settings: widget.dependencies.settings,
     ),
   };
 

@@ -450,6 +450,66 @@ void main() {
       expect(viewModel.messages.single.clientId, 'queued-1');
     });
 
+    test('uses cached history without network when disabled', () async {
+      final repository = FakeChatRepository();
+      addTearDown(repository.dispose);
+      repository.history['peer'] = [
+        ChatMessage(
+          id: 'cached-1',
+          conversationId: 'peer',
+          senderId: 'peer',
+          content: const TextMessageContent('cached hello'),
+          sentAt: DateTime(2026),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: false,
+        ),
+      ];
+      final viewModel = ConversationViewModel(
+        repository,
+        FakeOutboxRepository(),
+        conversationId: 'peer',
+        currentUserId: 'me',
+        settings: FakeAppSettings(showHistory: false),
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.loadInitial();
+
+      expect(viewModel.messages.single.text, 'cached hello');
+      expect(viewModel.isLoading, isFalse);
+      expect(repository.loadMessagesCalls, 0);
+    });
+
+    test('keeps cached messages when the network page is shorter', () async {
+      final repository = FakeChatRepository();
+      addTearDown(repository.dispose);
+      repository.history['peer'] = [
+        ChatMessage(
+          id: 'cached-1',
+          conversationId: 'peer',
+          senderId: 'peer',
+          content: const TextMessageContent('cached hello'),
+          sentAt: DateTime(2026),
+          deliveryState: ChatMessageDeliveryState.sent,
+          isOutgoing: false,
+        ),
+      ];
+      final viewModel = ConversationViewModel(
+        repository,
+        FakeOutboxRepository(),
+        conversationId: 'peer',
+        currentUserId: 'me',
+        settings: FakeAppSettings(showHistory: true),
+      );
+      addTearDown(viewModel.dispose);
+
+      await viewModel.loadInitial();
+
+      expect(viewModel.messages, hasLength(1));
+      expect(viewModel.messages.single.text, 'cached hello');
+      expect(repository.loadMessagesCalls, 1);
+    });
+
     test('sends a quoted reply through the text content', () async {
       final repository = FakeChatRepository();
       addTearDown(repository.dispose);

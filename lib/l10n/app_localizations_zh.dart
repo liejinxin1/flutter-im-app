@@ -522,6 +522,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get storage => '存储';
 
   @override
+  String get networkHistory => '显示网络聊天记录';
+
+  @override
+  String get networkHistorySubtitle => '关闭后只显示本地缓存的历史消息';
+
+  @override
   String get helpFeedback => '帮助与反馈';
 
   @override

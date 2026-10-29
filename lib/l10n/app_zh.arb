@@ -157,6 +157,8 @@
   "moreTitle": "更多",
   "privacySecurity": "隐私与安全",
   "storage": "存储",
+  "networkHistory": "显示网络聊天记录",
+  "networkHistorySubtitle": "关闭后只显示本地缓存的历史消息",
   "helpFeedback": "帮助与反馈",
   "aboutEchat": "关于 E-Chat",
   "contacts": "联系人",

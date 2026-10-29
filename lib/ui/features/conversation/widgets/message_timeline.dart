@@ -29,6 +29,7 @@ class MessageTimeline extends StatelessWidget {
     required this.onQuoteTap,
     required this.highlightedMessageId,
     required this.keyForMessage,
+    this.showSenderNames = false,
   });
 
   final List<ChatMessage> messages;
@@ -50,6 +51,7 @@ class MessageTimeline extends StatelessWidget {
   final ValueChanged<String> onQuoteTap;
   final String? highlightedMessageId;
   final GlobalKey Function(String messageId) keyForMessage;
+  final bool showSenderNames;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +120,7 @@ class MessageTimeline extends StatelessWidget {
           onDownloadImage: onDownloadImage,
           onRetry: () => onRetry(message.id),
           onQuoteTap: onQuoteTap,
+          showSenderName: showSenderNames,
         ),
       );
       final selected = selectedIds.contains(message.id);

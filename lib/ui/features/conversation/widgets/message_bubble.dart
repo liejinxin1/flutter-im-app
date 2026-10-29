@@ -17,6 +17,7 @@ class MessageBubble extends StatelessWidget {
     required this.onDownloadImage,
     required this.onRetry,
     this.onQuoteTap,
+    this.showSenderName = false,
   });
 
   final ChatMessage message;
@@ -26,6 +27,7 @@ class MessageBubble extends StatelessWidget {
   final ValueChanged<ChatMessage> onDownloadImage;
   final VoidCallback onRetry;
   final ValueChanged<String>? onQuoteTap;
+  final bool showSenderName;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +59,17 @@ class MessageBubble extends StatelessWidget {
                 ? CrossAxisAlignment.end
                 : CrossAxisAlignment.start,
             children: [
+              if (showSenderName && !mine)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 4),
+                  child: Text(
+                    message.senderId,
+                    style: const TextStyle(
+                      color: AppColors.mutedText,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
               Container(
                 clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(

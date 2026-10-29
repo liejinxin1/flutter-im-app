@@ -87,6 +87,7 @@ class AppRouter {
               outbox: dependencies.outbox,
               currentUserId: userId,
               peerId: peerId,
+              settings: dependencies.settings,
               kind: args.kind,
               peerName: args.title,
               peerAvatarUrl: args.avatarUrl,

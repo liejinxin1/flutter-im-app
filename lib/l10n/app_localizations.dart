@@ -1040,6 +1040,18 @@ abstract class AppLocalizations {
   /// **'Storage'**
   String get storage;
 
+  /// No description provided for @networkHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Show network chat history'**
+  String get networkHistory;
+
+  /// No description provided for @networkHistorySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, only locally cached history is shown'**
+  String get networkHistorySubtitle;
+
   /// No description provided for @helpFeedback.
   ///
   /// In en, this message translates to:

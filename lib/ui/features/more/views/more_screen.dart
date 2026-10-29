@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../domain/services/app_settings.dart';
 import '../../../core/layout/app_layout.dart';
 import '../../../core/localization/l10n.dart';
 import '../../../core/theme/app_theme.dart';
@@ -14,6 +15,7 @@ class MoreScreen extends StatelessWidget {
     required this.onContacts,
     this.friendRequestCount = 0,
     this.displayName,
+    this.settings,
   });
 
   final String userId;
@@ -22,6 +24,7 @@ class MoreScreen extends StatelessWidget {
   final VoidCallback onContacts;
   final int friendRequestCount;
   final String? displayName;
+  final AppSettings? settings;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +107,10 @@ class MoreScreen extends StatelessWidget {
                         title: l10n.privacySecurity,
                         onTap: () => _showComingSoon(context),
                       ),
+                      _NetworkHistorySetting(
+                        userId: userId,
+                        settings: settings,
+                      ),
                       _MoreTile(
                         icon: Icons.storage_outlined,
                         title: l10n.storage,
@@ -165,6 +172,64 @@ class MoreScreen extends StatelessWidget {
     applicationVersion: '1.0.0',
     applicationLegalese: context.l10n.aboutLegalese,
   );
+}
+
+class _NetworkHistorySetting extends StatefulWidget {
+  const _NetworkHistorySetting({required this.userId, this.settings});
+
+  final String userId;
+  final AppSettings? settings;
+
+  @override
+  State<_NetworkHistorySetting> createState() => _NetworkHistorySettingState();
+}
+
+class _NetworkHistorySettingState extends State<_NetworkHistorySetting> {
+  bool _value = true;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final value =
+        await widget.settings?.showNetworkHistory(widget.userId) ?? true;
+    if (!mounted) return;
+    setState(() {
+      _value = value;
+      _loaded = true;
+    });
+  }
+
+  Future<void> _toggle(bool value) async {
+    setState(() => _value = value);
+    await widget.settings?.setShowNetworkHistory(widget.userId, value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SwitchListTile(
+      value: _value,
+      onChanged: _loaded ? _toggle : null,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      secondary: const Icon(
+        Icons.cloud_download_outlined,
+        color: AppColors.brandBlueLight,
+      ),
+      title: Text(
+        l10n.networkHistory,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+      ),
+      subtitle: Text(
+        l10n.networkHistorySubtitle,
+        style: const TextStyle(fontSize: 12, color: AppColors.mutedText),
+      ),
+    );
+  }
 }
 
 class _MoreGroup extends StatelessWidget {

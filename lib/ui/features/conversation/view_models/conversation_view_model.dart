@@ -6,6 +6,7 @@ import '../../../../domain/models/chat_conversation.dart';
 import '../../../../domain/models/chat_message.dart';
 import '../../../../domain/repositories/chat_repository.dart';
 import '../../../../domain/repositories/outbox_repository.dart';
+import '../../../../domain/services/app_settings.dart';
 import '../../../../domain/services/media_gateway.dart';
 import '../../../core/localization/app_error.dart';
 import '../../../core/view_model.dart';
@@ -22,6 +23,7 @@ class ConversationViewModel extends ViewModel {
     required this.currentUserId,
     this.kind = ChatConversationKind.direct,
     this.media,
+    this.settings,
   }) {
     _incomingSubscription = _repository.incomingMessages.listen(_onIncoming);
     _updatesSubscription = _repository.messageUpdates.listen(_onUpdate);
@@ -35,6 +37,7 @@ class ConversationViewModel extends ViewModel {
 
   /// Used to verify that cached attachment files still exist on this device.
   final MediaGateway? media;
+  final AppSettings? settings;
   final String conversationId;
   final String currentUserId;
   final ChatConversationKind kind;
@@ -61,6 +64,31 @@ class ConversationViewModel extends ViewModel {
     _error = null;
     notifyListeners();
     try {
+      // Show the account-scoped local snapshot immediately. The network page
+      // is merged afterwards, so entering a known chat never flashes a blank
+      // loading screen.
+      final cached = await _repository.loadCachedMessages(
+        conversationId,
+        limit: pageSize,
+      );
+      if (isDisposed) return;
+      if (cached.items.isNotEmpty) {
+        _messages = _mergeLoadedPage(cached.items);
+        _isLoading = false;
+        notifyListeners();
+      }
+
+      final showNetwork =
+          await settings?.showNetworkHistory(currentUserId) ?? true;
+      if (isDisposed) return;
+      if (!showNetwork) {
+        _hasMore = false;
+        _cursor = null;
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
       final page = await _repository.loadMessages(
         conversationId,
         kind: kind,
@@ -74,9 +102,13 @@ class ConversationViewModel extends ViewModel {
       _cursor = page.cursor;
       _hasMore = page.hasMore;
       _prefetchAttachments(_messages);
-      await _repository.markConversationRead(conversationId, kind: kind);
+      try {
+        await _repository.markConversationRead(conversationId, kind: kind);
+      } catch (_) {
+        // Reading a local snapshot must still work while offline.
+      }
     } catch (error) {
-      _error = AppError.from(error);
+      if (_messages.isEmpty) _error = AppError.from(error);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -117,19 +149,21 @@ class ConversationViewModel extends ViewModel {
     return merged;
   }
 
-  /// Keeps optimistic/pending messages that arrived while history was loading.
+  /// Keeps local/cached and optimistic messages that are not present in a
+  /// freshly loaded network page.
   List<ChatMessage> _mergeLoadedPage(List<ChatMessage> loaded) {
     final loadedIds = loaded.map((message) => message.id).toSet();
     final loadedClientIds = loaded
         .map((message) => message.clientId)
         .whereType<String>()
         .toSet();
-    final pending = _messages.where((message) {
+    final existing = _messages.where((message) {
       if (loadedIds.contains(message.id)) return false;
       final clientId = message.clientId;
       return clientId == null || !loadedClientIds.contains(clientId);
     });
-    return [...loaded, ...pending];
+    return [...loaded, ...existing]
+      ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
   }
 
   Future<int> loadOlder() async {

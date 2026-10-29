@@ -21,6 +21,10 @@
 - 会话列表、未读数、已读状态
 - 会话预览按最后一条消息类型显示文本或 `[图片]/[视频]/[语音]/[文件]` 等
 - 单聊、群聊
+- 进入聊天优先读本地消息缓存，再合并网络历史
+- 群会话名称/头像从 Agora 群资料读取
+- 群聊消息显示发送者 ID
+- More 设置可关闭“显示网络聊天记录”，仅看本地历史
 - 分页历史消息
 - 文本、图片、语音发送与接收
 - 消息发送状态：发送中 / 成功 / 失败
@@ -68,7 +72,7 @@
 - 手机底部导航 + 宽屏 `NavigationRail`
 - 页面内容最大宽度、消息气泡最大宽度
 - Widget Preview，不启动 App、不初始化 SDK 即可预览页面
-- 97 个单元/Widget/预览测试
+- 99 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -117,7 +121,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          97 tests, all passed
+flutter test          99 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

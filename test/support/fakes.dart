@@ -13,6 +13,7 @@ import 'package:agora_im_flutter/domain/repositories/group_repository.dart';
 import 'package:agora_im_flutter/domain/repositories/outbox_repository.dart';
 import 'package:agora_im_flutter/domain/repositories/profile_repository.dart';
 import 'package:agora_im_flutter/domain/repositories/session_repository.dart';
+import 'package:agora_im_flutter/domain/services/app_settings.dart';
 import 'package:agora_im_flutter/domain/services/local_store.dart';
 import 'package:agora_im_flutter/domain/services/media_gateway.dart';
 import 'package:agora_im_flutter/domain/services/user_directory.dart';
@@ -30,6 +31,7 @@ class FakeChatRepository implements ChatRepository {
   bool sendMediaFails = false;
   Completer<void>? sendTextGate;
   int sendTextCalls = 0;
+  int loadMessagesCalls = 0;
   int markReadCalls = 0;
   int flushOutboxCalls = 0;
   String? downloadResult;
@@ -62,6 +64,7 @@ class FakeChatRepository implements ChatRepository {
     String? cursor,
     int limit = 30,
   }) async {
+    loadMessagesCalls++;
     if (loadMessagesFails) throw Exception('load-messages-failed');
     final all = history[conversationId] ?? const <ChatMessage>[];
     final end = cursor == null ? all.length : int.parse(cursor);
@@ -70,6 +73,20 @@ class FakeChatRepository implements ChatRepository {
       items: all.sublist(start, end),
       cursor: start > 0 ? '$start' : null,
       hasMore: start > 0,
+    );
+  }
+
+  @override
+  Future<ChatMessagePage> loadCachedMessages(
+    String conversationId, {
+    int limit = 30,
+  }) async {
+    final all = history[conversationId] ?? const <ChatMessage>[];
+    final start = all.length > limit ? all.length - limit : 0;
+    return ChatMessagePage(
+      items: all.sublist(start),
+      cursor: null,
+      hasMore: false,
     );
   }
 
@@ -470,6 +487,20 @@ class FakeUserDirectory implements UserDirectory {
       for (final id in userIds)
         if (profiles[id] != null) id: profiles[id]!,
     };
+  }
+}
+
+class FakeAppSettings implements AppSettings {
+  FakeAppSettings({this.showHistory = true});
+
+  bool showHistory;
+
+  @override
+  Future<bool> showNetworkHistory(String userId) async => showHistory;
+
+  @override
+  Future<void> setShowNetworkHistory(String userId, bool value) async {
+    showHistory = value;
   }
 }
 

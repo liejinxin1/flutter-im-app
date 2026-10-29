@@ -29,6 +29,8 @@
 - 好友申请与群聊邀请历史、已同意/已拒绝状态、同一对象只保留最新状态
 - 创建群组、用户昵称/头像/备注缓存
 - 账号隔离的会话/消息缓存
+- 进入聊天优先读本地缓存，再合并网络历史
+- More 中可关闭“显示网络聊天记录”，仅看本地历史
 - 中英文界面、手机/宽屏响应式布局
 - 自定义消息 envelope、OSS 上传 seam、`native/custom/hybrid` 传输开关
 - Widget Preview：不用启动 App 即可查看页面
@@ -60,7 +62,10 @@
 - [x] 文本 `app.im.message` 自定义 envelope
 - [x] 附件 `native/custom/hybrid` 传输策略、`AttachmentUploader` 接口、按类型白名单
 - [x] 会话列表按最后一条消息类型显示文本或 `[图片]/[视频]/[语音]/[文件]` 等预览
-- [x] Widget Preview、页面 smoke test、97 个测试
+- [x] 会话/消息本地缓存优先加载，网络历史随后合并
+- [x] More 设置：显示/隐藏网络聊天记录
+- [x] 群会话名称/头像从 Agora 群资料读取，群聊消息显示发送者
+- [x] Widget Preview、页面 smoke test、99 个测试
 - [x] 开源前 AppKey 清理：不提交任何可用 Key
 
 ### 🚧 进行中 / 待完善

@@ -69,6 +69,22 @@ class AgoraChatRepository implements ChatRepository {
   }
 
   @override
+  Future<ChatMessagePage> loadCachedMessages(
+    String conversationId, {
+    int limit = 30,
+  }) async {
+    final userId = _service.currentUserId ?? '';
+    if (userId.isEmpty) {
+      return const ChatMessagePage(items: [], cursor: null, hasMore: false);
+    }
+    final page = await _cache.loadMessages(userId, conversationId);
+    final items = page.items.length > limit
+        ? page.items.sublist(page.items.length - limit)
+        : page.items;
+    return ChatMessagePage(items: items, cursor: null, hasMore: false);
+  }
+
+  @override
   Future<ChatMessagePage> loadMessages(
     String conversationId, {
     ChatConversationKind kind = ChatConversationKind.direct,
@@ -184,8 +200,23 @@ class AgoraChatRepository implements ChatRepository {
         clientId: clientId,
       );
       await _removeOutbox(userId, clientId);
+      await _cacheMessage(userId, sent);
       return sent;
     });
+  }
+
+  Future<void> _cacheMessage(String userId, ChatMessage message) async {
+    if (userId.isEmpty) return;
+    try {
+      final page = await _cache.loadMessages(userId, message.conversationId);
+      final messages = [
+        ...page.items.where((item) => item.id != message.id),
+        message,
+      ]..sort((a, b) => a.sentAt.compareTo(b.sentAt));
+      await _cache.saveMessages(userId, message.conversationId, messages);
+    } catch (_) {
+      // A cache write must never fail the user's send.
+    }
   }
 
   Future<ChatMessage> _sendContent(

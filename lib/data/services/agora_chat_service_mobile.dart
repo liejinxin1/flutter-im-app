@@ -249,11 +249,20 @@ class AgoraChatPlatform {
       final latestContent = latest == null
           ? null
           : _decodeBody(latest.body).content;
+      final kind = _conversationKind(conversation.type);
+      String? name;
+      String? avatarUrl;
+      if (kind == domain.ChatConversationKind.group) {
+        final info = await _loadGroupInfo(conversation.id);
+        name = info?.$1;
+        avatarUrl = info?.$2;
+      }
       records.add(
         domain.ChatConversation(
           id: conversation.id,
-          kind: _conversationKind(conversation.type),
-          name: null,
+          kind: kind,
+          name: name,
+          avatarUrl: avatarUrl,
           lastMessage: latestContent is domain.TextMessageContent
               ? latestContent.text
               : '',
@@ -506,6 +515,27 @@ class AgoraChatPlatform {
             (body.thumbnailLocalPath?.isNotEmpty ?? false)
         ? body.thumbnailLocalPath
         : null;
+  }
+
+  Future<(String?, String?)?> _loadGroupInfo(String groupId) async {
+    try {
+      final manager = ChatClient.getInstance.groupManager;
+      var group = await manager.getGroupWithId(groupId);
+      if (group == null ||
+          (group.groupName?.isEmpty ?? true) ||
+          (group.avatarUrl?.isEmpty ?? true)) {
+        group = await manager.fetchGroupInfoFromServer(groupId);
+      }
+      return (
+        group.groupName?.isNotEmpty == true
+            ? group.groupName
+            // ignore: deprecated_member_use
+            : group.name,
+        group.avatarUrl,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   domain.ChatConversationKind _conversationKind(ChatConversationType type) {

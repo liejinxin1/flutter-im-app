@@ -536,6 +536,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storage => 'Storage';
 
   @override
+  String get networkHistory => 'Show network chat history';
+
+  @override
+  String get networkHistorySubtitle =>
+      'When off, only locally cached history is shown';
+
+  @override
   String get helpFeedback => 'Help & Feedback';
 
   @override
