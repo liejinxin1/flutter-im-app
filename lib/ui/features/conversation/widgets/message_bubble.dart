@@ -22,6 +22,7 @@ class MessageBubble extends StatelessWidget {
     this.senderName,
     this.senderAvatarUrl,
     this.onOpenSender,
+    this.onOpenFile,
   });
 
   final ChatMessage message;
@@ -35,6 +36,7 @@ class MessageBubble extends StatelessWidget {
   final String? senderName;
   final String? senderAvatarUrl;
   final VoidCallback? onOpenSender;
+  final ValueChanged<ChatMessage>? onOpenFile;
 
   @override
   Widget build(BuildContext context) {
@@ -120,13 +122,13 @@ class MessageBubble extends StatelessWidget {
                     content,
                   ),
                   VoiceMessageContent() => _voiceContent(contentColor),
-                  FileMessageContent(:final fileName) => _simpleContent(
-                    contentColor,
-                    Icons.insert_drive_file_outlined,
-                    fileName?.isNotEmpty == true
-                        ? fileName!
-                        : context.l10n.fileMessage,
-                  ),
+                  FileMessageContent(:final fileName, :final fileSizeBytes) =>
+                    _fileContent(
+                      context,
+                      contentColor,
+                      fileName,
+                      fileSizeBytes,
+                    ),
                   VideoMessageContent() => _simpleContent(
                     contentColor,
                     Icons.videocam_outlined,
@@ -277,6 +279,86 @@ class MessageBubble extends StatelessWidget {
       errorBuilder: (_, _, _) => _downloadPlaceholder(contentColor),
     ),
   );
+
+  Widget _fileContent(
+    BuildContext context,
+    Color contentColor,
+    String? fileName,
+    int fileSizeBytes,
+  ) {
+    final size = _formatFileSize(fileSizeBytes);
+    return InkWell(
+      onTap: onOpenFile == null ? null : () => onOpenFile!(message),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: contentColor.withValues(alpha: .14),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.insert_drive_file_outlined,
+                color: contentColor,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    fileName?.isNotEmpty == true
+                        ? fileName!
+                        : context.l10n.fileMessage,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: contentColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (size != null) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      size,
+                      style: TextStyle(
+                        color: contentColor.withValues(alpha: .65),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Icon(
+              Icons.download_rounded,
+              color: contentColor.withValues(alpha: .8),
+              size: 21,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String? _formatFileSize(int bytes) {
+    if (bytes <= 0) return null;
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) {
+      return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    }
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
 
   Widget _simpleContent(Color contentColor, IconData icon, String label) =>
       Padding(

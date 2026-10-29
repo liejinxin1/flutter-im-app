@@ -1,3 +1,4 @@
+import '../../domain/models/picked_file.dart';
 import '../../domain/models/voice_recording.dart';
 import '../../domain/services/media_gateway.dart';
 
@@ -20,6 +21,9 @@ class DeviceMediaGateway implements MediaGateway {
       Future.error(_unsupported);
 
   @override
+  Future<PickedFile?> pickFile() => Future.error(_unsupported);
+
+  @override
   Future<bool> hasMicrophonePermission() async => false;
 
   @override
@@ -39,6 +43,9 @@ class DeviceMediaGateway implements MediaGateway {
 
   @override
   Future<bool> fileExists(String path) async => false;
+
+  @override
+  Future<void> openFile(String path) => Future.error(_unsupported);
 
   @override
   Future<void> playAudio(String path) => Future.error(_unsupported);

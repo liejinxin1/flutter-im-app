@@ -33,6 +33,7 @@ class MessageTimeline extends StatelessWidget {
     this.showSenderNames = false,
     this.senderProfiles = const {},
     this.onOpenSender,
+    this.onOpenFile,
     this.hasMore = true,
   });
 
@@ -58,6 +59,7 @@ class MessageTimeline extends StatelessWidget {
   final bool showSenderNames;
   final Map<String, UserProfile> senderProfiles;
   final ValueChanged<String>? onOpenSender;
+  final ValueChanged<ChatMessage>? onOpenFile;
   final bool hasMore;
 
   @override
@@ -146,6 +148,7 @@ class MessageTimeline extends StatelessWidget {
           onOpenSender: onOpenSender == null
               ? null
               : () => onOpenSender!(message.senderId),
+          onOpenFile: onOpenFile,
         ),
       );
       final selected = selectedIds.contains(message.id);

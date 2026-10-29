@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../domain/errors/app_failure.dart';
 import '../../../../domain/models/chat_message.dart';
+import '../../../../domain/models/picked_file.dart';
 import '../../../../domain/models/voice_recording.dart';
 import '../../../../domain/services/media_gateway.dart';
 import '../../../core/localization/app_error.dart';
@@ -69,6 +70,20 @@ class ComposerViewModel extends ViewModel {
     } catch (error) {
       _setNotice(
         AppError(AppErrorCode.imagePickFailed, detail: friendlyError(error)),
+      );
+      return null;
+    }
+  }
+
+  Future<PickedFile?> pickFile() async {
+    _attachmentsExpanded = false;
+    _notice = null;
+    notifyListeners();
+    try {
+      return await _media.pickFile();
+    } catch (error) {
+      _setNotice(
+        AppError(AppErrorCode.filePickFailed, detail: friendlyError(error)),
       );
       return null;
     }

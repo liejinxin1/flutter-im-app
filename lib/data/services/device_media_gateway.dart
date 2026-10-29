@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart' hide PickedFile;
+import 'package:open_filex/open_filex.dart';
 import 'package:record/record.dart';
 
+import '../../domain/models/picked_file.dart';
 import '../../domain/models/voice_recording.dart';
 import '../../domain/services/media_gateway.dart';
 
@@ -40,6 +43,19 @@ class DeviceMediaGateway implements MediaGateway {
       maxWidth: 1920,
     );
     return image?.path;
+  }
+
+  @override
+  Future<PickedFile?> pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      withData: false,
+    );
+    if (result == null || result.files.isEmpty) return null;
+    final file = result.files.single;
+    final path = file.path;
+    if (path == null || path.isEmpty) return null;
+    return PickedFile(path: path, name: file.name, sizeBytes: file.size);
   }
 
   @override
@@ -106,6 +122,14 @@ class DeviceMediaGateway implements MediaGateway {
       return await File(path).exists();
     } catch (_) {
       return false;
+    }
+  }
+
+  @override
+  Future<void> openFile(String path) async {
+    final result = await OpenFilex.open(path);
+    if (result.type != ResultType.done) {
+      throw StateError(result.message);
     }
   }
 

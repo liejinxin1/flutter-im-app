@@ -171,11 +171,18 @@ class AgoraChatRepository implements ChatRepository {
     String conversationId,
     String path, {
     String? fileName,
+    int? fileSizeBytes,
+    String? mimeType,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   }) => _sendWithOutbox(
     conversationId,
-    FileMessageContent(localPath: path, fileName: fileName),
+    FileMessageContent(
+      localPath: path,
+      fileName: fileName,
+      fileSizeBytes: fileSizeBytes ?? 0,
+      mimeType: mimeType,
+    ),
     kind: kind,
     clientId: clientId,
   );

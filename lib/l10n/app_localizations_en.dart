@@ -194,6 +194,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fileMessage => 'File';
 
   @override
+  String fileDownloaded(String name) {
+    return 'File downloaded: $name';
+  }
+
+  @override
+  String fileOpened(String name) {
+    return 'Opened: $name';
+  }
+
+  @override
+  String get fileOpenFailed => 'Couldn\'t open the file.';
+
+  @override
+  String get fileDownloadFailed => 'Couldn\'t download the file.';
+
+  @override
   String get videoMessage => 'Video';
 
   @override
@@ -655,6 +671,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String errorImagePickFailed(String detail) {
     return 'Couldn\'t select the image: $detail';
+  }
+
+  @override
+  String errorFilePickFailed(String detail) {
+    return 'Couldn\'t select the file: $detail';
   }
 
   @override

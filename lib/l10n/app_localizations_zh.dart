@@ -188,6 +188,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fileMessage => '文件';
 
   @override
+  String fileDownloaded(String name) {
+    return '文件已下载：$name';
+  }
+
+  @override
+  String fileOpened(String name) {
+    return '已打开：$name';
+  }
+
+  @override
+  String get fileOpenFailed => '无法打开文件。';
+
+  @override
+  String get fileDownloadFailed => '文件下载失败。';
+
+  @override
   String get videoMessage => '视频';
 
   @override
@@ -635,6 +651,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String errorImagePickFailed(String detail) {
     return '无法选择图片：$detail';
+  }
+
+  @override
+  String errorFilePickFailed(String detail) {
+    return '无法选择文件：$detail';
   }
 
   @override

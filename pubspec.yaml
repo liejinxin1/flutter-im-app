@@ -34,6 +34,8 @@ dependencies:
   agora_chat_sdk: ^1.4.0+1
   flutter_svg: ^2.3.0
   image_picker: ^1.2.1
+  file_picker: ^10.3.10
+  open_filex: ^5.0.0
   record: ^6.2.0
   audioplayers: ^6.5.1
 

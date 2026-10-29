@@ -119,6 +119,24 @@
   "imageMessage": "[Image]",
   "voiceMessage": "[Voice]",
   "fileMessage": "File",
+  "fileDownloaded": "File downloaded: {name}",
+  "fileOpened": "Opened: {name}",
+  "@fileOpened": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fileOpenFailed": "Couldn't open the file.",
+  "fileDownloadFailed": "Couldn't download the file.",
+  "@fileDownloaded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "videoMessage": "Video",
   "locationMessage": "Location",
   "contactMessage": "Contact",
@@ -336,6 +354,14 @@
   "errorAddFriendIdRequired": "Enter an Agora Chat user ID.",
   "errorAttachmentPathExpired": "The attachment path is no longer valid. Choose the file again.",
   "errorImagePickFailed": "Couldn't select the image: {detail}",
+  "errorFilePickFailed": "Couldn't select the file: {detail}",
+  "@errorFilePickFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "@errorImagePickFailed": {
     "placeholders": {
       "detail": {

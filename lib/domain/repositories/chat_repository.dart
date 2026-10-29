@@ -41,6 +41,8 @@ abstract interface class ChatRepository {
     String conversationId,
     String path, {
     String? fileName,
+    int? fileSizeBytes,
+    String? mimeType,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   });

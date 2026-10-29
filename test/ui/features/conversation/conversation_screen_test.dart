@@ -225,6 +225,81 @@ void main() {
     await media.dispose();
   });
 
+  testWidgets('picks and sends a file from the attachment grid', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.attach_file_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('文件'));
+    await tester.pumpAndSettle();
+
+    expect(media.pickFileCalls, 1);
+    expect(chat.sendFileCalls, 1);
+    expect(chat.lastSentFileName, 'contract.pdf');
+    expect(find.text('contract.pdf'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('downloads a file message when tapped', (tester) async {
+    final chat = FakeChatRepository()..downloadResult = '/tmp/received.pdf';
+    final media = FakeMediaGateway();
+    chat.history['peer'] = [
+      ChatMessage(
+        id: 'file-in',
+        conversationId: 'peer',
+        senderId: 'peer',
+        content: const FileMessageContent(
+          fileName: 'received.pdf',
+          fileSizeBytes: 4096,
+        ),
+        sentAt: DateTime.now(),
+        deliveryState: ChatMessageDeliveryState.sent,
+        isOutgoing: false,
+      ),
+    ];
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'peer',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('received.pdf'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('已打开'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
   testWidgets('retries a failed message and clears the error banner', (
     tester,
   ) async {

@@ -416,6 +416,30 @@ abstract class AppLocalizations {
   /// **'File'**
   String get fileMessage;
 
+  /// No description provided for @fileDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'File downloaded: {name}'**
+  String fileDownloaded(String name);
+
+  /// No description provided for @fileOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened: {name}'**
+  String fileOpened(String name);
+
+  /// No description provided for @fileOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the file.'**
+  String get fileOpenFailed;
+
+  /// No description provided for @fileDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the file.'**
+  String get fileDownloadFailed;
+
   /// No description provided for @videoMessage.
   ///
   /// In en, this message translates to:
@@ -1255,6 +1279,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t select the image: {detail}'**
   String errorImagePickFailed(String detail);
+
+  /// No description provided for @errorFilePickFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t select the file: {detail}'**
+  String errorFilePickFailed(String detail);
 
   /// No description provided for @errorMicrophonePermission.
   ///

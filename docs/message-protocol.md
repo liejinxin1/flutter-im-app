@@ -183,6 +183,7 @@ switch (message.content) {
 ## 当前未完成
 
 - 没有具体 OSS 实现；只提供 `AttachmentUploader` 接口和 hybrid 回退。
-- 尚未实现文件消息 UI/发送入口；`ChatRepository.sendFile` 和 native 回退已准备。
+- 文件消息 UI/发送入口已完成：无 uploader 时走 Agora 原生 FILE；配置 uploader 后自动走自定义 envelope。
+- 自定义附件的下载目前依赖原生消息能力；接入 OSS 后文件卡片按 remote URL 下载。
 - 自定义附件没有缩略图字段；图片先直接显示原图 URL。
 - 旧客户端文本兼容需要产品决策（统一协议 vs 双发）。

@@ -5,6 +5,7 @@ import '../domain/models/chat_conversation.dart';
 import '../domain/models/chat_message.dart';
 import '../domain/models/friend_request_update.dart';
 import '../domain/models/outbox_message.dart';
+import '../domain/models/picked_file.dart';
 import '../domain/models/user_profile.dart';
 import '../domain/models/voice_recording.dart';
 import '../domain/repositories/chat_repository.dart';
@@ -228,6 +229,8 @@ class PreviewChatRepository implements ChatRepository {
     String conversationId,
     String path, {
     String? fileName,
+    int? fileSizeBytes,
+    String? mimeType,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   }) async => _message(conversationId, '', clientId);
@@ -393,6 +396,12 @@ class PreviewMediaGateway implements MediaGateway {
   @override
   Future<String?> pickImage({required MediaImageSource source}) async => null;
   @override
+  Future<PickedFile?> pickFile() async => const PickedFile(
+    path: '/tmp/preview.pdf',
+    name: 'preview.pdf',
+    sizeBytes: 1200,
+  );
+  @override
   Future<bool> hasMicrophonePermission() async => false;
   @override
   Future<void> startRecording() async {}
@@ -406,6 +415,8 @@ class PreviewMediaGateway implements MediaGateway {
   Future<void> discardRecording(String path) async {}
   @override
   Future<bool> fileExists(String path) async => false;
+  @override
+  Future<void> openFile(String path) async {}
   @override
   Future<void> playAudio(String path) async {}
   @override

@@ -4,6 +4,7 @@ import 'package:agora_im_flutter/domain/models/chat_conversation.dart';
 import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/domain/models/friend_request_update.dart';
 import 'package:agora_im_flutter/domain/models/outbox_message.dart';
+import 'package:agora_im_flutter/domain/models/picked_file.dart';
 import 'package:agora_im_flutter/domain/models/user_profile.dart';
 import 'package:agora_im_flutter/domain/models/voice_recording.dart';
 import 'package:agora_im_flutter/domain/repositories/chat_repository.dart';
@@ -31,6 +32,8 @@ class FakeChatRepository implements ChatRepository {
   bool sendMediaFails = false;
   Completer<void>? sendTextGate;
   int sendTextCalls = 0;
+  int sendFileCalls = 0;
+  String? lastSentFileName;
   int loadMessagesCalls = 0;
   int markReadCalls = 0;
   int flushOutboxCalls = 0;
@@ -159,15 +162,24 @@ class FakeChatRepository implements ChatRepository {
     String conversationId,
     String path, {
     String? fileName,
+    int? fileSizeBytes,
+    String? mimeType,
     ChatConversationKind kind = ChatConversationKind.direct,
     required String clientId,
   }) async {
     if (sendMediaFails) throw Exception('send-media-failed');
+    sendFileCalls++;
+    lastSentFileName = fileName;
     final message = ChatMessage(
       id: 'server-${++_serverSequence}',
       conversationId: conversationId,
       senderId: 'me',
-      content: FileMessageContent(localPath: path, fileName: fileName),
+      content: FileMessageContent(
+        localPath: path,
+        fileName: fileName,
+        fileSizeBytes: fileSizeBytes ?? 0,
+        mimeType: mimeType,
+      ),
       sentAt: DateTime.now(),
       deliveryState: ChatMessageDeliveryState.sent,
       isOutgoing: true,
@@ -541,6 +553,13 @@ class FakeMediaGateway implements MediaGateway {
   final Set<String> missingPaths = {};
   bool filesExist = true;
   int pickImageCalls = 0;
+  PickedFile? nextFile = const PickedFile(
+    path: '/tmp/document.pdf',
+    name: 'contract.pdf',
+    sizeBytes: 2048,
+  );
+  Object? pickFileError;
+  int pickFileCalls = 0;
   int startRecordingCalls = 0;
   int stopRecordingCalls = 0;
   bool stoppedAudio = false;
@@ -555,6 +574,14 @@ class FakeMediaGateway implements MediaGateway {
     final error = pickImageError;
     if (error != null) throw error;
     return imagePath;
+  }
+
+  @override
+  Future<PickedFile?> pickFile() async {
+    pickFileCalls++;
+    final error = pickFileError;
+    if (error != null) throw error;
+    return nextFile;
   }
 
   @override
@@ -591,6 +618,9 @@ class FakeMediaGateway implements MediaGateway {
   @override
   Future<bool> fileExists(String path) async =>
       filesExist && !missingPaths.contains(path);
+
+  @override
+  Future<void> openFile(String path) async {}
 
   @override
   Future<void> playAudio(String path) async => playedPaths.add(path);

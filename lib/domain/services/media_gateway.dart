@@ -1,3 +1,4 @@
+import '../models/picked_file.dart';
 import '../models/voice_recording.dart';
 
 enum MediaImageSource { camera, gallery }
@@ -13,6 +14,8 @@ abstract interface class MediaGateway {
 
   Future<String?> pickImage({required MediaImageSource source});
 
+  Future<PickedFile?> pickFile();
+
   Future<bool> hasMicrophonePermission();
 
   Future<void> startRecording();
@@ -27,6 +30,8 @@ abstract interface class MediaGateway {
   Future<void> discardRecording(String path);
 
   Future<bool> fileExists(String path);
+
+  Future<void> openFile(String path);
 
   Future<void> playAudio(String path);
 

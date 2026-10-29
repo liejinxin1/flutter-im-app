@@ -82,7 +82,9 @@
 - 消息缓存写入 SQLite `messages` 表，旧 JSON 缓存惰性迁移
 - 数据库消息不做条数裁剪；页面首次加载最近 30 条，历史按需分页
 - 删除/撤回状态本地持久化，重新进入会话不会复活旧内容
-- 113 个单元/Widget/预览测试
+- 文件消息选择、发送、文件卡片、下载与系统打开
+- 文件消息默认走 Agora 原生 FILE，OSS 接入后走 custom envelope
+- 115 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -131,7 +133,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          113 tests, all passed
+flutter test          115 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

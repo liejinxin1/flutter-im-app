@@ -352,6 +352,19 @@ class _ConversationScreenState extends State<ConversationScreen> {
     if (mounted) _scrollToBottom();
   }
 
+  Future<void> _pickFile() async {
+    _dismissKeyboard();
+    final file = await _composer.pickFile();
+    if (file == null || !mounted) return;
+    await _conversation.sendFile(
+      file.path,
+      fileName: file.name,
+      fileSizeBytes: file.sizeBytes,
+      mimeType: file.mimeType,
+    );
+    if (mounted) _scrollToBottom();
+  }
+
   Future<void> _startVoice() async {
     _dismissKeyboard();
     await _composer.startRecordingMode();
@@ -376,6 +389,27 @@ class _ConversationScreenState extends State<ConversationScreen> {
     final path = await _conversation.resolveImagePath(message);
     if (!mounted || path == null || path.isEmpty) return;
     await showImagePreview(context, path);
+  }
+
+  Future<void> _openFile(ChatMessage message) async {
+    final path = await _conversation.downloadAttachment(message);
+    if (!mounted) return;
+    if (path == null || path.isEmpty) {
+      _showMessage(context.l10n.fileDownloadFailed);
+      return;
+    }
+    final content = message.content;
+    final name = content is FileMessageContent && content.fileName != null
+        ? content.fileName!
+        : context.l10n.fileMessage;
+    try {
+      await widget.media.openFile(path);
+      if (!mounted) return;
+      _showMessage(context.l10n.fileOpened(name));
+    } catch (_) {
+      if (!mounted) return;
+      _showMessage(context.l10n.fileOpenFailed);
+    }
   }
 
   void _showRtcMessage(String type) {
@@ -764,6 +798,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             onOpenSender: (userId) => context.push<void>(
                               '/friends/${Uri.encodeComponent(userId)}',
                             ),
+                            onOpenFile: (message) =>
+                                unawaited(_openFile(message)),
                           ),
                         ),
                       ),
@@ -853,9 +889,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                   onLocation: () => _showMessage(
                                     context.l10n.locationUnavailable,
                                   ),
-                                  onDocument: () => _showMessage(
-                                    context.l10n.documentUnavailable,
-                                  ),
+                                  onDocument: () => unawaited(_pickFile()),
                                 )
                               : const SizedBox.shrink(),
                         ),

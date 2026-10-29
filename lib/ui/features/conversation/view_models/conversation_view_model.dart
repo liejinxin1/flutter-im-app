@@ -340,6 +340,20 @@ class ConversationViewModel extends ViewModel {
     ),
   );
 
+  Future<void> sendFile(
+    String path, {
+    String? fileName,
+    int fileSizeBytes = 0,
+    String? mimeType,
+  }) => _sendMedia(
+    content: FileMessageContent(
+      localPath: path,
+      fileName: fileName,
+      fileSizeBytes: fileSizeBytes,
+      mimeType: mimeType,
+    ),
+  );
+
   Future<void> _sendMedia({required ChatMessageContent content}) async {
     final localId = _nextLocalId();
     final pending = ChatMessage(
@@ -375,6 +389,20 @@ class ConversationViewModel extends ViewModel {
           kind: kind,
           clientId: clientId,
         ),
+        FileMessageContent(
+          :final fileName,
+          :final fileSizeBytes,
+          :final mimeType,
+        ) =>
+          await _repository.sendFile(
+            conversationId,
+            pending.localPath!,
+            fileName: fileName,
+            fileSizeBytes: fileSizeBytes,
+            mimeType: mimeType,
+            kind: kind,
+            clientId: clientId,
+          ),
         _ => throw UnsupportedError(
           'Sending ${pending.content.kind.name} messages is not supported yet.',
         ),
