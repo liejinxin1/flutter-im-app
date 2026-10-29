@@ -25,6 +25,8 @@ messages         account_id + conversation_id + message_id + payload + sent_at
 
 `profiles` 已由 `SqliteProfileRepository` 作为资料缓存主路径；`friendships` 由 `FriendCache` 作为联系人/备注缓存，Agora SDK 仍是关系动作的事实来源。
 
+`messages` 已接入 `SqliteChatMessageStore`：每个会话最多保留最近 60 条，按 `account_id + conversation_id + message_id` 写入，`payload` 保存内容 JSON；会话缓存最多保留 80 个。旧的整段会话 JSON 缓存会在首次读取时惰性迁移到 `messages` 表。
+
 ## 分层边界
 
 ```text

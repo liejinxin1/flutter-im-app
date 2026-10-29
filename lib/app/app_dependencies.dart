@@ -1,4 +1,4 @@
-import '../data/local/chat_cache.dart';
+import '../data/local/chat_cache_factory.dart';
 import '../data/local/friend_cache_factory.dart';
 import '../data/local/local_store_factory.dart';
 import '../data/local/prefs_app_settings.dart';
@@ -74,7 +74,7 @@ class AppDependencies {
       session: AgoraSessionRepository(connection),
       chat: AgoraChatRepository(
         connection,
-        ChatCache(store),
+        createChatCache(store),
         outbox,
         transportMode: transportMode,
         uploader: attachmentUploader,

@@ -3,26 +3,28 @@ import 'dart:convert';
 import '../../domain/models/chat_conversation.dart';
 import '../../domain/models/chat_message.dart';
 import '../../domain/services/local_store.dart';
+import 'chat_message_store.dart';
 
 /// Best-effort offline cache for the conversation list and the newest messages.
 ///
 /// Keys are scoped by account so switching users can never show another
 /// account's cached chats. Cache failures never break the chat path.
 class ChatCache {
-  ChatCache(this._store);
+  ChatCache(this._store, {ChatMessageStore? messageStore})
+    : _messages = messageStore ?? KvChatMessageStore(_store);
 
   final LocalStore _store;
-  static const _maxCachedMessages = 60;
+  final ChatMessageStore _messages;
   static const _maxCachedConversations = 80;
   static const _maxAttachmentPaths = 200;
 
   String _conversationsKey(String userId) => 'cache.conversations.v1.$userId';
 
-  String _messagesKey(String userId, String conversationId) =>
-      'cache.messages.v1.$userId.$conversationId';
-
   String _deletedKey(String userId, String conversationId) =>
       'cache.deleted.v1.$userId.$conversationId';
+
+  String _legacyMessagesKey(String userId, String conversationId) =>
+      'cache.messages.v1.$userId.$conversationId';
 
   String _recalledKey(String userId, String conversationId) =>
       'cache.recalled.v1.$userId.$conversationId';
@@ -77,23 +79,7 @@ class ChatCache {
       return const ChatMessagePage(items: [], cursor: null, hasMore: false);
     }
     try {
-      final raw = await _store.read(_messagesKey(userId, conversationId));
-      if (raw == null) {
-        return const ChatMessagePage(items: [], cursor: null, hasMore: false);
-      }
-      final decoded = jsonDecode(raw);
-      if (decoded is! List) {
-        return const ChatMessagePage(items: [], cursor: null, hasMore: false);
-      }
-      final items = decoded
-          .whereType<Map>()
-          .map(
-            (item) => ChatMessage.fromJson(
-              item.map((key, value) => MapEntry('$key', value)),
-            ),
-          )
-          .where((message) => message.id.isNotEmpty)
-          .toList(growable: false);
+      final items = await _messages.load(userId, conversationId);
       return ChatMessagePage(
         items: await _applyOverrides(userId, conversationId, items),
         cursor: null,
@@ -112,22 +98,7 @@ class ChatCache {
     if (userId.isEmpty) return;
     try {
       final visible = await _applyOverrides(userId, conversationId, messages);
-      final start = visible.length > _maxCachedMessages
-          ? visible.length - _maxCachedMessages
-          : 0;
-      final tail = visible.sublist(start);
-      await _store.write(
-        _messagesKey(userId, conversationId),
-        jsonEncode(
-          tail.map((message) {
-            final json = message.toJson();
-            // Download secrets are short-lived credentials; keep them out of
-            // plaintext local storage.
-            json.remove('secret');
-            return json;
-          }).toList(),
-        ),
-      );
+      await _messages.save(userId, conversationId, visible);
       await _touchConversation(userId, conversationId);
     } catch (_) {
       // A cache write must never fail sending/loading.
@@ -142,7 +113,8 @@ class ChatCache {
         ..sort((a, b) => a.value.compareTo(b.value));
       final stale = entries.take(index.length - _maxCachedConversations);
       for (final entry in stale) {
-        await _store.remove(_messagesKey(userId, entry.key));
+        await _messages.clear(userId, entry.key);
+        await _store.remove(_legacyMessagesKey(userId, entry.key));
         await _store.remove(_deletedKey(userId, entry.key));
         await _store.remove(_recalledKey(userId, entry.key));
         index.remove(entry.key);
@@ -169,7 +141,8 @@ class ChatCache {
   Future<void> clearMessages(String userId, String conversationId) async {
     if (userId.isEmpty) return;
     try {
-      await _store.remove(_messagesKey(userId, conversationId));
+      await _messages.clear(userId, conversationId);
+      await _store.remove(_legacyMessagesKey(userId, conversationId));
     } catch (_) {
       // Ignore cache cleanup failures.
     }
@@ -183,11 +156,7 @@ class ChatCache {
     if (userId.isEmpty || messageIds.isEmpty) return;
     try {
       await _addIds(_deletedKey(userId, conversationId), messageIds);
-      final page = await loadMessages(userId, conversationId);
-      final remaining = page.items
-          .where((message) => !messageIds.contains(message.id))
-          .toList(growable: false);
-      await saveMessages(userId, conversationId, remaining);
+      await _messages.remove(userId, conversationId, messageIds);
     } catch (_) {
       // Cache cleanup is best effort.
     }
