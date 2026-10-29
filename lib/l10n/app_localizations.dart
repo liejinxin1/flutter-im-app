@@ -314,6 +314,24 @@ abstract class AppLocalizations {
   /// **'{userId} sent you a friend request'**
   String friendRequestReceived(String userId);
 
+  /// No description provided for @groupInvitationReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'{inviter} invited you to {group}'**
+  String groupInvitationReceived(String inviter, String group);
+
+  /// No description provided for @groupInvitationAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'You joined {group}'**
+  String groupInvitationAccepted(String group);
+
+  /// No description provided for @groupInvitationDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'You declined the invitation to {group}'**
+  String groupInvitationDeclined(String group);
+
   /// No description provided for @friendRequestAccepted.
   ///
   /// In en, this message translates to:
@@ -833,13 +851,13 @@ abstract class AppLocalizations {
   /// No description provided for @friendRequestsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Friend requests'**
+  /// **'Requests & invitations'**
   String get friendRequestsTitle;
 
   /// No description provided for @noPendingFriendRequests.
   ///
   /// In en, this message translates to:
-  /// **'No pending friend requests'**
+  /// **'No friend requests or group invitations'**
   String get noPendingFriendRequests;
 
   /// No description provided for @requestUpdateFailed.
@@ -847,6 +865,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not update this request. Try again.'**
   String get requestUpdateFailed;
+
+  /// No description provided for @groupInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Group invitation'**
+  String get groupInvitation;
+
+  /// No description provided for @friendRequestLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request'**
+  String get friendRequestLabel;
+
+  /// No description provided for @invitedByUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited by {userId}'**
+  String invitedByUser(String userId);
+
+  /// No description provided for @requestStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get requestStatusAccepted;
+
+  /// No description provided for @requestStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get requestStatusDeclined;
+
+  /// No description provided for @requestStatusAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get requestStatusAdded;
+
+  /// No description provided for @requestStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get requestStatusPending;
 
   /// No description provided for @decline.
   ///

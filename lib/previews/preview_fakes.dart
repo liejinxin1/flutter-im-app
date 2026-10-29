@@ -304,6 +304,10 @@ class PreviewContactRepository implements ContactRepository {
   Future<void> acceptContactRequest(String userId) async {}
   @override
   Future<void> declineContactRequest(String userId) async {}
+  @override
+  Future<void> acceptGroupInvitation(String groupId, String inviter) async {}
+  @override
+  Future<void> declineGroupInvitation(String groupId, String inviter) async {}
 }
 
 class PreviewProfileRepository implements ProfileRepository {

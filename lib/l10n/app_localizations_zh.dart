@@ -125,6 +125,21 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String groupInvitationReceived(String inviter, String group) {
+    return '$inviter 邀请你加入群聊 $group';
+  }
+
+  @override
+  String groupInvitationAccepted(String group) {
+    return '你已加入群聊 $group';
+  }
+
+  @override
+  String groupInvitationDeclined(String group) {
+    return '你已拒绝加入群聊 $group';
+  }
+
+  @override
   String friendRequestAccepted(String userId) {
     return '$userId 已接受你的好友申请';
   }
@@ -401,13 +416,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchForFriend => '搜索好友';
 
   @override
-  String get friendRequestsTitle => '好友申请';
+  String get friendRequestsTitle => '好友申请与群邀请';
 
   @override
-  String get noPendingFriendRequests => '暂无待处理的好友申请';
+  String get noPendingFriendRequests => '暂无好友申请或群聊邀请';
 
   @override
   String get requestUpdateFailed => '无法更新该申请，请重试。';
+
+  @override
+  String get groupInvitation => '群聊邀请';
+
+  @override
+  String get friendRequestLabel => '好友申请';
+
+  @override
+  String invitedByUser(String userId) {
+    return '邀请人：$userId';
+  }
+
+  @override
+  String get requestStatusAccepted => '已同意';
+
+  @override
+  String get requestStatusDeclined => '已拒绝';
+
+  @override
+  String get requestStatusAdded => '已添加';
+
+  @override
+  String get requestStatusPending => '待处理';
 
   @override
   String get decline => '拒绝';

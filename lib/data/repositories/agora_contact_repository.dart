@@ -23,4 +23,10 @@ class AgoraContactRepository implements ContactRepository {
   @override
   Future<void> declineContactRequest(String userId) =>
       _connection.service.declineContactRequest(userId);
+  @override
+  Future<void> acceptGroupInvitation(String groupId, String inviter) =>
+      _connection.service.acceptGroupInvitation(groupId, inviter);
+  @override
+  Future<void> declineGroupInvitation(String groupId, String inviter) =>
+      _connection.service.declineGroupInvitation(groupId, inviter);
 }

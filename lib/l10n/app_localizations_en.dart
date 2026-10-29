@@ -128,6 +128,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String groupInvitationReceived(String inviter, String group) {
+    return '$inviter invited you to $group';
+  }
+
+  @override
+  String groupInvitationAccepted(String group) {
+    return 'You joined $group';
+  }
+
+  @override
+  String groupInvitationDeclined(String group) {
+    return 'You declined the invitation to $group';
+  }
+
+  @override
   String friendRequestAccepted(String userId) {
     return '$userId accepted your friend request';
   }
@@ -413,13 +428,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchForFriend => 'Search for a friend';
 
   @override
-  String get friendRequestsTitle => 'Friend requests';
+  String get friendRequestsTitle => 'Requests & invitations';
 
   @override
-  String get noPendingFriendRequests => 'No pending friend requests';
+  String get noPendingFriendRequests =>
+      'No friend requests or group invitations';
 
   @override
   String get requestUpdateFailed => 'Could not update this request. Try again.';
+
+  @override
+  String get groupInvitation => 'Group invitation';
+
+  @override
+  String get friendRequestLabel => 'Friend request';
+
+  @override
+  String invitedByUser(String userId) {
+    return 'Invited by $userId';
+  }
+
+  @override
+  String get requestStatusAccepted => 'Accepted';
+
+  @override
+  String get requestStatusDeclined => 'Declined';
+
+  @override
+  String get requestStatusAdded => 'Added';
+
+  @override
+  String get requestStatusPending => 'Pending';
 
   @override
   String get decline => 'Decline';

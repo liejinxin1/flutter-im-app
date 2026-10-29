@@ -8,4 +8,6 @@ abstract interface class ContactRepository {
   Future<void> addContact(String userId);
   Future<void> acceptContactRequest(String userId);
   Future<void> declineContactRequest(String userId);
+  Future<void> acceptGroupInvitation(String groupId, String inviter);
+  Future<void> declineGroupInvitation(String groupId, String inviter);
 }

@@ -30,7 +30,7 @@ class PrefsFriendRequestStore implements FriendRequestStore {
               item.map((key, value) => MapEntry('$key', value)),
             ),
           )
-          .where((request) => request.userId.isNotEmpty)
+          .where((request) => request.targetId.isNotEmpty)
           .toList(growable: false);
     } catch (_) {
       return const [];

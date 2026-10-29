@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:flutter/foundation.dart';
 
@@ -153,26 +155,62 @@ class AgoraChatPlatform {
             userId: userId,
             reason: reason,
             type: domain.FriendRequestUpdateType.received,
+            occurredAt: DateTime.now(),
           ),
         ),
         onFriendRequestAccepted: (userId) => _onFriendRequestUpdate?.call(
           domain.FriendRequestUpdate(
             userId: userId,
             type: domain.FriendRequestUpdateType.accepted,
+            occurredAt: DateTime.now(),
           ),
         ),
         onFriendRequestDeclined: (userId) => _onFriendRequestUpdate?.call(
           domain.FriendRequestUpdate(
             userId: userId,
             type: domain.FriendRequestUpdateType.declined,
+            occurredAt: DateTime.now(),
           ),
         ),
         onContactAdded: (userId) => _onFriendRequestUpdate?.call(
           domain.FriendRequestUpdate(
             userId: userId,
             type: domain.FriendRequestUpdateType.contactAdded,
+            occurredAt: DateTime.now(),
           ),
         ),
+      ),
+    );
+    ChatClient.getInstance.groupManager.addEventHandler(
+      _handlerId,
+      ChatGroupEventHandler(
+        onInvitationReceivedFromGroup: (groupId, groupName, inviter, reason) =>
+            _onFriendRequestUpdate?.call(
+              domain.FriendRequestUpdate(
+                userId: inviter,
+                targetType: domain.FriendRequestTargetType.group,
+                groupId: groupId,
+                groupName: groupName,
+                inviter: inviter,
+                reason: reason,
+                type: domain.FriendRequestUpdateType.received,
+                occurredAt: DateTime.now(),
+              ),
+            ),
+        onAutoAcceptInvitationFromGroup: (groupId, inviter, inviteMessage) {
+          _onFriendRequestUpdate?.call(
+            domain.FriendRequestUpdate(
+              userId: inviter,
+              targetType: domain.FriendRequestTargetType.group,
+              groupId: groupId,
+              inviter: inviter,
+              reason: inviteMessage,
+              type: domain.FriendRequestUpdateType.accepted,
+              occurredAt: DateTime.now(),
+            ),
+          );
+          unawaited(_ensureGroupConversation(groupId));
+        },
       ),
     );
     ChatClient.getInstance.chatManager.addMessageEvent(
@@ -593,6 +631,27 @@ class AgoraChatPlatform {
   Future<void> declineContactRequest(String userId) =>
       ChatClient.getInstance.contactManager.declineInvitation(userId);
 
+  Future<void> acceptGroupInvitation(String groupId, String inviter) async {
+    final client = ChatClient.getInstance;
+    await client.groupManager.acceptInvitation(groupId, inviter);
+    await _ensureGroupConversation(groupId);
+  }
+
+  Future<void> _ensureGroupConversation(String groupId) async {
+    await ChatClient.getInstance.chatManager.getConversation(
+      groupId,
+      type: ChatConversationType.GroupChat,
+      createIfNeed: true,
+    );
+    _onConversationsChanged?.call();
+  }
+
+  Future<void> declineGroupInvitation(String groupId, String inviter) =>
+      ChatClient.getInstance.groupManager.declineInvitation(
+        groupId: groupId,
+        inviter: inviter,
+      );
+
   Future<String> createGroup({
     required String name,
     required List<String> memberIds,
@@ -736,6 +795,7 @@ class AgoraChatPlatform {
     client.chatManager.removeEventHandler(_handlerId);
     client.chatManager.removeMessageEvent(_handlerId);
     client.contactManager.removeEventHandler(_handlerId);
+    client.groupManager.removeEventHandler(_handlerId);
     _initialized = false;
   }
 

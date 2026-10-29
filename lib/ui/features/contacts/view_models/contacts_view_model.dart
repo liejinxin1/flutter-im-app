@@ -46,11 +46,27 @@ class ContactsViewModel extends ViewModel {
   bool get isLoading => _isLoading;
   AppError? _error;
   AppError? get error => _error;
-  final Map<String, FriendRequestUpdate> _pendingFriendRequests = {};
-  List<FriendRequestUpdate> get pendingFriendRequests =>
-      _pendingFriendRequests.values.toList(growable: false);
+  final Map<String, FriendRequestUpdate> _requestHistory = {};
+  List<FriendRequestUpdate> get requestHistory =>
+      _sortedRequests(_requestHistory.values);
+  List<FriendRequestUpdate> get pendingFriendRequests => _sortedRequests(
+    _requestHistory.values.where(
+      (request) => request.type == FriendRequestUpdateType.received,
+    ),
+  );
   FriendRequestUpdate? _requestToast;
   FriendRequestUpdate? get requestToast => _requestToast;
+
+  List<FriendRequestUpdate> _sortedRequests(
+    Iterable<FriendRequestUpdate> requests,
+  ) {
+    final result = requests.toList(growable: false);
+    result.sort(
+      (a, b) =>
+          (b.occurredAt ?? DateTime(0)).compareTo(a.occurredAt ?? DateTime(0)),
+    );
+    return result;
+  }
 
   void consumeRequestToast() {
     _requestToast = null;
@@ -90,13 +106,54 @@ class ContactsViewModel extends ViewModel {
     String userId, {
     required bool accept,
   }) async {
-    try {
-      if (accept) {
-        await _contacts.acceptContactRequest(userId);
-      } else {
-        await _contacts.declineContactRequest(userId);
+    var request = _requestHistory['contact:$userId'];
+    if (request == null) {
+      for (final item in pendingFriendRequests) {
+        if (item.userId == userId && !item.isGroup) {
+          request = item;
+          break;
+        }
       }
-      _pendingFriendRequests.remove(userId);
+    }
+    if (request == null) return false;
+    return respondToRequest(request, accept: accept);
+  }
+
+  Future<bool> respondToRequest(
+    FriendRequestUpdate request, {
+    required bool accept,
+  }) async {
+    try {
+      if (request.isGroup) {
+        final groupId = request.groupId;
+        final inviter = request.inviter ?? request.userId;
+        if (groupId == null ||
+            groupId.isEmpty ||
+            inviter.isEmpty ||
+            request.type != FriendRequestUpdateType.received) {
+          return false;
+        }
+        if (accept) {
+          await _contacts.acceptGroupInvitation(groupId, inviter);
+        } else {
+          await _contacts.declineGroupInvitation(groupId, inviter);
+        }
+      } else {
+        if (request.type != FriendRequestUpdateType.received) return false;
+        if (accept) {
+          await _contacts.acceptContactRequest(request.userId);
+        } else {
+          await _contacts.declineContactRequest(request.userId);
+        }
+      }
+      _recordRequest(
+        request.copyWith(
+          type: accept
+              ? FriendRequestUpdateType.accepted
+              : FriendRequestUpdateType.declined,
+          occurredAt: DateTime.now(),
+        ),
+      );
       _persistRequests();
       notifyListeners();
       return true;
@@ -112,11 +169,9 @@ class ContactsViewModel extends ViewModel {
       final stored = await _store.load(_currentUserId);
       if (isDisposed) return;
       for (final request in stored) {
-        if (request.type == FriendRequestUpdateType.received) {
-          _pendingFriendRequests[request.userId] = request;
-        }
+        _recordRequest(request);
       }
-      if (_pendingFriendRequests.isNotEmpty) notifyListeners();
+      if (_requestHistory.isNotEmpty) notifyListeners();
     } catch (_) {
       // Corruption or unavailable storage should not block contacts.
     }
@@ -126,20 +181,24 @@ class ContactsViewModel extends ViewModel {
     unawaited(
       _store.save(
         _currentUserId,
-        _pendingFriendRequests.values.toList(growable: false),
+        _requestHistory.values.toList(growable: false),
       ),
     );
   }
 
-  void _onFriendRequestUpdate(FriendRequestUpdate update) {
-    switch (update.type) {
-      case FriendRequestUpdateType.received:
-        _pendingFriendRequests[update.userId] = update;
-      case FriendRequestUpdateType.accepted:
-      case FriendRequestUpdateType.declined:
-      case FriendRequestUpdateType.contactAdded:
-        _pendingFriendRequests.remove(update.userId);
+  void _recordRequest(FriendRequestUpdate update) {
+    if (update.targetId.isEmpty) return;
+    final previous = _requestHistory[update.targetKey];
+    if (previous?.occurredAt != null &&
+        update.occurredAt != null &&
+        update.occurredAt!.isBefore(previous!.occurredAt!)) {
+      return;
     }
+    _requestHistory[update.targetKey] = update;
+  }
+
+  void _onFriendRequestUpdate(FriendRequestUpdate update) {
+    _recordRequest(update);
     _persistRequests();
     _requestToast = update;
     notifyListeners();

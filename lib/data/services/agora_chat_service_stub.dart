@@ -115,6 +115,12 @@ class AgoraChatPlatform {
   Future<void> declineContactRequest(String userId) =>
       Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
 
+  Future<void> acceptGroupInvitation(String groupId, String inviter) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
+  Future<void> declineGroupInvitation(String groupId, String inviter) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
   Future<String> createGroup({
     required String name,
     required List<String> memberIds,

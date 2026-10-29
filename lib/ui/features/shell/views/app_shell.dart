@@ -125,6 +125,26 @@ class _AppShellState extends State<AppShell> {
   void _showFriendRequest(FriendRequestUpdate update) {
     if (!mounted) return;
     final l10n = context.l10n;
+    if (update.isGroup) {
+      final group = update.groupName?.isNotEmpty == true
+          ? update.groupName!
+          : update.groupId ?? '';
+      final inviter = update.inviter ?? update.userId;
+      final text = switch (update.type) {
+        FriendRequestUpdateType.received => l10n.groupInvitationReceived(
+          inviter,
+          group,
+        ),
+        FriendRequestUpdateType.accepted => l10n.groupInvitationAccepted(group),
+        FriendRequestUpdateType.declined => l10n.groupInvitationDeclined(group),
+        FriendRequestUpdateType.contactAdded => l10n.groupInvitationReceived(
+          inviter,
+          group,
+        ),
+      };
+      _showRequestSnack(text, update);
+      return;
+    }
     final text = switch (update.type) {
       FriendRequestUpdateType.received => l10n.friendRequestReceived(
         update.userId,
@@ -139,6 +159,11 @@ class _AppShellState extends State<AppShell> {
         update.userId,
       ),
     };
+    _showRequestSnack(text, update);
+  }
+
+  void _showRequestSnack(String text, FriendRequestUpdate update) {
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -160,8 +185,8 @@ class _AppShellState extends State<AppShell> {
         builder: (_) => ListenableBuilder(
           listenable: _contacts,
           builder: (_, _) => FriendRequestsScreen(
-            requests: _contacts.pendingFriendRequests,
-            onRespond: _contacts.respondToFriendRequest,
+            requests: _contacts.requestHistory,
+            onRespond: _contacts.respondToRequest,
           ),
         ),
       ),

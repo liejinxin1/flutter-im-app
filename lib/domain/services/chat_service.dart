@@ -107,6 +107,8 @@ abstract interface class ChatService implements UserDirectory {
   Future<void> addContact(String userId);
   Future<void> acceptContactRequest(String userId);
   Future<void> declineContactRequest(String userId);
+  Future<void> acceptGroupInvitation(String groupId, String inviter);
+  Future<void> declineGroupInvitation(String groupId, String inviter);
   Future<String> createGroup({
     required String name,
     required List<String> memberIds,

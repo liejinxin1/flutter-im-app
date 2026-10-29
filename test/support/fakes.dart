@@ -326,6 +326,8 @@ class FakeContactRepository implements ContactRepository {
   final List<String> added = [];
   final List<String> accepted = [];
   final List<String> declined = [];
+  final List<String> acceptedGroups = [];
+  final List<String> declinedGroups = [];
 
   @override
   Stream<FriendRequestUpdate> get friendRequestUpdates => _requests.stream;
@@ -347,6 +349,16 @@ class FakeContactRepository implements ContactRepository {
   @override
   Future<void> declineContactRequest(String userId) async =>
       declined.add(userId);
+
+  @override
+  Future<void> acceptGroupInvitation(String groupId, String inviter) async {
+    acceptedGroups.add(groupId);
+  }
+
+  @override
+  Future<void> declineGroupInvitation(String groupId, String inviter) async {
+    declinedGroups.add(groupId);
+  }
 
   void emitRequest(FriendRequestUpdate update) => _requests.add(update);
 

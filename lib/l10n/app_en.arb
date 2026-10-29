@@ -50,6 +50,33 @@
   "addFriendOrGroup": "Add a friend or create a group",
   "viewAction": "View",
   "friendRequestReceived": "{userId} sent you a friend request",
+  "groupInvitationReceived": "{inviter} invited you to {group}",
+  "@groupInvitationReceived": {
+    "placeholders": {
+      "inviter": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupInvitationAccepted": "You joined {group}",
+  "@groupInvitationAccepted": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "groupInvitationDeclined": "You declined the invitation to {group}",
+  "@groupInvitationDeclined": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
   "@friendRequestReceived": {
     "placeholders": {
       "userId": {
@@ -206,9 +233,23 @@
     }
   },
   "searchForFriend": "Search for a friend",
-  "friendRequestsTitle": "Friend requests",
-  "noPendingFriendRequests": "No pending friend requests",
+  "friendRequestsTitle": "Requests & invitations",
+  "noPendingFriendRequests": "No friend requests or group invitations",
   "requestUpdateFailed": "Could not update this request. Try again.",
+  "groupInvitation": "Group invitation",
+  "friendRequestLabel": "Friend request",
+  "invitedByUser": "Invited by {userId}",
+  "@invitedByUser": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "requestStatusAccepted": "Accepted",
+  "requestStatusDeclined": "Declined",
+  "requestStatusAdded": "Added",
+  "requestStatusPending": "Pending",
   "decline": "Decline",
   "accept": "Accept",
   "createGroupTitle": "Create group",

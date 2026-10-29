@@ -153,11 +153,20 @@ Widget friendRequestsPreview() => PreviewHost(
       ),
       FriendRequestUpdate(
         userId: 'angela',
-        type: FriendRequestUpdateType.received,
+        type: FriendRequestUpdateType.accepted,
         reason: 'Let us connect',
       ),
+      FriendRequestUpdate(
+        userId: 'group-owner',
+        type: FriendRequestUpdateType.received,
+        targetType: FriendRequestTargetType.group,
+        groupId: 'group-1',
+        groupName: 'Flutter 学习群',
+        inviter: 'group-owner',
+        reason: '一起交流 Flutter',
+      ),
     ],
-    onRespond: (userId, {required accept}) async => true,
+    onRespond: (request, {required accept}) async => true,
   ),
 );
 

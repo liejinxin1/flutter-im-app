@@ -50,7 +50,7 @@ void main() {
       expect(viewModel.items.single.userId, 'peer');
     });
 
-    test('accepting a request removes and persists it', () async {
+    test('accepting a request keeps processed history', () async {
       final store = FakeFriendRequestStore()
         ..values['alice'] = [
           const FriendRequestUpdate(
@@ -76,8 +76,114 @@ void main() {
       expect(success, isTrue);
       expect(contacts.accepted, ['peer']);
       expect(viewModel.pendingFriendRequests, isEmpty);
+      expect(viewModel.requestHistory, hasLength(1));
+      expect(
+        viewModel.requestHistory.single.type,
+        FriendRequestUpdateType.accepted,
+      );
       await Future<void>.delayed(Duration.zero);
-      expect(store.values['alice'], isEmpty);
+      expect(store.values['alice'], hasLength(1));
+      expect(
+        store.values['alice']!.single.type,
+        FriendRequestUpdateType.accepted,
+      );
+    });
+
+    test('accepts a group invitation and keeps group metadata', () async {
+      final store = FakeFriendRequestStore();
+      final contacts = FakeContactRepository();
+      final viewModel = ContactsViewModel(
+        contacts,
+        FakeProfileRepository(),
+        store,
+        'alice',
+      );
+      addTearDown(viewModel.dispose);
+      await Future<void>.delayed(Duration.zero);
+
+      contacts.emitRequest(
+        FriendRequestUpdate(
+          userId: 'owner',
+          targetType: FriendRequestTargetType.group,
+          groupId: 'group-1',
+          groupName: 'Flutter',
+          inviter: 'owner',
+          type: FriendRequestUpdateType.received,
+          occurredAt: DateTime(2026),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(viewModel.pendingFriendRequests, hasLength(1));
+      expect(viewModel.requestHistory, hasLength(1));
+
+      final success = await viewModel.respondToRequest(
+        viewModel.pendingFriendRequests.single,
+        accept: true,
+      );
+
+      expect(success, isTrue);
+      expect(contacts.acceptedGroups, ['group-1']);
+      expect(viewModel.pendingFriendRequests, isEmpty);
+      expect(
+        viewModel.requestHistory.single.type,
+        FriendRequestUpdateType.accepted,
+      );
+      expect(viewModel.requestHistory.single.groupName, 'Flutter');
+    });
+
+    test('keeps only the latest status for the same group', () async {
+      final contacts = FakeContactRepository();
+      final viewModel = ContactsViewModel(
+        contacts,
+        FakeProfileRepository(),
+        FakeFriendRequestStore(),
+        'alice',
+      );
+      addTearDown(viewModel.dispose);
+      await Future<void>.delayed(Duration.zero);
+
+      contacts.emitRequest(
+        FriendRequestUpdate(
+          userId: 'owner',
+          targetType: FriendRequestTargetType.group,
+          groupId: 'group-1',
+          groupName: 'Flutter',
+          inviter: 'owner',
+          type: FriendRequestUpdateType.received,
+          occurredAt: DateTime(2026, 1, 2),
+        ),
+      );
+      contacts.emitRequest(
+        FriendRequestUpdate(
+          userId: 'owner',
+          targetType: FriendRequestTargetType.group,
+          groupId: 'group-1',
+          groupName: 'Flutter',
+          inviter: 'owner',
+          type: FriendRequestUpdateType.accepted,
+          occurredAt: DateTime(2026, 1, 3),
+        ),
+      );
+      contacts.emitRequest(
+        FriendRequestUpdate(
+          userId: 'owner',
+          targetType: FriendRequestTargetType.group,
+          groupId: 'group-1',
+          groupName: 'Flutter',
+          inviter: 'owner',
+          type: FriendRequestUpdateType.received,
+          occurredAt: DateTime(2026, 1, 1),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(viewModel.requestHistory, hasLength(1));
+      expect(
+        viewModel.requestHistory.single.type,
+        FriendRequestUpdateType.accepted,
+      );
+      expect(viewModel.pendingFriendRequests, isEmpty);
     });
   });
 }
