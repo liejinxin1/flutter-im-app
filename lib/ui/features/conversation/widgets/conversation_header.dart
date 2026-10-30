@@ -16,24 +16,24 @@ class ConversationHeader extends StatelessWidget {
     required this.kind,
     required this.onBack,
     required this.onShowDetails,
-    required this.onShowPeerId,
     this.onVoiceCall,
     this.onVideoCall,
     this.displayName,
     this.avatarUrl,
     this.memberCount,
+    this.peerPhone,
   });
 
   final String peerId;
   final ChatConversationKind kind;
   final VoidCallback onBack;
   final VoidCallback onShowDetails;
-  final VoidCallback onShowPeerId;
   final VoidCallback? onVoiceCall;
   final VoidCallback? onVideoCall;
   final String? displayName;
   final String? avatarUrl;
   final int? memberCount;
+  final String? peerPhone;
 
   @override
   Widget build(BuildContext context) {
@@ -68,18 +68,13 @@ class ConversationHeader extends StatelessWidget {
                   color: Color(0xFF252A34),
                 ),
                 onSelected: (action) {
-                  if (action == 'peerId') {
-                    onShowPeerId();
-                  } else {
-                    onShowDetails();
-                  }
+                  onShowDetails();
                 },
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: 'details',
                     child: Text(l10n.conversationDetails),
                   ),
-                  PopupMenuItem(value: 'peerId', child: Text(l10n.showUserId)),
                 ],
               ),
             ],
@@ -125,7 +120,9 @@ class ConversationHeader extends StatelessWidget {
                           ? (memberCount != null
                                 ? l10n.groupMembers(memberCount!)
                                 : l10n.groupChat)
-                          : peerId,
+                          : (peerPhone?.trim().isNotEmpty == true
+                                ? peerPhone!.trim()
+                                : ''),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(

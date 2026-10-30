@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:agora_im_flutter/domain/models/chat_conversation.dart';
 import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/domain/models/friend_request_update.dart';
+import 'package:agora_im_flutter/domain/models/group_member.dart';
 import 'package:agora_im_flutter/domain/models/outbox_message.dart';
 import 'package:agora_im_flutter/domain/models/picked_file.dart';
 import 'package:agora_im_flutter/domain/models/user_profile.dart';
@@ -402,8 +403,12 @@ class FakeContactRepository implements ContactRepository {
 
 class FakeGroupRepository implements GroupRepository {
   final List<List<String>> createdMemberIds = [];
-  List<String> memberIds = const [];
+  List<GroupMember> members = const [];
   Object? createError;
+  final List<String> leftGroups = [];
+  final List<String> removedMembers = [];
+  final List<String> adminChanges = [];
+  String? updatedName;
   @override
   Future<String> createGroup({
     required String name,
@@ -416,7 +421,26 @@ class FakeGroupRepository implements GroupRepository {
   }
 
   @override
-  Future<List<String>> loadMemberIds(String groupId) async => memberIds;
+  Future<List<GroupMember>> loadMembers(String groupId) async => members;
+
+  @override
+  Future<void> updateName(String groupId, String name) async {
+    updatedName = name;
+  }
+
+  @override
+  Future<void> leaveGroup(String groupId) async => leftGroups.add(groupId);
+
+  @override
+  Future<void> removeMember(String groupId, String userId) async =>
+      removedMembers.add(userId);
+
+  @override
+  Future<void> setAdmin(
+    String groupId,
+    String userId, {
+    required bool admin,
+  }) async => adminChanges.add('$userId:${admin ? 'admin' : 'member'}');
 }
 
 class FakeProfileRepository implements ProfileRepository {

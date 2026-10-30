@@ -560,6 +560,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupNameHint => 'Enter group name';
 
   @override
+  String get editGroupName => 'Edit group name';
+
+  @override
+  String get groupOwner => 'Owner';
+
+  @override
+  String get groupAdmin => 'Admin';
+
+  @override
+  String get makeAdmin => 'Make admin';
+
+  @override
+  String get removeAdmin => 'Remove admin';
+
+  @override
+  String get removeMember => 'Remove member';
+
+  @override
+  String removeMemberConfirm(String name) {
+    return 'Remove $name from this group?';
+  }
+
+  @override
+  String get leaveGroup => 'Leave group';
+
+  @override
+  String get leaveGroupConfirm =>
+      'Leave this group? You will stop receiving its messages.';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
   String get members => 'Members';
 
   @override

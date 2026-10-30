@@ -105,9 +105,11 @@ class ContactsScreen extends StatelessWidget {
                           ),
                           title: Text(profile.displayName),
                           subtitle: Text(
-                            profile.displayName == profile.userId
+                            profile.phone?.trim().isNotEmpty == true
+                                ? profile.phone!.trim()
+                                : profile.displayName == profile.userId
                                 ? context.l10n.agoraChatContact
-                                : profile.userId,
+                                : '',
                           ),
                           trailing: PopupMenuButton<String>(
                             icon: const Icon(

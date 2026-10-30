@@ -322,7 +322,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.add_rounded));
+    expect(find.byIcon(Icons.add_rounded), findsNothing);
+    await tester.tap(find.byIcon(Icons.attach_file_rounded));
     await tester.pumpAndSettle();
     expect(find.text('拍摄'), findsOneWidget);
     expect(find.text('录音'), findsOneWidget);

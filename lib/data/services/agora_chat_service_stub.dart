@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../domain/models/chat_conversation.dart';
 import '../../domain/models/chat_message.dart';
 import '../../domain/models/friend_request_update.dart';
+import '../../domain/models/group_member.dart';
 import '../../domain/models/user_profile.dart';
 
 /// Web/unsupported-platform adapter. Shapes match the native adapter so the
@@ -133,7 +134,23 @@ class AgoraChatPlatform {
   }) =>
       Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
 
-  Future<List<String>> loadGroupMemberIds(String groupId) =>
+  Future<List<GroupMember>> loadGroupMembers(String groupId) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
+  Future<void> updateGroupName(String groupId, String name) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
+  Future<void> leaveGroup(String groupId) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
+  Future<void> removeGroupMember(String groupId, String userId) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
+  Future<void> setGroupAdmin(
+    String groupId,
+    String userId, {
+    required bool admin,
+  }) =>
       Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
 
   Future<void> logout() async {}

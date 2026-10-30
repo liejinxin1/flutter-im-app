@@ -82,6 +82,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final Set<String> _selectedMessageIds = {};
   ChatMessage? _quotedMessage;
   Map<String, UserProfile> _senderProfiles = const {};
+  UserProfile? _peerProfile;
   final Set<String> _loadingSenderIds = {};
   final Map<String, GlobalKey> _messageKeys = {};
   String? _highlightedMessageId;
@@ -109,6 +110,21 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _scrollController.addListener(_onScroll);
     unawaited(_conversation.loadInitial());
     unawaited(_loadSenderProfiles());
+    unawaited(_loadPeerProfile());
+  }
+
+  Future<void> _loadPeerProfile() async {
+    final repository = widget.profiles;
+    if (repository == null || widget.kind != ChatConversationKind.direct) {
+      return;
+    }
+    try {
+      final profile = await repository.load(widget.peerId);
+      if (!mounted) return;
+      setState(() => _peerProfile = profile);
+    } catch (_) {
+      // Keep the title fallback if the directory is unavailable.
+    }
   }
 
   @override
@@ -721,6 +737,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   memberCount: widget.memberCount,
                   displayName: widget.peerName,
                   avatarUrl: widget.peerAvatarUrl,
+                  peerPhone: _peerProfile?.phone,
                   onBack: () {
                     if (_selectionMode) {
                       _exitSelection();
@@ -734,6 +751,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         if (widget.peerName != null) 'name': widget.peerName!,
                         if (widget.memberCount != null)
                           'members': '${widget.memberCount}',
+                        'me': widget.currentUserId,
                       };
                       context.push<void>(
                         '/groups/${Uri.encodeComponent(widget.peerId)}'
@@ -747,8 +765,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       _showMessage(context.l10n.conversationDetailsUnavailable);
                     }
                   },
-                  onShowPeerId: () =>
-                      _showMessage(context.l10n.userIdValue(widget.peerId)),
                   onVideoCall: widget.kind != ChatConversationKind.chatRoom
                       ? () => _showRtcMessage('video')
                       : null,

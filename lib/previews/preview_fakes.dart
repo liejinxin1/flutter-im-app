@@ -4,6 +4,7 @@ import '../app/app_dependencies.dart';
 import '../domain/models/chat_conversation.dart';
 import '../domain/models/chat_message.dart';
 import '../domain/models/friend_request_update.dart';
+import '../domain/models/group_member.dart';
 import '../domain/models/outbox_message.dart';
 import '../domain/models/picked_file.dart';
 import '../domain/models/user_profile.dart';
@@ -388,11 +389,36 @@ class PreviewGroupRepository implements GroupRepository {
   }) async => 'preview-group';
 
   @override
-  Future<List<String>> loadMemberIds(String groupId) async => const [
-    'alice',
-    'bob',
-    'charlie',
+  Future<List<GroupMember>> loadMembers(String groupId) async => const [
+    GroupMember(
+      profile: UserProfile(userId: 'alice', nickname: 'Alice'),
+      role: GroupMemberRole.owner,
+    ),
+    GroupMember(
+      profile: UserProfile(userId: 'bob', nickname: 'Bob'),
+      role: GroupMemberRole.admin,
+    ),
+    GroupMember(
+      profile: UserProfile(userId: 'charlie', nickname: 'Charlie'),
+      role: GroupMemberRole.member,
+    ),
   ];
+
+  @override
+  Future<void> updateName(String groupId, String name) async {}
+
+  @override
+  Future<void> leaveGroup(String groupId) async {}
+
+  @override
+  Future<void> removeMember(String groupId, String userId) async {}
+
+  @override
+  Future<void> setAdmin(
+    String groupId,
+    String userId, {
+    required bool admin,
+  }) async {}
 }
 
 class PreviewMediaGateway implements MediaGateway {

@@ -1,6 +1,7 @@
 import '../models/chat_conversation.dart';
 import '../models/chat_message.dart';
 import '../models/friend_request_update.dart';
+import '../models/group_member.dart';
 import '../models/user_profile.dart';
 import 'user_directory.dart';
 
@@ -117,7 +118,15 @@ abstract interface class ChatService implements UserDirectory {
     required String name,
     required List<String> memberIds,
   });
-  Future<List<String>> loadGroupMemberIds(String groupId);
+  Future<List<GroupMember>> loadGroupMembers(String groupId);
+  Future<void> updateGroupName(String groupId, String name);
+  Future<void> leaveGroup(String groupId);
+  Future<void> removeGroupMember(String groupId, String userId);
+  Future<void> setGroupAdmin(
+    String groupId,
+    String userId, {
+    required bool admin,
+  });
 
   Future<void> dispose();
 }

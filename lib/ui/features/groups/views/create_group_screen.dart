@@ -358,9 +358,9 @@ class _MemberPickerState extends State<_MemberPicker> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            subtitle: profile.displayName == profile.userId
-                                ? null
-                                : Text(profile.userId),
+                            subtitle: profile.phone?.trim().isNotEmpty == true
+                                ? Text(profile.phone!.trim())
+                                : null,
                           );
                         },
                       ),

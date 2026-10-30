@@ -546,6 +546,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get groupNameHint => '请输入群名称';
 
   @override
+  String get editGroupName => '修改群名称';
+
+  @override
+  String get groupOwner => '群主';
+
+  @override
+  String get groupAdmin => '管理员';
+
+  @override
+  String get makeAdmin => '设为管理员';
+
+  @override
+  String get removeAdmin => '取消管理员';
+
+  @override
+  String get removeMember => '移出群聊';
+
+  @override
+  String removeMemberConfirm(String name) {
+    return '确定将 $name 移出群聊？';
+  }
+
+  @override
+  String get leaveGroup => '退出群聊';
+
+  @override
+  String get leaveGroupConfirm => '确定退出群聊？退出后将不再接收该群消息。';
+
+  @override
+  String get confirm => '确定';
+
+  @override
   String get members => '成员';
 
   @override

@@ -50,28 +50,6 @@ class MessageComposer extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (isGroup) ...[
-              SizedBox(
-                width: 38,
-                height: 38,
-                child: IconButton(
-                  tooltip: context.l10n.addAttachment,
-                  onPressed: onToggleAttachments,
-                  style: IconButton.styleFrom(
-                    backgroundColor: AppColors.send,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                  ),
-                  icon: Icon(
-                    attachmentsExpanded
-                        ? Icons.close_rounded
-                        : Icons.add_rounded,
-                    size: 24,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 9),
-            ],
             Expanded(
               child: Container(
                 constraints: const BoxConstraints(minHeight: 42),

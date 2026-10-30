@@ -156,9 +156,11 @@ class _AddFriendScreenState extends State<AddFriendScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        profile.displayName == profile.userId
+                        profile.phone?.trim().isNotEmpty == true
+                            ? profile.phone!.trim()
+                            : profile.displayName == profile.userId
                             ? l10n.agoraChatUser
-                            : profile.userId,
+                            : '',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF999CA8),

@@ -1088,6 +1088,66 @@ abstract class AppLocalizations {
   /// **'Enter group name'**
   String get groupNameHint;
 
+  /// No description provided for @editGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit group name'**
+  String get editGroupName;
+
+  /// No description provided for @groupOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get groupOwner;
+
+  /// No description provided for @groupAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get groupAdmin;
+
+  /// No description provided for @makeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Make admin'**
+  String get makeAdmin;
+
+  /// No description provided for @removeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove admin'**
+  String get removeAdmin;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove member'**
+  String get removeMember;
+
+  /// No description provided for @removeMemberConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from this group?'**
+  String removeMemberConfirm(String name);
+
+  /// No description provided for @leaveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave group'**
+  String get leaveGroup;
+
+  /// No description provided for @leaveGroupConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this group? You will stop receiving its messages.'**
+  String get leaveGroupConfirm;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
   /// No description provided for @members.
   ///
   /// In en, this message translates to:

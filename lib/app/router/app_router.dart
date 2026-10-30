@@ -82,8 +82,8 @@ class AppRouter {
               groupId: groupId,
               groupName: state.uri.queryParameters['name'],
               memberCount: members,
+              currentUserId: state.uri.queryParameters['me'],
               groups: dependencies.groups,
-              profiles: dependencies.profiles,
               onOpenMember: (userId) =>
                   context.push<void>('/friends/${Uri.encodeComponent(userId)}'),
             );

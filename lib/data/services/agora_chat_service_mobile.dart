@@ -726,11 +726,56 @@ class AgoraChatPlatform {
     return group.groupId;
   }
 
-  Future<List<String>> loadGroupMemberIds(String groupId) async {
-    final result = await ChatClient.getInstance.groupManager
-        .fetchMemberListFromServer(groupId, pageSize: 200);
-    return result.data;
+  Future<List<domain.GroupMember>> loadGroupMembers(String groupId) async {
+    final manager = ChatClient.getInstance.groupManager;
+    final infos = <GroupMemberInfo>[];
+    String? cursor;
+    do {
+      final result = await manager.fetchGroupMembersInfo(
+        groupId: groupId,
+        cursor: cursor,
+        limit: 200,
+      );
+      infos.addAll(result.data);
+      cursor = result.cursor;
+    } while (cursor != null && cursor.isNotEmpty);
+
+    final ids = infos.map((info) => info.userId).toSet().toList();
+    final profiles = <String, domain.UserProfile>{};
+    for (var start = 0; start < ids.length; start += 100) {
+      final end = (start + 100).clamp(0, ids.length);
+      profiles.addAll(await loadUserProfiles(ids.sublist(start, end)));
+    }
+    return [
+      for (final info in infos)
+        domain.GroupMember(
+          profile:
+              profiles[info.userId] ?? domain.UserProfile(userId: info.userId),
+          role: switch (info.role) {
+            ChatGroupPermissionType.Owner => domain.GroupMemberRole.owner,
+            ChatGroupPermissionType.Admin => domain.GroupMemberRole.admin,
+            _ => domain.GroupMemberRole.member,
+          },
+        ),
+    ];
   }
+
+  Future<void> updateGroupName(String groupId, String name) =>
+      ChatClient.getInstance.groupManager.updateGroupName(groupId, name);
+
+  Future<void> leaveGroup(String groupId) =>
+      ChatClient.getInstance.groupManager.leaveGroup(groupId);
+
+  Future<void> removeGroupMember(String groupId, String userId) =>
+      ChatClient.getInstance.groupManager.removeMembers(groupId, [userId]);
+
+  Future<void> setGroupAdmin(
+    String groupId,
+    String userId, {
+    required bool admin,
+  }) => admin
+      ? ChatClient.getInstance.groupManager.addAdmin(groupId, userId)
+      : ChatClient.getInstance.groupManager.removeAdmin(groupId, userId);
 
   domain.ChatMessage? _mapMessage(ChatMessage message) {
     final body = message.body;

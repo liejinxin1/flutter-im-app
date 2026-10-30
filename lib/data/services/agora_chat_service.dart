@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../domain/models/chat_conversation.dart';
 import '../../domain/models/chat_message.dart';
 import '../../domain/models/friend_request_update.dart';
+import '../../domain/models/group_member.dart';
 import '../../domain/models/user_profile.dart';
 import '../../domain/services/chat_service.dart';
 import '../../domain/services/user_directory.dart';
@@ -292,9 +293,37 @@ class AgoraChatService implements UserDirectory, ChatService {
   }
 
   @override
-  Future<List<String>> loadGroupMemberIds(String groupId) {
+  Future<List<GroupMember>> loadGroupMembers(String groupId) {
     if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
-    return platform.loadGroupMemberIds(groupId);
+    return platform.loadGroupMembers(groupId);
+  }
+
+  @override
+  Future<void> updateGroupName(String groupId, String name) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.updateGroupName(groupId, name);
+  }
+
+  @override
+  Future<void> leaveGroup(String groupId) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.leaveGroup(groupId);
+  }
+
+  @override
+  Future<void> removeGroupMember(String groupId, String userId) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.removeGroupMember(groupId, userId);
+  }
+
+  @override
+  Future<void> setGroupAdmin(
+    String groupId,
+    String userId, {
+    required bool admin,
+  }) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.setGroupAdmin(groupId, userId, admin: admin);
   }
 
   @override
