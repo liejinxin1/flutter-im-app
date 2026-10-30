@@ -23,7 +23,7 @@ conversations    account_id + conversation_id + payload + last_activity
 messages         account_id + conversation_id + message_id + payload + sent_at
 ```
 
-`profiles` 已由 `SqliteProfileRepository` 作为资料缓存主路径；包含昵称、头像、手机号、邮箱、生日、性别和备注。编辑自己的资料时先通过 `UserDirectory.updateUserProfile` 更新 Agora，再写本地 `profiles` 表；查询他人资料时优先读缓存，好友详情/群成员页会强制向 Agora 刷新字段。`friendships` 由 `FriendCache` 作为联系人/备注缓存，写入联系人时只更新昵称/头像/备注，不会覆盖手机号、邮箱、生日、性别。
+`profiles` 已由 `SqliteProfileRepository` 作为资料缓存主路径；包含昵称、头像、手机号、邮箱、生日、性别和备注。编辑自己的资料时先通过 `UserDirectory.updateUserProfile` 更新 Agora，再写本地 `profiles` 表；查询他人资料时优先读缓存，好友详情/群成员页会强制向 Agora 刷新字段，但刷新时会保留本地联系人备注（Agora 用户信息不包含备注）。`friendships` 由 `FriendCache` 作为联系人/备注缓存，写入联系人时只更新昵称/头像/备注，不会覆盖手机号、邮箱、生日、性别。
 
 `messages` 已接入 `SqliteChatMessageStore`：消息按 `account_id + conversation_id + message_id` 逐条写入，`payload` 保存内容 JSON，数据库不做条数或会话数裁剪。打开聊天页时只查询最近 30 条用于首屏，后续历史通过分页加载并按需写入数据库。旧的整段会话 JSON 缓存会在首次读取时惰性迁移到 `messages` 表。
 

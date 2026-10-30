@@ -25,6 +25,29 @@ void main() {
       expect(directory.calls, 1);
     });
 
+    test(
+      'preserves a local remark when refreshing from the directory',
+      () async {
+        final directory = FakeUserDirectory()
+          ..profiles['peer'] = const UserProfile(
+            userId: 'peer',
+            nickname: 'Bob',
+            phone: '+44 20 1234 5689',
+          );
+        final repository = PrefsProfileRepository(
+          directory,
+          MemoryLocalStore(),
+        );
+        await repository.updateRemark('peer', 'Boss');
+
+        final profile = await repository.load('peer', forceRefresh: true);
+
+        expect(profile.remark, 'Boss');
+        expect(profile.nickname, 'Bob');
+        expect(profile.phone, '+44 20 1234 5689');
+      },
+    );
+
     test('falls back to userId when the directory is unavailable', () async {
       final directory = FakeUserDirectory()..error = Exception('offline');
       final repository = PrefsProfileRepository(directory, MemoryLocalStore());

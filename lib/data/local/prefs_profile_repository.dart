@@ -99,7 +99,12 @@ class PrefsProfileRepository implements ProfileRepository {
       try {
         final fetched = await _directory.loadUserProfiles(missing);
         if (fetched.isNotEmpty) {
-          _cache.addAll(fetched);
+          for (final entry in fetched.entries) {
+            final local = _cache[entry.key];
+            _cache[entry.key] = local == null
+                ? entry.value
+                : entry.value.copyWith(remark: local.remark);
+          }
           await _persist();
         }
       } catch (_) {

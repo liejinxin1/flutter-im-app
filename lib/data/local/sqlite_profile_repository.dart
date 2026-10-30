@@ -47,8 +47,15 @@ class SqliteProfileRepository implements ProfileRepository {
     try {
       final fetched = await _directory.loadUserProfiles(missing);
       if (fetched.isNotEmpty) {
-        await _upsertAll(db, account, fetched.values);
-        cached.addAll(fetched);
+        final merged = <String, UserProfile>{};
+        for (final entry in fetched.entries) {
+          final local = cached[entry.key];
+          merged[entry.key] = local == null
+              ? entry.value
+              : entry.value.copyWith(remark: local.remark);
+        }
+        await _upsertAll(db, account, merged.values);
+        cached.addAll(merged);
       }
     } catch (_) {
       // Offline: keep the local row or a userId-only fallback.
