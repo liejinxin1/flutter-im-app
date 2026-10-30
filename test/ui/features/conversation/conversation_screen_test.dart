@@ -1,3 +1,4 @@
+import 'package:agora_im_flutter/domain/models/chat_conversation.dart';
 import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/ui/features/conversation/views/conversation_screen.dart';
 import 'package:agora_im_flutter/ui/features/conversation/widgets/quoted_message_preview.dart';
@@ -294,6 +295,44 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('已打开'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await chat.dispose();
+    await media.dispose();
+  });
+
+  testWidgets('group composer uses the same attachment and voice flow', (
+    tester,
+  ) async {
+    final chat = FakeChatRepository();
+    final media = FakeMediaGateway();
+
+    await tester.pumpWidget(
+      testApp(
+        ConversationScreen(
+          repository: chat,
+          media: media,
+          outbox: FakeOutboxRepository(),
+          currentUserId: 'me',
+          peerId: 'group-1',
+          kind: ChatConversationKind.group,
+          memberCount: 3,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.add_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('拍摄'), findsOneWidget);
+    expect(find.text('录音'), findsOneWidget);
+
+    await tester.tap(find.text('录音'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(VoiceRecordingBar), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.delete_outline_rounded));
+    await tester.pumpAndSettle();
 
     await tester.pumpWidget(const SizedBox.shrink());
     await chat.dispose();

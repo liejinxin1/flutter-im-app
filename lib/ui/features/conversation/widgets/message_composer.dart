@@ -106,36 +106,34 @@ class MessageComposer extends StatelessWidget {
                     ),
                     border: InputBorder.none,
                     isDense: true,
-                    suffixIcon: isGroup
-                        ? null
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (onCamera != null)
-                                IconButton(
-                                  tooltip: context.l10n.camera,
-                                  onPressed: onCamera,
-                                  visualDensity: VisualDensity.compact,
-                                  icon: const Icon(
-                                    Icons.photo_camera_outlined,
-                                    size: 21,
-                                    color: AppColors.mutedText,
-                                  ),
-                                ),
-                              IconButton(
-                                tooltip: context.l10n.addAttachment,
-                                onPressed: onToggleAttachments,
-                                visualDensity: VisualDensity.compact,
-                                icon: Icon(
-                                  attachmentsExpanded
-                                      ? Icons.close_rounded
-                                      : Icons.attach_file_rounded,
-                                  size: 21,
-                                  color: AppColors.mutedText,
-                                ),
-                              ),
-                            ],
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (onCamera != null)
+                          IconButton(
+                            tooltip: context.l10n.camera,
+                            onPressed: onCamera,
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(
+                              Icons.photo_camera_outlined,
+                              size: 21,
+                              color: AppColors.mutedText,
+                            ),
                           ),
+                        IconButton(
+                          tooltip: context.l10n.addAttachment,
+                          onPressed: onToggleAttachments,
+                          visualDensity: VisualDensity.compact,
+                          icon: Icon(
+                            attachmentsExpanded
+                                ? Icons.close_rounded
+                                : Icons.attach_file_rounded,
+                            size: 21,
+                            color: AppColors.mutedText,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -148,7 +146,7 @@ class MessageComposer extends StatelessWidget {
                 valueListenable: controller,
                 builder: (context, value, _) {
                   final canSend = value.text.trim().isNotEmpty;
-                  if (!isGroup && !canSend && onVoice != null) {
+                  if (!canSend && onVoice != null) {
                     return IconButton.filled(
                       tooltip: context.l10n.holdToTalk,
                       onPressed: onVoice,

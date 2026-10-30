@@ -88,8 +88,8 @@
 - 资料修改同步 Agora 用户属性并写入本地 `profiles` 表
 - 好友资料页可查看手机号、性别、生日、邮箱
 - 资料刷新时保留本地备注，避免备注被 Agora 用户信息覆盖
-- 117 个单元/Widget/预览测试
-- 115 个单元/Widget/预览测试
+- 群聊输入栏与单聊同步相机/附件/麦克风入口，并保留附件面板
+- 118 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -138,7 +138,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          117 tests, all passed
+flutter test          118 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 
