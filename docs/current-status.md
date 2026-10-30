@@ -84,6 +84,10 @@
 - 删除/撤回状态本地持久化，重新进入会话不会复活旧内容
 - 文件消息选择、发送、文件卡片、下载与系统打开
 - 文件消息默认走 Agora 原生 FILE，OSS 接入后走 custom envelope
+- 用户资料页按 Figma 重构，支持昵称/手机号/性别/生日/邮箱编辑
+- 资料修改同步 Agora 用户属性并写入本地 `profiles` 表
+- 好友资料页可查看手机号、性别、生日、邮箱
+- 116 个单元/Widget/预览测试
 - 115 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
@@ -133,7 +137,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          115 tests, all passed
+flutter test          116 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

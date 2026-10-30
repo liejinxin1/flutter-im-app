@@ -28,9 +28,14 @@ void main() {
     expect(find.text('Bobby'), findsOneWidget);
     expect(find.text('暂无备注'), findsOneWidget);
 
+    await tester.scrollUntilVisible(
+      find.widgetWithText(FilledButton, '发消息'),
+      200,
+    );
     await tester.tap(find.widgetWithText(FilledButton, '发消息'));
     expect(openedChat, 'peer');
 
+    await tester.scrollUntilVisible(find.byIcon(Icons.edit_outlined), 200);
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Bobby Chan');

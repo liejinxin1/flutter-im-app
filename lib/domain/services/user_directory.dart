@@ -5,4 +5,6 @@ abstract interface class UserDirectory {
   String? get currentUserId;
 
   Future<Map<String, UserProfile>> loadUserProfiles(List<String> userIds);
+
+  Future<void> updateUserProfile(UserProfile profile);
 }

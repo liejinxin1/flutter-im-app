@@ -37,7 +37,7 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    _load(refresh: true);
   }
 
   Future<void> _load({bool refresh = false}) async {
@@ -144,6 +144,36 @@ class _FriendDetailScreenState extends State<FriendDetailScreen> {
                             value: profile?.remark?.trim().isNotEmpty == true
                                 ? profile!.remark!
                                 : l10n.noRemark,
+                          ),
+                          const SizedBox(height: 10),
+                          _InfoCard(
+                            label: l10n.phone,
+                            value: profile?.phone?.trim().isNotEmpty == true
+                                ? profile!.phone!
+                                : l10n.notSpecified,
+                          ),
+                          const SizedBox(height: 10),
+                          _InfoCard(
+                            label: l10n.gender,
+                            value: switch (profile?.gender ?? 0) {
+                              1 => l10n.male,
+                              2 => l10n.female,
+                              _ => l10n.notSpecified,
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          _InfoCard(
+                            label: l10n.birthday,
+                            value: profile?.birthday?.trim().isNotEmpty == true
+                                ? profile!.birthday!
+                                : l10n.notSpecified,
+                          ),
+                          const SizedBox(height: 10),
+                          _InfoCard(
+                            label: l10n.email,
+                            value: profile?.email?.trim().isNotEmpty == true
+                                ? profile!.email!
+                                : l10n.notSpecified,
                           ),
                           const SizedBox(height: 18),
                           Row(

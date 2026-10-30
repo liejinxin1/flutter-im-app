@@ -11,4 +11,6 @@ abstract interface class ProfileRepository {
   });
 
   Future<void> updateRemark(String userId, String remark);
+
+  Future<void> updateOwnProfile(UserProfile profile);
 }

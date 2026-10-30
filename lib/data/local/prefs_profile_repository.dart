@@ -117,4 +117,12 @@ class PrefsProfileRepository implements ProfileRepository {
     _cache[userId] = current.copyWith(remark: remark);
     await _persist();
   }
+
+  @override
+  Future<void> updateOwnProfile(UserProfile profile) async {
+    await _directory.updateUserProfile(profile);
+    await _ensureCache();
+    _cache[profile.userId] = profile;
+    await _persist();
+  }
 }

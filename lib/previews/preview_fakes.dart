@@ -348,6 +348,11 @@ class PreviewProfileRepository implements ProfileRepository {
     _profiles[userId] = (_profiles[userId] ?? UserProfile(userId: userId))
         .copyWith(remark: remark);
   }
+
+  @override
+  Future<void> updateOwnProfile(UserProfile profile) async {
+    _profiles[profile.userId] = profile;
+  }
 }
 
 class PreviewFriendRequestStore implements FriendRequestStore {

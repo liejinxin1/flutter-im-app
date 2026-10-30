@@ -241,6 +241,12 @@ class AgoraChatService implements UserDirectory, ChatService {
       : platform.loadUserProfiles(userIds);
 
   @override
+  Future<void> updateUserProfile(UserProfile profile) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.updateUserProfile(profile);
+  }
+
+  @override
   Future<void> addContact(String userId) {
     if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
     return platform.addContact(userId);

@@ -14,7 +14,8 @@ class FriendCache {
     final db = await _database.database;
     final rows = await db.rawQuery(
       '''
-      SELECT f.user_id, f.remark, p.nickname, p.avatar_url
+      SELECT f.user_id, f.remark, p.nickname, p.avatar_url,
+             p.phone, p.email, p.birthday, p.gender
       FROM friendships f
       LEFT JOIN profiles p
         ON p.account_id = f.account_id AND p.user_id = f.user_id
@@ -30,6 +31,10 @@ class FriendCache {
           nickname: row['nickname'] as String?,
           avatarUrl: row['avatar_url'] as String?,
           remark: row['remark'] as String?,
+          phone: row['phone'] as String?,
+          email: row['email'] as String?,
+          birthday: row['birthday'] as String?,
+          gender: (row['gender'] as num?)?.toInt() ?? 0,
         ),
     ];
   }
@@ -47,14 +52,27 @@ class FriendCache {
         'status': 'accepted',
         'updated_at': now,
       }, conflictAlgorithm: ConflictAlgorithm.replace);
-      await db.insert('profiles', {
-        'account_id': accountId,
-        'user_id': contact.userId,
-        'nickname': contact.nickname,
-        'avatar_url': contact.avatarUrl,
-        'remark': contact.remark,
-        'updated_at': now,
-      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      final updated = await db.update(
+        'profiles',
+        {
+          'nickname': contact.nickname,
+          'avatar_url': contact.avatarUrl,
+          'remark': contact.remark,
+          'updated_at': now,
+        },
+        where: 'account_id = ? AND user_id = ?',
+        whereArgs: [accountId, contact.userId],
+      );
+      if (updated == 0) {
+        await db.insert('profiles', {
+          'account_id': accountId,
+          'user_id': contact.userId,
+          'nickname': contact.nickname,
+          'avatar_url': contact.avatarUrl,
+          'remark': contact.remark,
+          'updated_at': now,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      }
     }
   }
 

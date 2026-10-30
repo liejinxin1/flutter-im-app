@@ -443,6 +443,11 @@ class FakeProfileRepository implements ProfileRepository {
     profiles[userId] = (profiles[userId] ?? UserProfile(userId: userId))
         .copyWith(remark: remark);
   }
+
+  @override
+  Future<void> updateOwnProfile(UserProfile profile) async {
+    profiles[profile.userId] = profile;
+  }
 }
 
 class FakeOutboxRepository implements OutboxRepository {
@@ -518,6 +523,11 @@ class FakeUserDirectory implements UserDirectory {
       for (final id in userIds)
         if (profiles[id] != null) id: profiles[id]!,
     };
+  }
+
+  @override
+  Future<void> updateUserProfile(UserProfile profile) async {
+    profiles[profile.userId] = profile;
   }
 }
 

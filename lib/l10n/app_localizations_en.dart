@@ -596,6 +596,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileTitle => 'Profile';
 
   @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get birthday => 'Birthday';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get profileUpdated => 'Profile updated';
+
+  @override
+  String get avatarUrl => 'Avatar URL';
+
+  @override
+  String get nameRequired => 'Name is required';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address';
+
+  @override
   String get agoraChatAccount => 'Agora Chat account';
 
   @override

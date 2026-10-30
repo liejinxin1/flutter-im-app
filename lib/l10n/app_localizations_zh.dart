@@ -581,6 +581,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get profileTitle => '我的';
 
   @override
+  String get editProfile => '编辑资料';
+
+  @override
+  String get name => '昵称';
+
+  @override
+  String get phoneNumber => '手机号';
+
+  @override
+  String get gender => '性别';
+
+  @override
+  String get birthday => '生日';
+
+  @override
+  String get email => '邮箱';
+
+  @override
+  String get phone => '手机号';
+
+  @override
+  String get male => '男';
+
+  @override
+  String get female => '女';
+
+  @override
+  String get notSpecified => '未设置';
+
+  @override
+  String get profileUpdated => '资料已更新';
+
+  @override
+  String get avatarUrl => '头像地址';
+
+  @override
+  String get nameRequired => '昵称不能为空';
+
+  @override
+  String get invalidEmail => '请输入有效的邮箱地址';
+
+  @override
   String get agoraChatAccount => 'Agora Chat 账号';
 
   @override

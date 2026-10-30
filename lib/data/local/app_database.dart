@@ -22,8 +22,9 @@ class AppDatabase {
     final directory = await getDatabasesPath();
     final database = await openDatabase(
       path.join(directory, 'agora_im.sqlite'),
-      version: 1,
+      version: 2,
       onCreate: _create,
+      onUpgrade: _upgrade,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
     );
     _database = database;
@@ -52,6 +53,10 @@ class AppDatabase {
         nickname TEXT,
         avatar_url TEXT,
         remark TEXT,
+        phone TEXT,
+        email TEXT,
+        birthday TEXT,
+        gender INTEGER NOT NULL DEFAULT 0,
         updated_at INTEGER NOT NULL,
         PRIMARY KEY (account_id, user_id)
       )
@@ -98,5 +103,16 @@ class AppDatabase {
       CREATE INDEX idx_messages_conversation
       ON messages(account_id, conversation_id, sent_at)
     ''');
+  }
+
+  Future<void> _upgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE profiles ADD COLUMN phone TEXT');
+      await db.execute('ALTER TABLE profiles ADD COLUMN email TEXT');
+      await db.execute('ALTER TABLE profiles ADD COLUMN birthday TEXT');
+      await db.execute(
+        'ALTER TABLE profiles ADD COLUMN gender INTEGER NOT NULL DEFAULT 0',
+      );
+    }
   }
 }

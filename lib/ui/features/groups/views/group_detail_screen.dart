@@ -51,7 +51,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     });
     try {
       final ids = await widget.groups.loadMemberIds(widget.groupId);
-      final profiles = await widget.profiles.loadAll(ids);
+      final profiles = await widget.profiles.loadAll(ids, forceRefresh: true);
       if (!mounted) return;
       setState(() {
         _members = ids

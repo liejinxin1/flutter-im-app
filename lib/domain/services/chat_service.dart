@@ -105,6 +105,8 @@ abstract interface class ChatService implements UserDirectory {
   Future<List<UserProfile>> loadContacts();
   @override
   Future<Map<String, UserProfile>> loadUserProfiles(List<String> userIds);
+  @override
+  Future<void> updateUserProfile(UserProfile profile);
   Future<void> addContact(String userId);
   Future<void> acceptContactRequest(String userId);
   Future<void> declineContactRequest(String userId);

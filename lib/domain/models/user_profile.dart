@@ -4,12 +4,22 @@ class UserProfile {
     this.nickname,
     this.avatarUrl,
     this.remark,
+    this.phone,
+    this.email,
+    this.birthday,
+    this.gender = 0,
   });
 
   final String userId;
   final String? nickname;
   final String? avatarUrl;
   final String? remark;
+
+  /// 0 unknown, 1 male, 2 female (Agora Chat convention).
+  final int gender;
+  final String? phone;
+  final String? email;
+  final String? birthday;
 
   /// Remark is the strongest signal (local contact name), then nickname.
   String get displayName {
@@ -30,11 +40,19 @@ class UserProfile {
     String? nickname,
     String? avatarUrl,
     String? remark,
+    int? gender,
+    String? phone,
+    String? email,
+    String? birthday,
   }) => UserProfile(
     userId: userId ?? this.userId,
     nickname: nickname ?? this.nickname,
     avatarUrl: avatarUrl ?? this.avatarUrl,
     remark: remark ?? this.remark,
+    gender: gender ?? this.gender,
+    phone: phone ?? this.phone,
+    email: email ?? this.email,
+    birthday: birthday ?? this.birthday,
   );
 
   Map<String, Object?> toJson() => {
@@ -42,6 +60,10 @@ class UserProfile {
     'nickname': nickname,
     'avatarUrl': avatarUrl,
     'remark': remark,
+    'gender': gender,
+    'phone': phone,
+    'email': email,
+    'birthday': birthday,
   };
 
   factory UserProfile.fromJson(Map<String, Object?> json) => UserProfile(
@@ -49,5 +71,9 @@ class UserProfile {
     nickname: json['nickname'] as String?,
     avatarUrl: json['avatarUrl'] as String?,
     remark: json['remark'] as String?,
+    gender: (json['gender'] as num?)?.toInt() ?? 0,
+    phone: json['phone'] as String?,
+    email: json['email'] as String?,
+    birthday: json['birthday'] as String?,
   );
 }

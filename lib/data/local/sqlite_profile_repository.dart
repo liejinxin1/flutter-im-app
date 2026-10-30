@@ -68,6 +68,26 @@ class SqliteProfileRepository implements ProfileRepository {
     await _upsertAll(db, account, [profile]);
   }
 
+  @override
+  Future<void> updateOwnProfile(UserProfile profile) async {
+    final account = _accountId;
+    if (account.isEmpty || profile.userId.isEmpty) return;
+    await _directory.updateUserProfile(profile);
+    final db = await _database.database;
+    final current = await _loadRows(db, account, {profile.userId});
+    await _upsertAll(db, account, [
+      current[profile.userId]?.copyWith(
+            nickname: profile.nickname,
+            avatarUrl: profile.avatarUrl,
+            phone: profile.phone,
+            email: profile.email,
+            birthday: profile.birthday,
+            gender: profile.gender,
+          ) ??
+          profile,
+    ]);
+  }
+
   Future<Map<String, UserProfile>> _loadRows(
     Database db,
     String account,
@@ -86,6 +106,10 @@ class SqliteProfileRepository implements ProfileRepository {
           nickname: row['nickname'] as String?,
           avatarUrl: row['avatar_url'] as String?,
           remark: row['remark'] as String?,
+          phone: row['phone'] as String?,
+          email: row['email'] as String?,
+          birthday: row['birthday'] as String?,
+          gender: (row['gender'] as num?)?.toInt() ?? 0,
         ),
     };
   }
@@ -104,6 +128,10 @@ class SqliteProfileRepository implements ProfileRepository {
         'nickname': profile.nickname,
         'avatar_url': profile.avatarUrl,
         'remark': profile.remark,
+        'phone': profile.phone,
+        'email': profile.email,
+        'birthday': profile.birthday,
+        'gender': profile.gender,
         'updated_at': updatedAt,
       }, conflictAlgorithm: ConflictAlgorithm.replace);
     }

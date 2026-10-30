@@ -106,6 +106,9 @@ class AgoraChatPlatform {
     List<String> userIds,
   ) async => const {};
 
+  Future<void> updateUserProfile(UserProfile profile) =>
+      Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
+
   Future<void> addContact(String userId) =>
       Future.error(UnsupportedError('Agora Chat Flutter SDK is unavailable.'));
 

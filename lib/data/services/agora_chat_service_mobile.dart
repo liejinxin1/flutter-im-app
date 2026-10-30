@@ -652,8 +652,23 @@ class AgoraChatPlatform {
           userId: entry.value.userId,
           nickname: entry.value.nickName,
           avatarUrl: entry.value.avatarUrl,
+          phone: entry.value.phone,
+          email: entry.value.mail,
+          birthday: entry.value.birth,
+          gender: entry.value.gender,
         ),
     };
+  }
+
+  Future<void> updateUserProfile(domain.UserProfile profile) async {
+    await ChatClient.getInstance.userInfoManager.updateUserInfo(
+      nickname: profile.nickname,
+      avatarUrl: profile.avatarUrl,
+      mail: profile.email,
+      phone: profile.phone,
+      gender: profile.gender,
+      birth: profile.birthday,
+    );
   }
 
   Future<void> addContact(String userId) =>
