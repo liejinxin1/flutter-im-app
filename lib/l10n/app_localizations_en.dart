@@ -593,6 +593,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
+  String get muteAll => 'Mute all members';
+
+  @override
+  String get unmuteAll => 'Unmute all members';
+
+  @override
+  String get muteMember => 'Mute member';
+
+  @override
+  String get unmuteMember => 'Unmute member';
+
+  @override
+  String get allMembersMuted => 'All members muted';
+
+  @override
+  String get inviteMembers => 'Invite members';
+
+  @override
+  String get inviteMembersHint => 'Select contacts to invite';
+
+  @override
+  String get invite => 'Invite';
+
+  @override
+  String get inviteSent => 'Invitations sent';
+
+  @override
+  String get noContactsToInvite => 'No contacts left to invite';
+
+  @override
   String get members => 'Members';
 
   @override

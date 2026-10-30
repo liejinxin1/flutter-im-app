@@ -119,7 +119,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
       return;
     }
     try {
-      final profile = await repository.load(widget.peerId);
+      final profile = await repository.load(widget.peerId, forceRefresh: true);
       if (!mounted) return;
       setState(() => _peerProfile = profile);
     } catch (_) {

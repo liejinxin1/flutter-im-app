@@ -777,6 +777,28 @@ class AgoraChatPlatform {
       ? ChatClient.getInstance.groupManager.addAdmin(groupId, userId)
       : ChatClient.getInstance.groupManager.removeAdmin(groupId, userId);
 
+  Future<void> inviteGroupMembers(String groupId, List<String> userIds) =>
+      ChatClient.getInstance.groupManager.inviterUser(groupId, userIds);
+
+  Future<domain.GroupMuteState> loadGroupMuteState(String groupId) async {
+    final manager = ChatClient.getInstance.groupManager;
+    final group = await manager.getGroupWithId(groupId);
+    final muted = await manager.fetchMuteListFromServer(groupId);
+    return domain.GroupMuteState(
+      allMuted: group?.isAllMemberMuted ?? false,
+      mutedUserIds: muted.keys.toSet(),
+    );
+  }
+
+  Future<void> setGroupAllMuted(String groupId, bool muted) => muted
+      ? ChatClient.getInstance.groupManager.muteAllMembers(groupId)
+      : ChatClient.getInstance.groupManager.unMuteAllMembers(groupId);
+
+  Future<void> setGroupMemberMuted(String groupId, String userId, bool muted) =>
+      muted
+      ? ChatClient.getInstance.groupManager.muteMembers(groupId, [userId])
+      : ChatClient.getInstance.groupManager.unMuteMembers(groupId, [userId]);
+
   domain.ChatMessage? _mapMessage(ChatMessage message) {
     final body = message.body;
     final currentUserId = ChatClient.getInstance.currentUserId;

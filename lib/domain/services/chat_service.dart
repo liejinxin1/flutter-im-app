@@ -2,6 +2,7 @@ import '../models/chat_conversation.dart';
 import '../models/chat_message.dart';
 import '../models/friend_request_update.dart';
 import '../models/group_member.dart';
+import '../models/group_mute_state.dart';
 import '../models/user_profile.dart';
 import 'user_directory.dart';
 
@@ -127,6 +128,10 @@ abstract interface class ChatService implements UserDirectory {
     String userId, {
     required bool admin,
   });
+  Future<void> inviteGroupMembers(String groupId, List<String> userIds);
+  Future<GroupMuteState> loadGroupMuteState(String groupId);
+  Future<void> setGroupAllMuted(String groupId, bool muted);
+  Future<void> setGroupMemberMuted(String groupId, String userId, bool muted);
 
   Future<void> dispose();
 }

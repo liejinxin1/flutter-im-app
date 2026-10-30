@@ -5,6 +5,7 @@ import '../domain/models/chat_conversation.dart';
 import '../domain/models/chat_message.dart';
 import '../domain/models/friend_request_update.dart';
 import '../domain/models/group_member.dart';
+import '../domain/models/group_mute_state.dart';
 import '../domain/models/outbox_message.dart';
 import '../domain/models/picked_file.dart';
 import '../domain/models/user_profile.dart';
@@ -419,6 +420,23 @@ class PreviewGroupRepository implements GroupRepository {
     String userId, {
     required bool admin,
   }) async {}
+
+  @override
+  Future<void> inviteMembers(String groupId, List<String> userIds) async {}
+
+  @override
+  Future<GroupMuteState> loadMuteState(String groupId) async =>
+      const GroupMuteState(allMuted: false);
+
+  @override
+  Future<void> setAllMuted(String groupId, bool muted) async {}
+
+  @override
+  Future<void> setMemberMuted(
+    String groupId,
+    String userId,
+    bool muted,
+  ) async {}
 }
 
 class PreviewMediaGateway implements MediaGateway {

@@ -40,6 +40,7 @@ void main() {
           memberCount: 3,
           currentUserId: 'me',
           groups: groups,
+          contacts: FakeContactRepository(),
           onOpenMember: (userId) => opened = userId,
         ),
       ),
@@ -77,6 +78,7 @@ void main() {
           groupName: 'Game',
           currentUserId: 'me',
           groups: groups,
+          contacts: FakeContactRepository(),
         ),
       ),
     );
@@ -112,6 +114,7 @@ void main() {
           groupName: 'Game',
           currentUserId: 'me',
           groups: groups,
+          contacts: FakeContactRepository(),
         ),
       ),
     );
@@ -123,5 +126,111 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(groups.leftGroups, ['group-1']);
+  });
+
+  testWidgets('owner can mute all members', (tester) async {
+    final groups = FakeGroupRepository()
+      ..members = const [
+        GroupMember(
+          profile: UserProfile(userId: 'me', nickname: 'Me'),
+          role: GroupMemberRole.owner,
+        ),
+        GroupMember(
+          profile: UserProfile(userId: 'bob', nickname: 'Bob'),
+          role: GroupMemberRole.member,
+        ),
+      ];
+
+    await tester.pumpWidget(
+      testApp(
+        GroupDetailScreen(
+          groupId: 'group-1',
+          groupName: 'Game',
+          currentUserId: 'me',
+          groups: groups,
+          contacts: FakeContactRepository(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.more_horiz_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('全员禁言'));
+    await tester.pumpAndSettle();
+
+    expect(groups.muteState.allMuted, isTrue);
+  });
+
+  testWidgets('owner can mute a member', (tester) async {
+    final groups = FakeGroupRepository()
+      ..members = const [
+        GroupMember(
+          profile: UserProfile(userId: 'me', nickname: 'Me'),
+          role: GroupMemberRole.owner,
+        ),
+        GroupMember(
+          profile: UserProfile(userId: 'bob', nickname: 'Bob'),
+          role: GroupMemberRole.member,
+        ),
+      ];
+
+    await tester.pumpWidget(
+      testApp(
+        GroupDetailScreen(
+          groupId: 'group-1',
+          groupName: 'Game',
+          currentUserId: 'me',
+          groups: groups,
+          contacts: FakeContactRepository(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('禁言成员'));
+    await tester.pumpAndSettle();
+
+    expect(groups.muteState.mutedUserIds, contains('bob'));
+  });
+
+  testWidgets('owner can invite a contact', (tester) async {
+    final groups = FakeGroupRepository()
+      ..members = const [
+        GroupMember(
+          profile: UserProfile(userId: 'me', nickname: 'Me'),
+          role: GroupMemberRole.owner,
+        ),
+      ];
+    final contacts = FakeContactRepository()
+      ..contactItems = const [
+        UserProfile(userId: 'charlie', nickname: 'Charlie'),
+      ];
+
+    await tester.pumpWidget(
+      testApp(
+        GroupDetailScreen(
+          groupId: 'group-1',
+          groupName: 'Game',
+          currentUserId: 'me',
+          groups: groups,
+          contacts: contacts,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.more_horiz_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('邀请成员'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Charlie'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, '邀请'));
+    await tester.pumpAndSettle();
+
+    expect(groups.invitedMembers, ['charlie']);
   });
 }

@@ -4,6 +4,7 @@ import 'package:agora_im_flutter/domain/models/chat_conversation.dart';
 import 'package:agora_im_flutter/domain/models/chat_message.dart';
 import 'package:agora_im_flutter/domain/models/friend_request_update.dart';
 import 'package:agora_im_flutter/domain/models/group_member.dart';
+import 'package:agora_im_flutter/domain/models/group_mute_state.dart';
 import 'package:agora_im_flutter/domain/models/outbox_message.dart';
 import 'package:agora_im_flutter/domain/models/picked_file.dart';
 import 'package:agora_im_flutter/domain/models/user_profile.dart';
@@ -408,6 +409,8 @@ class FakeGroupRepository implements GroupRepository {
   final List<String> leftGroups = [];
   final List<String> removedMembers = [];
   final List<String> adminChanges = [];
+  final List<String> invitedMembers = [];
+  GroupMuteState muteState = const GroupMuteState(allMuted: false);
   String? updatedName;
   @override
   Future<String> createGroup({
@@ -441,6 +444,32 @@ class FakeGroupRepository implements GroupRepository {
     String userId, {
     required bool admin,
   }) async => adminChanges.add('$userId:${admin ? 'admin' : 'member'}');
+
+  @override
+  Future<void> inviteMembers(String groupId, List<String> userIds) async =>
+      invitedMembers.addAll(userIds);
+
+  @override
+  Future<GroupMuteState> loadMuteState(String groupId) async => muteState;
+
+  @override
+  Future<void> setAllMuted(String groupId, bool muted) async {
+    muteState = GroupMuteState(
+      allMuted: muted,
+      mutedUserIds: muteState.mutedUserIds,
+    );
+  }
+
+  @override
+  Future<void> setMemberMuted(String groupId, String userId, bool muted) async {
+    final ids = {...muteState.mutedUserIds};
+    if (muted) {
+      ids.add(userId);
+    } else {
+      ids.remove(userId);
+    }
+    muteState = GroupMuteState(allMuted: muteState.allMuted, mutedUserIds: ids);
+  }
 }
 
 class FakeProfileRepository implements ProfileRepository {

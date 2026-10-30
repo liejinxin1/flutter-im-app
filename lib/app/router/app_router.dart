@@ -84,6 +84,7 @@ class AppRouter {
               memberCount: members,
               currentUserId: state.uri.queryParameters['me'],
               groups: dependencies.groups,
+              contacts: dependencies.contacts,
               onOpenMember: (userId) =>
                   context.push<void>('/friends/${Uri.encodeComponent(userId)}'),
             );

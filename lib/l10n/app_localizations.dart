@@ -1148,6 +1148,66 @@ abstract class AppLocalizations {
   /// **'Confirm'**
   String get confirm;
 
+  /// No description provided for @muteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute all members'**
+  String get muteAll;
+
+  /// No description provided for @unmuteAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute all members'**
+  String get unmuteAll;
+
+  /// No description provided for @muteMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute member'**
+  String get muteMember;
+
+  /// No description provided for @unmuteMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute member'**
+  String get unmuteMember;
+
+  /// No description provided for @allMembersMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'All members muted'**
+  String get allMembersMuted;
+
+  /// No description provided for @inviteMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite members'**
+  String get inviteMembers;
+
+  /// No description provided for @inviteMembersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select contacts to invite'**
+  String get inviteMembersHint;
+
+  /// No description provided for @invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get invite;
+
+  /// No description provided for @inviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitations sent'**
+  String get inviteSent;
+
+  /// No description provided for @noContactsToInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts left to invite'**
+  String get noContactsToInvite;
+
   /// No description provided for @members.
   ///
   /// In en, this message translates to:

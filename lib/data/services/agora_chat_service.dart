@@ -4,6 +4,7 @@ import '../../domain/models/chat_conversation.dart';
 import '../../domain/models/chat_message.dart';
 import '../../domain/models/friend_request_update.dart';
 import '../../domain/models/group_member.dart';
+import '../../domain/models/group_mute_state.dart';
 import '../../domain/models/user_profile.dart';
 import '../../domain/services/chat_service.dart';
 import '../../domain/services/user_directory.dart';
@@ -324,6 +325,30 @@ class AgoraChatService implements UserDirectory, ChatService {
   }) {
     if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
     return platform.setGroupAdmin(groupId, userId, admin: admin);
+  }
+
+  @override
+  Future<void> inviteGroupMembers(String groupId, List<String> userIds) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.inviteGroupMembers(groupId, userIds);
+  }
+
+  @override
+  Future<GroupMuteState> loadGroupMuteState(String groupId) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.loadGroupMuteState(groupId);
+  }
+
+  @override
+  Future<void> setGroupAllMuted(String groupId, bool muted) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.setGroupAllMuted(groupId, muted);
+  }
+
+  @override
+  Future<void> setGroupMemberMuted(String groupId, String userId, bool muted) {
+    if (!isSupported) throw UnsupportedError('Agora Chat 仅支持 Android/iOS。');
+    return platform.setGroupMemberMuted(groupId, userId, muted);
   }
 
   @override

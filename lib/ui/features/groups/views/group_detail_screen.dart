@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../domain/models/group_member.dart';
+import '../../../../domain/models/group_mute_state.dart';
+import '../../../../domain/models/user_profile.dart';
+import '../../../../domain/repositories/contact_repository.dart';
 import '../../../../domain/repositories/group_repository.dart';
 import '../../../core/layout/app_layout.dart';
 import '../../../core/localization/l10n.dart';
@@ -16,6 +19,7 @@ class GroupDetailScreen extends StatefulWidget {
     required this.groupId,
     required this.groupName,
     required this.groups,
+    required this.contacts,
     this.currentUserId,
     this.memberCount,
     this.onOpenMember,
@@ -24,6 +28,7 @@ class GroupDetailScreen extends StatefulWidget {
   final String groupId;
   final String? groupName;
   final GroupRepository groups;
+  final ContactRepository contacts;
   final String? currentUserId;
   final int? memberCount;
   final ValueChanged<String>? onOpenMember;
@@ -35,6 +40,8 @@ class GroupDetailScreen extends StatefulWidget {
 class _GroupDetailScreenState extends State<GroupDetailScreen> {
   List<GroupMember> _members = const [];
   late String? _groupName = widget.groupName;
+  bool _allMuted = false;
+  Set<String> _mutedUserIds = const {};
   bool _loading = true;
   String? _error;
 
@@ -58,9 +65,17 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
     });
     try {
       final members = await widget.groups.loadMembers(widget.groupId);
+      GroupMuteState mute = const GroupMuteState(allMuted: false);
+      try {
+        mute = await widget.groups.loadMuteState(widget.groupId);
+      } catch (_) {
+        // Mute metadata is optional for members without admin permission.
+      }
       if (!mounted) return;
       setState(() {
         _members = members;
+        _allMuted = mute.allMuted;
+        _mutedUserIds = mute.mutedUserIds;
         _loading = false;
       });
     } catch (_) {
@@ -111,6 +126,55 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         admin: !member.isAdmin,
       );
       await _load();
+    } catch (_) {
+      if (!mounted) return;
+      _showError(context.l10n.requestUpdateFailed);
+    }
+  }
+
+  Future<void> _toggleAllMuted() async {
+    try {
+      await widget.groups.setAllMuted(widget.groupId, !_allMuted);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      _showError(context.l10n.requestUpdateFailed);
+    }
+  }
+
+  Future<void> _toggleMemberMuted(GroupMember member) async {
+    final muted = _mutedUserIds.contains(member.userId);
+    try {
+      await widget.groups.setMemberMuted(widget.groupId, member.userId, !muted);
+      await _load();
+    } catch (_) {
+      if (!mounted) return;
+      _showError(context.l10n.requestUpdateFailed);
+    }
+  }
+
+  Future<void> _inviteMembers() async {
+    try {
+      final contacts = await widget.contacts.loadContacts();
+      if (!mounted) return;
+      final existing = _members.map((member) => member.userId).toSet();
+      final selected = await showModalBottomSheet<Set<String>>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+        ),
+        builder: (context) => _InviteMembersSheet(
+          contacts: contacts
+              .where((contact) => !existing.contains(contact.userId))
+              .toList(growable: false),
+        ),
+      );
+      if (selected == null || selected.isEmpty || !mounted) return;
+      await widget.groups.inviteMembers(widget.groupId, selected.toList());
+      if (!mounted) return;
+      _showError(context.l10n.inviteSent);
     } catch (_) {
       if (!mounted) return;
       _showError(context.l10n.requestUpdateFailed);
@@ -183,10 +247,37 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                 icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
               ),
               trailing: _canManage
-                  ? IconButton(
-                      tooltip: l10n.editGroupName,
-                      onPressed: _editName,
-                      icon: const Icon(Icons.edit_outlined),
+                  ? PopupMenuButton<String>(
+                      icon: const Icon(
+                        Icons.more_horiz_rounded,
+                        color: Colors.white,
+                      ),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'name':
+                            _editName();
+                          case 'invite':
+                            _inviteMembers();
+                          case 'mute':
+                            _toggleAllMuted();
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'name',
+                          child: Text(l10n.editGroupName),
+                        ),
+                        PopupMenuItem(
+                          value: 'invite',
+                          child: Text(l10n.inviteMembers),
+                        ),
+                        PopupMenuItem(
+                          value: 'mute',
+                          child: Text(
+                            _allMuted ? l10n.unmuteAll : l10n.muteAll,
+                          ),
+                        ),
+                      ],
                     )
                   : null,
             ),
@@ -225,6 +316,36 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 22),
+                    if (_allMuted)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.danger.withValues(alpha: .08),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.volume_off_rounded,
+                              size: 17,
+                              color: AppColors.danger,
+                            ),
+                            const SizedBox(width: 7),
+                            Text(
+                              l10n.allMembersMuted,
+                              style: const TextStyle(
+                                color: AppColors.danger,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     Text(
                       l10n.groupMembersTitle,
                       style: const TextStyle(
@@ -253,11 +374,13 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
                           isMe: member.userId == widget.currentUserId,
                           canManage: _canManage,
                           isOwner: _isOwner,
+                          isMuted: _mutedUserIds.contains(member.userId),
                           onOpen: widget.onOpenMember == null
                               ? null
                               : () => widget.onOpenMember!(member.userId),
                           onRemove: () => _removeMember(member),
                           onToggleAdmin: () => _setAdmin(member),
+                          onToggleMute: () => _toggleMemberMuted(member),
                         ),
                     if (_me != null && !_isOwner) ...[
                       const SizedBox(height: 24),
@@ -288,18 +411,22 @@ class _MemberTile extends StatelessWidget {
     required this.isMe,
     required this.canManage,
     required this.isOwner,
+    required this.isMuted,
     required this.onOpen,
     required this.onRemove,
     required this.onToggleAdmin,
+    required this.onToggleMute,
   });
 
   final GroupMember member;
   final bool isMe;
   final bool canManage;
   final bool isOwner;
+  final bool isMuted;
   final VoidCallback? onOpen;
   final VoidCallback onRemove;
   final VoidCallback onToggleAdmin;
+  final VoidCallback onToggleMute;
 
   @override
   Widget build(BuildContext context) {
@@ -326,6 +453,15 @@ class _MemberTile extends StatelessWidget {
           ),
           if (member.isOwner) _RoleChip(label: l10n.groupOwner),
           if (member.isAdmin) _RoleChip(label: l10n.groupAdmin),
+          if (isMuted && !member.isOwner)
+            const Padding(
+              padding: EdgeInsets.only(left: 6),
+              child: Icon(
+                Icons.volume_off_rounded,
+                size: 14,
+                color: AppColors.mutedText,
+              ),
+            ),
         ],
       ),
       subtitle: Text(phone.isEmpty ? '' : phone),
@@ -334,6 +470,7 @@ class _MemberTile extends StatelessWidget {
               onSelected: (value) {
                 if (value == 'remove') onRemove();
                 if (value == 'admin') onToggleAdmin();
+                if (value == 'mute') onToggleMute();
               },
               itemBuilder: (context) => [
                 if (isOwner)
@@ -343,6 +480,10 @@ class _MemberTile extends StatelessWidget {
                       member.isAdmin ? l10n.removeAdmin : l10n.makeAdmin,
                     ),
                   ),
+                PopupMenuItem(
+                  value: 'mute',
+                  child: Text(isMuted ? l10n.unmuteMember : l10n.muteMember),
+                ),
                 PopupMenuItem(value: 'remove', child: Text(l10n.removeMember)),
               ],
             )
@@ -374,6 +515,102 @@ class _RoleChip extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _InviteMembersSheet extends StatefulWidget {
+  const _InviteMembersSheet({required this.contacts});
+
+  final List<UserProfile> contacts;
+
+  @override
+  State<_InviteMembersSheet> createState() => _InviteMembersSheetState();
+}
+
+class _InviteMembersSheetState extends State<_InviteMembersSheet> {
+  final Set<String> _selected = {};
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 42,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD5DAE1),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.inviteMembers,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.inviteMembersHint,
+              style: const TextStyle(color: AppColors.mutedText, fontSize: 12),
+            ),
+            const SizedBox(height: 12),
+            if (widget.contacts.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(l10n.noContactsToInvite),
+              )
+            else
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(context).height * .45,
+                ),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final contact in widget.contacts)
+                      CheckboxListTile(
+                        value: _selected.contains(contact.userId),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              _selected.add(contact.userId);
+                            } else {
+                              _selected.remove(contact.userId);
+                            }
+                          });
+                        },
+                        title: Text(contact.displayName),
+                        subtitle: Text(contact.phone ?? ''),
+                        secondary: UserAvatar(
+                          userId: contact.userId,
+                          radius: 18,
+                          foregroundImage: contact.effectiveAvatarUrl == null
+                              ? null
+                              : NetworkImage(contact.effectiveAvatarUrl!),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _selected.isEmpty
+                    ? null
+                    : () => Navigator.of(context).pop({..._selected}),
+                child: Text(l10n.invite),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _GroupNameDialog extends StatefulWidget {

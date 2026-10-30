@@ -578,6 +578,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get confirm => '确定';
 
   @override
+  String get muteAll => '全员禁言';
+
+  @override
+  String get unmuteAll => '解除全员禁言';
+
+  @override
+  String get muteMember => '禁言成员';
+
+  @override
+  String get unmuteMember => '解除禁言';
+
+  @override
+  String get allMembersMuted => '全员已禁言';
+
+  @override
+  String get inviteMembers => '邀请成员';
+
+  @override
+  String get inviteMembersHint => '选择要邀请的联系人';
+
+  @override
+  String get invite => '邀请';
+
+  @override
+  String get inviteSent => '邀请已发送';
+
+  @override
+  String get noContactsToInvite => '没有可邀请的联系人';
+
+  @override
   String get members => '成员';
 
   @override

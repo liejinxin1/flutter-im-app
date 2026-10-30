@@ -91,8 +91,8 @@
 - 群聊输入栏隐藏 `+`，相机/附件/麦克风与单聊一致
 - 联系人/单聊头部/群成员优先显示手机号，用户 ID 仅在资料页
 - 群成员分页加载，显示群主/管理员/成员身份
-- 群管理：改群名、移出成员、设置/取消管理员、退出群聊
-- 120 个单元/Widget/预览测试
+- 群管理：改群名、移出成员、设置/取消管理员、全员禁言、成员禁言、邀请成员、退出群聊
+- 123 个单元/Widget/预览测试
 - Android debug APK 构建验证
 
 ## 消息协议现状
@@ -141,7 +141,7 @@ docs/                   架构、协议、SDK 边界、状态文档
 
 ```text
 flutter analyze       No issues found
-flutter test          120 tests, all passed
+flutter test          123 tests, all passed
 flutter build apk     Built build/app/outputs/flutter-apk/app-debug.apk
 ```
 

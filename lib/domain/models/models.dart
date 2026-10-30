@@ -13,6 +13,7 @@ export 'chat_message_kind.dart';
 export 'chat_message_quote.dart';
 export 'friend_request_update.dart';
 export 'group_member.dart';
+export 'group_mute_state.dart';
 export 'outbox_message.dart';
 export 'user_profile.dart';
 export 'voice_recording.dart';

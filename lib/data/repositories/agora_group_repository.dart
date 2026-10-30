@@ -1,4 +1,5 @@
 import '../../domain/models/group_member.dart';
+import '../../domain/models/group_mute_state.dart';
 import '../../domain/repositories/group_repository.dart';
 import '../../domain/services/chat_service.dart';
 
@@ -31,4 +32,20 @@ class AgoraGroupRepository implements GroupRepository {
   @override
   Future<void> setAdmin(String groupId, String userId, {required bool admin}) =>
       _service.setGroupAdmin(groupId, userId, admin: admin);
+
+  @override
+  Future<void> inviteMembers(String groupId, List<String> userIds) =>
+      _service.inviteGroupMembers(groupId, userIds);
+
+  @override
+  Future<GroupMuteState> loadMuteState(String groupId) =>
+      _service.loadGroupMuteState(groupId);
+
+  @override
+  Future<void> setAllMuted(String groupId, bool muted) =>
+      _service.setGroupAllMuted(groupId, muted);
+
+  @override
+  Future<void> setMemberMuted(String groupId, String userId, bool muted) =>
+      _service.setGroupMemberMuted(groupId, userId, muted);
 }

@@ -1,4 +1,5 @@
 import '../models/group_member.dart';
+import '../models/group_mute_state.dart';
 
 abstract interface class GroupRepository {
   Future<String> createGroup({
@@ -15,4 +16,12 @@ abstract interface class GroupRepository {
   Future<void> removeMember(String groupId, String userId);
 
   Future<void> setAdmin(String groupId, String userId, {required bool admin});
+
+  Future<void> inviteMembers(String groupId, List<String> userIds);
+
+  Future<GroupMuteState> loadMuteState(String groupId);
+
+  Future<void> setAllMuted(String groupId, bool muted);
+
+  Future<void> setMemberMuted(String groupId, String userId, bool muted);
 }

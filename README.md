@@ -71,7 +71,7 @@
 - [x] 群聊底部隐藏 `+`，相机/附件/麦克风入口与单聊一致
 - [x] 联系人/单聊头部/群成员优先显示手机号，用户 ID 只在资料页
 - [x] 群成员分页加载、区分群主/管理员/成员
-- [x] 群管理：修改群名、移出成员、设置/取消管理员、退出群聊
+- [x] 群管理：修改群名、移出成员、设置/取消管理员、全员禁言、成员禁言、邀请成员、退出群聊
 - [x] Figma 附件面板（Camera/Record/Contact、Gallery/My Location/Document）
 - [x] Figma 录音条（取消、暂停/继续、波形、时长、发送）
 - [x] 录音最长 60 秒，超时自动发送；点击录音条外可发送或撤回
@@ -92,7 +92,7 @@
 - [x] 会话/消息本地缓存优先加载，网络历史随后合并
 - [x] More 设置：显示/隐藏网络聊天记录
 - [x] 群会话名称/头像从 Agora 群资料读取，群聊消息显示发送者
-- [x] Widget Preview、页面 smoke test、120 个测试
+- [x] Widget Preview、页面 smoke test、123 个测试
 - [x] 开源前 AppKey 清理：不提交任何可用 Key
 
 ### 🚧 进行中 / 待完善
@@ -296,4 +296,4 @@ flutter build web --no-tree-shake-icons
 
 ## 后续建议
 
-主路由、缓存/outbox、用户资料、好友申请持久化、中英文、响应式和 ChatService/ApiClient 边界已经完成第一版；接下来按 [docs/architecture.md](docs/architecture.md) 先补交互（消息长按、日期分隔、草稿），再接入 RTC 语音/视频、推送和 CallKit。注册、群管理、完整离线同步仍未纳入当前范围。
+主路由、缓存/outbox、用户资料、好友申请持久化、中英文、响应式和 ChatService/ApiClient 边界已经完成第一版；接下来按 [docs/architecture.md](docs/architecture.md) 先补交互（消息长按、日期分隔、草稿），再接入 RTC 语音/视频、推送和 CallKit。注册和完整离线同步仍未纳入当前范围。
